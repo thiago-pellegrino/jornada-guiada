@@ -1586,6 +1586,15 @@ select.input:focus-visible {
   padding-right: 38px;
 }
 
+.input-group--readonly .input.input--readonly {
+  display: block;
+  padding-right: 34px;
+  background: var(--color-surface-selected);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
 .squad-scope__capacity {
   display: inline-block;
   min-width: 86px;

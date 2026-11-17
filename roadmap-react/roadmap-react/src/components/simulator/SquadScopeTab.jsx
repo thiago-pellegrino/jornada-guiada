@@ -93,7 +93,6 @@ function SquadScopeCard({
   );
 
   const [selectedKey, setSelectedKey] = useState(() => availableCatalog[0]?.catalogKey || NEW_FEATURE_VALUE);
-  const [assocStories, setAssocStories] = useState(() => suggestedShareForNewOwner(availableCatalog[0]));
   const [customEpic, setCustomEpic] = useState(EPICS[0] || 'EPC-001');
   const [customName, setCustomName] = useState('');
 
@@ -106,12 +105,7 @@ function SquadScopeCard({
     if (selectedKey === NEW_FEATURE_VALUE) return;
     if (!availableCatalog.some((item) => item.catalogKey === selectedKey)) {
       const first = availableCatalog[0];
-      if (first) {
-        setSelectedKey(first.catalogKey);
-        setAssocStories(suggestedShareForNewOwner(first));
-      } else {
-        setSelectedKey(NEW_FEATURE_VALUE);
-      }
+      setSelectedKey(first ? first.catalogKey : NEW_FEATURE_VALUE);
     }
   }, [availableCatalog, selectedKey]);
 
@@ -119,25 +113,18 @@ function SquadScopeCard({
     () => (selectedKey === NEW_FEATURE_VALUE ? null : availableCatalog.find((item) => item.catalogKey === selectedKey) || null),
     [availableCatalog, selectedKey],
   );
-  const selectedSuggestedShare = useMemo(() => suggestedShareForNewOwner(selectedCatalogItem), [selectedCatalogItem]);
-  const selectedSyncSignature = selectedCatalogItem
-    ? `${selectedCatalogItem.catalogKey}|${selectedCatalogItem.totalStories}|${selectedCatalogItem.owners.length}`
-    : NEW_FEATURE_VALUE;
-
-  useEffect(() => {
-    if (selectedCatalogItem) {
-      setAssocStories(selectedSuggestedShare);
-    }
-    // Sincroniza quando muda a feature selecionada ou o total/squads dela
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSyncSignature]);
+      const assocStories = useMemo(() => {
+        if (selectedKey !== NEW_FEATURE_VALUE) {
+          return suggestedShareForNewOwner(selectedCatalogItem);
+        }
+      const trimmed = customName.trim();
+      if (!trimmed) return 0;
+      const existingCustom = usageByKey.get(featureCatalogKey(customEpic || '—', trimmed));
+      return existingCustom ? suggestedShareForNewOwner(existingCustom) : 0;
+    }, [selectedKey, selectedCatalogItem, customEpic, customName, usageByKey]);
 
   function handleSelectCatalog(value) {
     setSelectedKey(value);
-    if (value !== NEW_FEATURE_VALUE) {
-      const found = availableCatalog.find((item) => item.catalogKey === value);
-      if (found) setAssocStories(suggestedShareForNewOwner(found));
-    }
   }
 
   function handleAssociateSubmit(event) {
@@ -163,10 +150,6 @@ function SquadScopeCard({
 
   const squadStories = squad.features.reduce((sum, f) => sum + Math.max(0, f.stories), 0);
   const squadHours = squadStories * avg;
-  const assocMax =
-    selectedCatalogItem && selectedCatalogItem.owners.length > 0 && selectedCatalogItem.totalStories > 0
-      ? selectedCatalogItem.totalStories
-      : LIMITS.stories.max;
 
   return (
     <section className="surface squad-scope" aria-label={`Escopo de ${squad.shortName}`}>
@@ -317,31 +300,27 @@ function SquadScopeCard({
           <label className="field-label" htmlFor={`assoc-us-${squad.key}`}>
             Histórias (US)
           </label>
-          <div className="input-group input-group--us">
-            <NumberInput
-              id={`assoc-us-${squad.key}`}
-              className="input input--sm tabular"
-              value={assocStories}
-              onCommit={setAssocStories}
-              min={LIMITS.stories.min}
-              max={assocMax}
-              invalidMessage={
-                assocMax < LIMITS.stories.max
-                  ? `Informe de 0 a ${assocMax} histórias (total da feature).`
-                  : 'Informe de 0 a 200 histórias.'
-              }
-            />
-            <span className="input-group__unit">US</span>
+          <div className="input-group input-group--us input-group--readonly">
+              <input
+                id={`assoc-us-${squad.key}`}
+                type="text"
+                readOnly
+                className="input input--sm input--readonly tabular"
+                value={assocStories}
+                aria-label={`Histórias (US) calculadas para associar a ${squad.shortName}`}
+                title="Quantidade calculada automaticamente (pode ser ajustada na tabela abaixo após associar)"
+              />
+              <span className="input-group__unit">US</span>
+            </div>
           </div>
-        </div>
 
-        <button
-          type="submit"
-          className="btn btn--sm btn--primary squad-scope__assoc-btn"
-          disabled={selectedKey === NEW_FEATURE_VALUE && !customName.trim()}
-        >
-          <Icon name="plus" size={14} /> Associar feature
-        </button>
+          <button
+            type="submit"
+            className="btn btn--sm btn--primary squad-scope__assoc-btn"
+            disabled={selectedKey === NEW_FEATURE_VALUE && !customName.trim()}
+          >
+            <Icon name="plus" size={14} /> Associar feature
+          </button>
       </form>
 
       {squad.features.length === 0 ? (
