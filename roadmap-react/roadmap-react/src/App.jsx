@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSimulationState } from './hooks/useSimulationState.js';
 import { useTheme } from './hooks/useTheme.js';
+import { useFontScale } from './hooks/useFontScale.js';
 import { SCHEDULING_MODES, FREEZE_DATE_LABEL, WEEKS, YEAR_WEEKS, currentYearWeekNumber } from './data/initialRoadmapData.js';
 import { serializeScenario, buildCsv, fileTimestamp } from './domain/scenarioSerializer.js';
 import { fmtNumber, fmtPct } from './domain/format.js';
 import { getVisibleWeeks, planningWeekNumbers, formatPlanningWeek } from './domain/timeline.js';
 import ScenarioActions from './components/shell/ScenarioActions.jsx';
 import Topbar from './components/shell/Topbar.jsx';
-import PageHeader from './components/shell/PageHeader.jsx';
+import HeroCarouselMosaic from './components/shell/HeroCarouselMosaic.jsx';
 import CopilotDrawer from './components/shell/CopilotDrawer.jsx';
 import ParametersCard from './components/simulator/ParametersCard.jsx';
 import ContextTab from './components/simulator/ContextTab.jsx';
+import UpstreamTab from './components/simulator/UpstreamTab.jsx';
+import DarklabTab from './components/simulator/DarklabTab.jsx';
+import FutureBacklogTab from './components/simulator/FutureBacklogTab.jsx';
 import EpicsTab from './components/simulator/EpicsTab.jsx';
 import SquadScopeTab from './components/simulator/SquadScopeTab.jsx';
 import ProjectionChartCard from './components/simulator/ProjectionChartCard.jsx';
@@ -20,10 +24,11 @@ import ScenarioOverviewCards from './components/simulator/ScenarioOverviewCards.
 import MatrixToolbar, { EMPTY_FILTERS } from './components/matrix/MatrixToolbar.jsx';
 import RoadmapMatrix, { featureMatches } from './components/matrix/RoadmapMatrix.jsx';
 import Toast from './components/ui/Toast.jsx';
-import Tabs from './components/ui/Tabs.jsx';
 
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
+  { id: 'darklab', label: 'Darklab', icon: 'sparkle' },
+  { id: 'backlog-futuro', label: 'Backlog do Futuro', icon: 'roadmap' },
   { id: 'epicos', label: 'Épicos, Features e Histórias', icon: 'layers' },
   { id: 'escopo-squads', label: 'Escopo das Squads', icon: 'users' },
   { id: 'planejamento', label: 'Planejamento', icon: 'sliders' },
@@ -48,6 +53,7 @@ function download(filename, content, type) {
 export default function App() {
   const sim = useSimulationState();
   const theme = useTheme();
+  const fontScale = useFontScale();
   const { scenario, result } = sim;
 
   const [copilotOpen, setCopilotOpen] = useState(false);
@@ -62,12 +68,13 @@ export default function App() {
     return TABS.some((item) => item.id === fromHash) ? fromHash : 'contexto';
   });
 
+  const mainRef = useRef(null);
+  const copilotButtonRef = useRef(null);
+
   useEffect(() => {
     if (window.location.hash !== `#${tab}`) window.history.replaceState(null, '', `#${tab}`);
+    mainRef.current?.scrollTo({ top: 0 });
   }, [tab]);
-
-  const searchRef = useRef(null);
-  const copilotButtonRef = useRef(null);
   const matrixRef = useRef(null);
   const resetRef = useRef(sim.requestReset);
   resetRef.current = sim.requestReset;
@@ -86,24 +93,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* Atalhos globais: Ctrl/⌘ + K e Esc (DS §9 / contrato de UI §3). */
+  /* Atalho global: Esc fecha sobreposições (DS §9 / contrato de UI §3). */
   useEffect(() => {
     function onKey(event) {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        searchRef.current?.focus();
-        searchRef.current?.select();
-        return;
-      }
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       if (focusMode) setFocusMode(false);
       else if (copilotOpen) closeCopilot();
       else if (sim.resetArmed) sim.disarmReset();
-      else if (filters.text && document.activeElement === searchRef.current) setFilters((f) => ({ ...f, text: '' }));
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [focusMode, copilotOpen, filters.text, sim, closeCopilot]);
+  }, [focusMode, copilotOpen, sim, closeCopilot]);
 
   useEffect(() => {
     document.body.classList.toggle('has-overlay', focusMode);
@@ -118,8 +118,6 @@ export default function App() {
       ),
     [scenario.squads, result, filters],
   );
-
-  const setQuery = useCallback((text) => setFilters((f) => ({ ...f, text })), []);
 
   function handleReset() {
     const outcome = resetRef.current();
@@ -186,21 +184,34 @@ export default function App() {
 
       <div className="workspace">
         <Topbar
-          query={filters.text}
-          onQueryChange={setQuery}
-          onSearchSubmit={() => {
-            setTab('planejamento');
-            window.setTimeout(() => matrixRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
-          }}
-          searchRef={searchRef}
           theme={theme}
           onThemeChange={handleThemeChange}
+          fontScale={fontScale}
+          onFontDecrease={() => {
+            const pct = fontScale.decrease();
+            if (pct !== null) notify(`Tamanho da fonte: ${pct}%`);
+          }}
+          onFontIncrease={() => {
+            const pct = fontScale.increase();
+            if (pct !== null) notify(`Tamanho da fonte: ${pct}%`);
+          }}
           copilotOpen={copilotOpen}
           onToggleCopilot={() => (copilotOpen ? closeCopilot() : setCopilotOpen(true))}
           copilotButtonRef={copilotButtonRef}
+          onExportPdf={() => window.print()}
+          onNotify={notify}
         />
 
-        <main id="main-content" className="main" tabIndex={-1}>
+        <HeroCarouselMosaic
+          activeTab={tab}
+          matrixView={matrixView}
+          onSelectTab={setTab}
+          onSelectMatrixView={setMatrixView}
+          scenario={scenario}
+          result={result}
+        />
+
+        <main ref={mainRef} id="main-content" className="main" tabIndex={-1}>
           <div className="content">
             <div className="print-only print-header">
               <p className="print-header__seal">Estudo simulado — dados de planejamento</p>
@@ -215,17 +226,19 @@ export default function App() {
               </p>
             </div>
 
-            <PageHeader
-              onExportPdf={() => window.print()}
-              onNotify={notify}
-              tabs={<Tabs tabs={TABS} active={tab} onChange={setTab} label="Seções do simulador" />}
-            />
-
-            <div role="tabpanel" id="panel-contexto" aria-labelledby="tab-contexto" className="tabpanel" hidden={tab !== 'contexto'}>
-              <ContextTab scenario={scenario} result={result} />
+            <div role="tabpanel" id="panel-contexto" aria-label="Upstream: Criação de Contexto" className="tabpanel" hidden={tab !== 'contexto'}>
+              <UpstreamTab />
             </div>
 
-            <div role="tabpanel" id="panel-epicos" aria-labelledby="tab-epicos" className="tabpanel" hidden={tab !== 'epicos'}>
+            <div role="tabpanel" id="panel-darklab" aria-label="Darklab" className="tabpanel" hidden={tab !== 'darklab'}>
+              <DarklabTab />
+            </div>
+
+            <div role="tabpanel" id="panel-backlog-futuro" aria-label="Backlog do Futuro" className="tabpanel" hidden={tab !== 'backlog-futuro'}>
+              <FutureBacklogTab />
+            </div>
+
+            <div role="tabpanel" id="panel-epicos" aria-label="Épicos, Features e Histórias" className="tabpanel" hidden={tab !== 'epicos'}>
               <EpicsTab
                 scenario={scenario}
                 result={result}
@@ -234,7 +247,7 @@ export default function App() {
               />
             </div>
 
-            <div role="tabpanel" id="panel-escopo-squads" aria-labelledby="tab-escopo-squads" className="tabpanel" hidden={tab !== 'escopo-squads'}>
+            <div role="tabpanel" id="panel-escopo-squads" aria-label="Escopo das Squads" className="tabpanel" hidden={tab !== 'escopo-squads'}>
               <SquadScopeTab
                 scenario={scenario}
                 result={result}
@@ -250,7 +263,7 @@ export default function App() {
               />
             </div>
 
-            <div role="tabpanel" id="panel-planejamento" aria-labelledby="tab-planejamento" className="tabpanel" hidden={tab !== 'planejamento'}>
+            <div role="tabpanel" id="panel-planejamento" aria-label="Planejamento" className="tabpanel" hidden={tab !== 'planejamento'}>
               <ParametersCard
                 scenario={scenario}
                 result={result}
@@ -323,18 +336,19 @@ export default function App() {
               {focusMode ? <div className="focus-shade" onClick={() => setFocusMode(false)} aria-hidden="true" /> : null}
             </div>
 
-            <div role="tabpanel" id="panel-resultados" aria-labelledby="tab-resultados" className="tabpanel" hidden={tab !== 'resultados'}>
+            <div role="tabpanel" id="panel-resultados" aria-label="Resultados e diagnóstico" className="tabpanel" hidden={tab !== 'resultados'}>
               <div className="results-grid">
                 <KpiSummaryColumn result={result} />
                 <SquadDiagnosticsCard result={result} onOpenCopilot={() => setCopilotOpen(true)} />
                 <ScenarioOverviewCards scenario={scenario} result={result} />
               </div>
+              <ContextTab scenario={scenario} result={result} />
               <p className="side-note">
                 Estimativa de planejamento: os dados são simulados, ficam apenas neste navegador e não substituem o planejamento oficial das squads.
               </p>
             </div>
 
-            <div role="tabpanel" id="panel-curva" aria-labelledby="tab-curva" className="tabpanel" hidden={tab !== 'curva'}>
+            <div role="tabpanel" id="panel-curva" aria-label="Curva de entrega" className="tabpanel" hidden={tab !== 'curva'}>
               <ProjectionChartCard result={result} />
             </div>
           </div>

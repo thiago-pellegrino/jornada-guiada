@@ -125,6 +125,18 @@ const PATHS = {
       <path d="M3.5 9.5h17M3.5 14.5h17M10 9.5v10" />
     </>
   ),
+  fontDecrease: (
+    <>
+      <path d="M3 19 8 6l5 13M4.9 14.2h6.2" />
+      <path d="M15 11.5h6" />
+    </>
+  ),
+  fontIncrease: (
+    <>
+      <path d="M3 19 8 6l5 13M4.9 14.2h6.2" />
+      <path d="M15 11.5h6M18 8.5v6" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 20, className = '', strokeWidth = 1.65, title }) {

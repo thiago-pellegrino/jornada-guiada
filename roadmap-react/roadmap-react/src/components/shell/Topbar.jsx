@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import Icon, { CopilotMark } from '../ui/Icon.jsx';
 import logo from '../../assets/logo-capgemini.png';
 
+const FAVORITES_KEY = 'roadmap.favorites.v1';
+const PAGE_ID = 'simulador-roadmap';
+
+function readFavorite() {
+  try {
+    const list = JSON.parse(window.localStorage.getItem(FAVORITES_KEY) || '[]');
+    return Array.isArray(list) && list.includes(PAGE_ID);
+  } catch {
+    return false;
+  }
+}
+
 const THEME_OPTIONS = [
   { value: 'light', label: 'Claro', icon: 'sun' },
   { value: 'dark', label: 'Escuro', icon: 'moon' },
@@ -57,14 +69,14 @@ function ThemeMenu({ preference, resolved, onChange }) {
       <button
         ref={buttonRef}
         type="button"
-        className="icon-btn icon-btn--lg"
+        className="topbar-util-btn"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Tema: ${current?.label}`}
         title={`Tema: ${current?.label}`}
         onClick={() => setOpen((value) => !value)}
       >
-        <Icon name={resolved === 'dark' ? 'moon' : 'sun'} size={20} />
+        <Icon name={resolved === 'dark' ? 'moon' : 'sun'} size={16} />
       </button>
       {open ? (
         <ul ref={menuRef} className="menu" role="menu" aria-label="Tema da interface" onKeyDown={onMenuKey}>
@@ -89,51 +101,84 @@ function ThemeMenu({ preference, resolved, onChange }) {
   );
 }
 
-/** Barra superior (DS §6.3): busca com Ctrl K, tema e Delta. */
+/** Barra superior (40px): logo Capgemini à esquerda; tamanho da fonte, favorito, PDF, tema, Delta e avatar à direita. */
 export default function Topbar({
-  query,
-  onQueryChange,
-  onSearchSubmit,
-  searchRef,
   theme,
   onThemeChange,
+  fontScale,
+  onFontDecrease,
+  onFontIncrease,
   copilotOpen,
   onToggleCopilot,
   copilotButtonRef,
+  onExportPdf,
+  onNotify,
 }) {
+  const [favorite, setFavorite] = useState(readFavorite);
+
+  function toggleFavorite() {
+    const next = !favorite;
+    setFavorite(next);
+    try {
+      const list = JSON.parse(window.localStorage.getItem(FAVORITES_KEY) || '[]').filter((id) => id !== PAGE_ID);
+      if (next) list.push(PAGE_ID);
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(list));
+    } catch {
+      /* sem armazenamento */
+    }
+    onNotify?.(next ? 'Simulador adicionado aos favoritos.' : 'Simulador removido dos favoritos.');
+  }
+
   return (
     <header className="topbar">
       <span className="topbar__brand">
         <img className="topbar__logo" src={logo} alt="Capgemini" width="972" height="225" />
       </span>
 
-      <form
-        className="topbar__search"
-        role="search"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSearchSubmit();
-        }}
-      >
-        <Icon name="search" size={18} />
-        <label htmlFor="global-search" className="visually-hidden">
-          Buscar feature, épico ou squad
-        </label>
-        <input
-          id="global-search"
-          ref={searchRef}
-          type="search"
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Buscar feature, épico ou squad…"
-          autoComplete="off"
-        />
-        <kbd className="kbd" aria-hidden="true">
-          Ctrl K
-        </kbd>
-      </form>
-
       <div className="topbar__right">
+        {fontScale ? (
+          <div className="font-scale-group" role="group" aria-label="Tamanho da fonte">
+            <button
+              type="button"
+              className="topbar-util-btn"
+              onClick={onFontDecrease}
+              disabled={!fontScale.canDecrease}
+              aria-label={`Diminuir fonte (atual ${fontScale.percentLabel})`}
+              title={`Diminuir fonte (${fontScale.percentLabel})`}
+            >
+              <Icon name="fontDecrease" size={16} />
+            </button>
+            <button
+              type="button"
+              className="topbar-util-btn"
+              onClick={onFontIncrease}
+              disabled={!fontScale.canIncrease}
+              aria-label={`Aumentar fonte (atual ${fontScale.percentLabel})`}
+              title={`Aumentar fonte (${fontScale.percentLabel})`}
+            >
+              <Icon name="fontIncrease" size={16} />
+            </button>
+          </div>
+        ) : null}
+        <button
+          type="button"
+          className={`topbar-util-btn ${favorite ? 'is-selected' : ''}`}
+          aria-pressed={favorite}
+          aria-label={favorite ? 'Remover dos favoritos: Jornada Guiada' : 'Adicionar aos favoritos: Jornada Guiada'}
+          title={favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          onClick={toggleFavorite}
+        >
+          <Icon name="star" size={16} />
+        </button>
+        <button
+          type="button"
+          className="topbar-util-btn"
+          onClick={onExportPdf}
+          aria-label="Exportar estudo em PDF"
+          title="Exportar estudo em PDF"
+        >
+          <Icon name="fileExport" size={16} />
+        </button>
         <ThemeMenu preference={theme.preference} resolved={theme.resolved} onChange={onThemeChange} />
         <button
           ref={copilotButtonRef}
@@ -144,11 +189,10 @@ export default function Topbar({
           onClick={onToggleCopilot}
         >
           <span className="copilot-toggle__mark">
-            <CopilotMark size={20} />
+            <CopilotMark size={14} />
           </span>
           <span className="copilot-toggle__text">
             <strong>Delta</strong>
-            <small>Ao seu lado</small>
           </span>
         </button>
         <span className="avatar" role="img" aria-label="Ambiente demonstrativo" title="Ambiente demonstrativo">

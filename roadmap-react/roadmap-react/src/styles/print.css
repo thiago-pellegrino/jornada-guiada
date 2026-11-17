@@ -1,4 +1,4 @@
-﻿/* =============================================================================
+/* =============================================================================
    Exportar estudo em PDF (DS §19.1 / §19.3): sempre em tema claro, sem o chrome
    da aplicação, com cabeçalho "Estudo simulado".
    ========================================================================== */
@@ -59,7 +59,17 @@
   body {
     background: #ffffff !important;
     color: #303943;
-    font-size: 11px;
+    font-size: 11px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app,
+  .workspace,
+  .main {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   * {
@@ -68,6 +78,7 @@
   }
 
   .topbar,
+  .hero-mosaic,
   .copilot,
   .skip-link,
   .mobile-shade,
