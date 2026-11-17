@@ -1,0 +1,11 @@
+{
+  "name": "simulador-roadmap",
+  "private": true,
+  "description": "Atalhos para executar o Simulador de Roadmap e Capacity (app em roadmap-react/roadmap-react).",
+  "scripts": {
+    "dev": "npm run dev --prefix roadmap-react/roadmap-react",
+    "build": "npm run build --prefix roadmap-react/roadmap-react",
+    "preview": "npm run preview --prefix roadmap-react/roadmap-react",
+    "test": "npm test --prefix roadmap-react/roadmap-react"
+  }
+}

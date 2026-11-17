@@ -1,0 +1,336 @@
+/* =============================================================================
+   NextPrev — Tokens consolidados (DESIGN-SYSTEM-FRONTEND.md §15, §18.13, §19.4)
+   Tema claro é o padrão e o tema de impressão; tema escuro via [data-theme="dark"].
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ── Tipografia ───────────────────────────── */
+  --font-sans: "Montserrat Variable", "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  --text-xs: 0.75rem;
+  /* 12px — piso informativo */
+  --text-sm: 0.8125rem;
+  /* 13px */
+  --text-md: 0.875rem;
+  /* 14px — base */
+  --text-lg: 1.125rem;
+  /* 18px */
+  --text-xl: 1.375rem;
+  /* 22px */
+  --text-2xl: 2rem;
+  /* 32px — h1 e valor de KPI */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 650;
+  --leading-tight: 1.2;
+  --leading-base: 1.5;
+  --leading-relaxed: 1.7;
+  --tracking-title: -0.9px;
+  --tracking-caps: 0.12em;
+
+  /* ── Cores: neutros ───────────────────────── */
+  --color-bg: #f7f7f8;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f1f3f5;
+  --color-surface-hover: #f5f6f7;
+  --color-surface-selected: #eef0f3;
+  --color-border: #e3e5e8;
+  --color-border-strong: #abb9c7;
+  --color-border-field: #c4ced8;
+  --color-text: #303943;
+  --color-text-heading: #263c4e;
+  --color-text-muted: #5f6872;
+  --color-text-subtle: #6b7480;
+
+  /* ── Cores: marca e ação ──────────────────── */
+  --color-primary-600: #265671;
+  --color-primary-700: #183c56;
+  --color-primary-500: #345c78;
+  --color-primary-50: #eef2f6;
+  --color-brand-900: #062b4f;
+  --color-brand-700: #10425f;
+  --color-accent-gold: #c2ac71;
+  --color-focus: #56bbb2;
+  --color-on-primary: #ffffff;
+  --color-link: #265671;
+  --color-selected-bg: #183c56;
+  /* botão segmentado selecionado (referência visual) */
+  --color-selected-text: #ffffff;
+  --color-control-accent: #183c56;
+  /* trilho e polegar dos controles deslizantes */
+  --color-toast-bg: #143c42;
+
+  /* ── Cores: semânticas ────────────────────── */
+  --color-info-bg: #f0f3f5;
+  --color-info-text: #4f6475;
+  --color-info-border: #dfe5e9;
+  --color-success-bg: #e8f3ef;
+  --color-success-text: #1f6a55;
+  --color-success-border: #c6e0d6;
+  --color-warning-bg: #f8f4e9;
+  --color-warning-text: #7a5f28;
+  --color-warning-border: #ece2c7;
+  --color-danger-bg: #fbeeee;
+  --color-danger-text: #a12b2b;
+  --color-danger-border: #f0c7c2;
+  --color-danger-600: #b3302f;
+  --color-favorite: #b18a3c;
+  --color-favorite-bg: #f6edd6;
+
+  /* ── Dados (gráficos) — paleta categórica validada (§18.9) ── */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #008300;
+  --chart-7: #6250d6;
+  --chart-8: #e34948;
+  --chart-other: #9aa3ad;
+  --chart-seq-100: #cde2fb;
+  --chart-seq-250: #86b6ef;
+  --chart-seq-400: #3987e5;
+  --chart-seq-500: #256abf;
+  --chart-seq-600: #184f95;
+  --chart-seq-700: #0d366b;
+  --chart-div-mid: #f0efec;
+  --chart-grid: #e3e5e8;
+  --chart-axis: #abb9c7;
+  --chart-ink: #303943;
+  --chart-ink-muted: #5f6872;
+
+  /* ── Espaçamento (escala 4px) ─────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Raio ─────────────────────────────────── */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 5px;
+  --radius-full: 9999px;
+
+  /* ── Elevação ─────────────────────────────── */
+  --shadow-1: 0 2px 7px #202c3808;
+  --shadow-2: 0 4px 14px #21374b0f;
+  --shadow-panel: -10px 0 35px #182d410a;
+  --shadow-overlay: -16px 0 50px #062b4f26;
+  --shadow-toast: 0 7px 25px #102b3a22;
+  --shadow-menu: 0 8px 24px #102b3a1f;
+
+  /* ── Movimento ────────────────────────────── */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --ease: cubic-bezier(.2, 0, 0, 1);
+
+  /* ── Camadas ──────────────────────────────── */
+  --z-sticky: 5;
+  --z-shade: 25;
+  --z-filter-band: 28;
+  --z-sidebar: 30;
+  --z-topbar: 20;
+  --z-panel: 50;
+  --z-modal: 60;
+  --z-menu: 70;
+  --z-toast: 80;
+  --z-skip: 100;
+
+  /* ── Layout ───────────────────────────────── */
+  --sidebar-w: 254px;
+  --sidebar-w-compact: 234px;
+  --topbar-h: 60px;
+  --topbar-h-mobile: 67px;
+  --content-max: 1460px;
+  --copilot-w: 410px;
+  --card-pad: 16px;
+  --card-gap: 10px;
+  --grid-row-dense: 40px;
+  --grid-row-comfort: 48px;
+
+  /* ── Específicos do simulador ─────────────── */
+  --freeze-hatch: repeating-linear-gradient(135deg, var(--color-danger-bg) 0 6px, transparent 6px 12px);
+  --scrim: #102b3a66;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0f1419;
+  --color-surface: #161c23;
+  --color-surface-subtle: #1c242c;
+  --color-surface-hover: #202a33;
+  --color-surface-selected: #26323d;
+  --color-border: #2b3641;
+  --color-border-strong: #62768a;
+  --color-border-field: #62768a;
+  --color-text: #e6eaee;
+  --color-text-heading: #f2f5f7;
+  --color-text-muted: #a3afbb;
+  --color-text-subtle: #8c99a6;
+
+  --color-primary-600: #2f6f99;
+  --color-primary-700: #265671;
+  --color-primary-500: #7fb0d0;
+  --color-primary-50: #1c2a36;
+  --color-brand-900: #062b4f;
+  --color-brand-700: #10425f;
+  --color-accent-gold: #d2b66f;
+  --color-focus: #56bbb2;
+  --color-link: #7fb0d0;
+  --color-selected-bg: #2f6f99;
+  --color-selected-text: #ffffff;
+  --color-control-accent: #7fb0d0;
+  --color-toast-bg: #26323d;
+
+  --color-info-bg: #1c2830;
+  --color-info-text: #9bb3c6;
+  --color-info-border: #2c3c48;
+  --color-success-bg: #12302a;
+  --color-success-text: #6fcfae;
+  --color-success-border: #1f4d42;
+  --color-warning-bg: #2e2812;
+  --color-warning-text: #e3c17a;
+  --color-warning-border: #4a4020;
+  --color-danger-bg: #3a1b1d;
+  --color-danger-text: #f08a8a;
+  --color-danger-border: #5a2a2d;
+  --color-danger-600: #c94a4a;
+  --color-favorite: #d2b66f;
+  --color-favorite-bg: #2e2812;
+
+  --shadow-1: 0 2px 7px #00000040;
+  --shadow-2: 0 4px 14px #00000059;
+  --shadow-panel: -10px 0 35px #00000066;
+  --shadow-overlay: -16px 0 50px #00000080;
+  --shadow-menu: 0 8px 24px #00000080;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #008300;
+  --chart-7: #9085e9;
+  --chart-8: #e66767;
+  --chart-other: #8793a0;
+  --chart-seq-100: #184f95;
+  --chart-seq-250: #256abf;
+  --chart-seq-400: #3987e5;
+  --chart-seq-500: #6da7ec;
+  --chart-seq-600: #9ec5f4;
+  --chart-seq-700: #cde2fb;
+  --chart-div-mid: #383835;
+  --chart-grid: #2b3641;
+  --chart-axis: #46586a;
+  --chart-ink: #e6eaee;
+  --chart-ink-muted: #a3afbb;
+
+  --scrim: #00000099;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease);
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--color-link);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco global — inputs, selects, textareas e regiões roláveis sem borda de seleção */
+:where(a, button, summary):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+[tabindex]:focus,
+[tabindex]:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

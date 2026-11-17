@@ -1,0 +1,221 @@
+﻿/* =============================================================================
+   Exportar estudo em PDF (DS §19.1 / §19.3): sempre em tema claro, sem o chrome
+   da aplicação, com cabeçalho "Estudo simulado".
+   ========================================================================== */
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f1f3f5;
+    --color-surface-hover: #f5f6f7;
+    --color-surface-selected: #eef0f3;
+    --color-border: #d0d5dd;
+    --color-border-strong: #abb9c7;
+    --color-border-field: #c4ced8;
+    --color-text: #303943;
+    --color-text-heading: #263c4e;
+    --color-text-muted: #5f6872;
+    --color-text-subtle: #6b7480;
+    --color-link: #265671;
+    --color-selected-bg: #183c56;
+    --color-control-accent: #183c56;
+    --color-info-bg: #f0f3f5;
+    --color-info-text: #4f6475;
+    --color-success-bg: #e8f3ef;
+    --color-success-text: #1f6a55;
+    --color-warning-bg: #f8f4e9;
+    --color-warning-text: #7a5f28;
+    --color-warning-border: #ece2c7;
+    --color-danger-bg: #fbeeee;
+    --color-danger-text: #a12b2b;
+    --color-danger-border: #f0c7c2;
+    --color-danger-600: #b3302f;
+    --chart-1: #2a78d6;
+    --chart-2: #eb6834;
+    --chart-3: #1baf7a;
+    --chart-4: #eda100;
+    --chart-other: #9aa3ad;
+    --chart-seq-100: #cde2fb;
+    --chart-grid: #e3e5e8;
+    --chart-axis: #abb9c7;
+    --chart-ink: #303943;
+    --chart-ink-muted: #5f6872;
+    --shadow-1: none;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #303943;
+    font-size: 11px;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .topbar,
+  .copilot,
+  .skip-link,
+  .mobile-shade,
+  .focus-shade,
+  .toast-region,
+  .crumbs-row,
+  .page-heading__aside,
+  .scenario-actions,
+  .filters,
+  .chips,
+  .matrix-toolbar__actions,
+  .matrix-toolbar .note,
+  .diag-card__cta,
+  .feature-cell__actions,
+  .surface-head .segmented,
+  .main-footer,
+  .chart__tip {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-header {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #183c56;
+  }
+
+  .print-header h1 {
+    font-size: 18px;
+    color: #263c4e;
+  }
+
+  .print-header p {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #5f6872;
+  }
+
+  .print-header__seal {
+    display: inline-block;
+    margin: 0 0 6px !important;
+    padding: 2px 8px;
+    border: 1px solid #ece2c7;
+    border-radius: 4px;
+    background: #f8f4e9;
+    color: #7a5f28 !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .page-heading .lede,
+  .page-heading .eyebrow {
+    display: none;
+  }
+
+  .page-heading h1 {
+    display: none;
+  }
+
+  .workspace {
+    margin: 0 !important;
+  }
+
+  .content {
+    max-width: none;
+    padding: 0;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+
+  /* Todas as abas entram no PDF, uma após a outra. */
+  .tabpanel[hidden] {
+    display: flex !important;
+  }
+
+  .tabs {
+    display: none !important;
+  }
+
+  .tabpanel {
+    break-inside: auto;
+  }
+
+  .surface {
+    padding: 12px;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .slider-row {
+    grid-template-columns: minmax(0, 1fr) 90px;
+  }
+
+  .matrix-section {
+    break-before: page;
+    position: static !important;
+    inset: auto !important;
+  }
+
+  .matrix-scroll {
+    max-height: none;
+    overflow: visible;
+    border: 0;
+  }
+
+  .matrix {
+    width: 100%;
+    font-size: 8px;
+  }
+
+  .matrix .sticky-col,
+  .matrix thead th {
+    position: static;
+    box-shadow: none;
+  }
+
+  .matrix th,
+  .matrix td {
+    height: 22px;
+  }
+
+  .col-feature {
+    width: 170px;
+  }
+
+  .col-week {
+    width: 22px;
+  }
+
+  .col-status {
+    width: 100px;
+  }
+
+  .badge {
+    width: 92px;
+    height: 16px;
+    font-size: 8px;
+  }
+
+  .cell-input {
+    border: 0;
+    font-size: 8px;
+  }
+}
