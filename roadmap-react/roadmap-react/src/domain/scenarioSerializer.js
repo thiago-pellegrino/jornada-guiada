@@ -16,6 +16,8 @@ import {
   weekIdToYearWeek,
   normalizeSquadName,
   formatSquadShortName,
+  featureCatalogKey,
+  splitStoriesEvenly,
 } from '../data/initialRoadmapData.js';
 import { sanitizeManualAllocations, STATUS_META } from './simulationEngine.js';
 import { fmtNumber } from './format.js';
@@ -94,12 +96,40 @@ function normalizeSquads(rawSquads) {
   return squads;
 }
 
+function reconcileUnreconciledSharedFeatures(squads) {
+  const byKey = new Map();
+  for (const squad of squads) {
+    for (const feature of squad.features) {
+      const key = featureCatalogKey(feature.epic, feature.name);
+      if (!byKey.has(key)) byKey.set(key, []);
+      byKey.get(key).push(feature);
+    }
+  }
+
+  const updates = new Map();
+  for (const entries of byKey.values()) {
+    if (entries.length < 2) continue;
+    const firstStories = entries[0].stories;
+    if (firstStories > 0 && entries.every((f) => f.stories === firstStories)) {
+      const split = splitStoriesEvenly(firstStories, entries.length);
+      entries.forEach((f, idx) => updates.set(f.id, split[idx]));
+    }
+  }
+  if (updates.size === 0) return squads;
+  return squads.map((squad) =>
+    squad.features.some((f) => updates.has(f.id))
+      ? { ...squad, features: squad.features.map((f) => (updates.has(f.id) ? { ...f, stories: updates.get(f.id) } : f)) }
+      : squad,
+  );
+}
+
 /** Normaliza um cenário bruto (persistido ou importado). Retorna null se inválido. */
 export function normalizeScenario(raw) {
   if (!raw || typeof raw !== 'object') return null;
   if (!validPremises(raw.premises)) return null;
-  const squads = normalizeSquads(raw.squads);
-  if (!squads) return null;
+  const parsedSquads = normalizeSquads(raw.squads);
+  if (!parsedSquads) return null;
+  const squads = raw.sharedFeaturesSplit ? parsedSquads : reconcileUnreconciledSharedFeatures(parsedSquads);
 
   // A semana do ano (startYearWeek) manda quando válida; senão deriva da coluna do roadmap.
   const requested = raw.premises.startYearWeek;
@@ -133,6 +163,7 @@ export function normalizeScenario(raw) {
 export function createEnvelope(scenario, now = new Date()) {
   return {
     schemaVersion: SCHEMA_VERSION,
+    sharedFeaturesSplit: true,
     exportedAt: now.toISOString(),
     app: APP_ID,
     premises: { ...scenario.premises },

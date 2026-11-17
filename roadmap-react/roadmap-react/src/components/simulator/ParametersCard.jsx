@@ -28,7 +28,6 @@ function SquadNameHeader({ squad, hpp, isNew, hasScope, onSquadNameChange }) {
   const currentName = squad.name || `Squad ${squad.key}`;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(currentName);
-  const moduleName = squad.title.split(' - ')[0];
 
   useEffect(() => {
     if (!editing) setDraft(currentName);
@@ -90,7 +89,6 @@ function SquadNameHeader({ squad, hpp, isNew, hasScope, onSquadNameChange }) {
           <Icon name="edit" size={12} />
         </button>
       )}
-      <span className="squad-module-tag">· {moduleName}</span>
       <span className="squad-inline-hint">{inlineNote}</span>
     </span>
   );

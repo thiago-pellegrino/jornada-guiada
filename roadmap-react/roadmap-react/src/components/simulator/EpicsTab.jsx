@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
-import { LIMITS } from '../../data/initialRoadmapData.js';
-import { STATUS_META } from '../../domain/simulationEngine.js';
+import { LIMITS, featureCatalogKey } from '../../data/initialRoadmapData.js';
+import { STATUS_META, aggregateFeatureStatus } from '../../domain/simulationEngine.js';
 import { fmtNumber, fmtPct, plural } from '../../domain/format.js';
 import Badge from '../ui/Badge.jsx';
 import NumberInput from '../ui/NumberInput.jsx';
 
 const NO_EPIC = '—';
 
-/** Aba "Épicos, Features e Histórias": backlog agrupado por épico, com as histórias editáveis. */
-export default function EpicsTab({ scenario, result, onStoriesChange }) {
+/** Aba "Épicos, Features e Histórias": backlog agrupado por épico, consolidando features compartilhadas entre squads. */
+export default function EpicsTab({ scenario, result, onStoriesChange, onFeatureTotalStoriesChange }) {
   const { premises, squads } = scenario;
   const avg = premises.avgHoursPerStory;
 
@@ -17,14 +17,23 @@ export default function EpicsTab({ scenario, result, onStoriesChange }) {
     for (const squad of squads) {
       for (const feature of squad.features) {
         const code = feature.epic || NO_EPIC;
-        if (!byEpic.has(code)) byEpic.set(code, { code, features: [] });
-        byEpic.get(code).features.push({ feature, squad });
+        if (!byEpic.has(code)) byEpic.set(code, { code, byFeature: new Map() });
+        const fKey = featureCatalogKey(code, feature.name);
+        const epicBucket = byEpic.get(code);
+        if (!epicBucket.byFeature.has(fKey)) {
+          epicBucket.byFeature.set(fKey, { key: fKey, epic: code, name: feature.name, entries: [] });
+        }
+        epicBucket.byFeature.get(fKey).entries.push({ feature, squad });
       }
     }
     const list = [...byEpic.values()]
-      .map((epic) => {
-        const stories = epic.features.reduce((sum, item) => sum + Math.max(0, item.feature.stories), 0);
-        return { ...epic, stories, hours: stories * avg };
+      .map((epicBucket) => {
+        const features = [...epicBucket.byFeature.values()].map((group) => {
+          const stories = group.entries.reduce((sum, entry) => sum + Math.max(0, entry.feature.stories), 0);
+          return { ...group, stories, hours: stories * avg };
+        });
+        const stories = features.reduce((sum, item) => sum + item.stories, 0);
+        return { code: epicBucket.code, features, stories, hours: stories * avg };
       })
       .sort((a, b) => (a.code === NO_EPIC ? 1 : b.code === NO_EPIC ? -1 : a.code.localeCompare(b.code)));
     return {
@@ -86,30 +95,52 @@ export default function EpicsTab({ scenario, result, onStoriesChange }) {
                 </tr>
               </thead>
               <tbody>
-                {epic.features.map(({ feature, squad }) => {
-                  const schedule = result.features[feature.id];
-                  const meta = STATUS_META[schedule?.status] || STATUS_META.EMPTY;
+                {epic.features.map((item) => {
+                  const schedules = item.entries.map(({ feature }) => result.features[feature.id]).filter(Boolean);
+                  const status = aggregateFeatureStatus(schedules);
+                  const meta = STATUS_META[status] || STATUS_META.EMPTY;
+                  const effortHours = schedules.reduce((sum, s) => sum + s.effortHours, 0);
+                  const endLabels = schedules.map((s) => s.endLabel).filter(Boolean);
                   return (
-                    <tr key={feature.id}>
-                      <th scope="row">{feature.name}</th>
+                    <tr key={item.key}>
+                      <th scope="row">{item.name}</th>
                       <td>
-                        <span className="squad-dot" style={{ background: `var(${squad.colorToken})` }} aria-hidden="true" />
-                        {squad.shortName}
+                        {item.entries.length === 1 ? (
+                          <>
+                            <span className="squad-dot" style={{ background: `var(${item.entries[0].squad.colorToken})` }} aria-hidden="true" />
+                            {item.entries[0].squad.shortName}
+                          </>
+                        ) : (
+                          <div className="epic__squad-list">
+                            {item.entries.map(({ feature, squad }) => (
+                              <span key={feature.id} className="epic__squad-chip">
+                                <span className="squad-dot" style={{ background: `var(${squad.colorToken})` }} aria-hidden="true" />
+                                {squad.shortName} <span className="epic__meta tabular">({feature.stories} US)</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </td>
                       <td className="num">
                         <NumberInput
                           className="cell-input cell-input--boxed tabular"
-                          value={feature.stories}
-                          onCommit={(value) => onStoriesChange(feature.id, value)}
+                          value={item.stories}
+                          onCommit={(value) => {
+                            if (item.entries.length === 1) {
+                              onStoriesChange(item.entries[0].feature.id, value);
+                            } else if (onFeatureTotalStoriesChange) {
+                              onFeatureTotalStoriesChange(item.epic, item.name, value);
+                            }
+                          }}
                           min={LIMITS.stories.min}
                           max={LIMITS.stories.max}
-                          aria-label={`Histórias (US) de ${feature.name}`}
+                          aria-label={`Histórias (US) de ${item.name}`}
                           invalidMessage="Informe de 0 a 200 histórias."
                         />
                       </td>
-                      <td className="num tabular">{fmtNumber(schedule?.effortHours ?? 0)}</td>
+                      <td className="num tabular">{fmtNumber(effortHours)}</td>
                       <td>
-                        <Badge variant={meta.variant} title={`${meta.label} — ${meta.description} Término: ${schedule?.endLabel}`}>
+                        <Badge variant={meta.variant} title={`${meta.label} — ${meta.description}${endLabels.length ? ` Término: ${endLabels.join(' / ')}` : ''}`}>
                           {meta.label}
                         </Badge>
                       </td>

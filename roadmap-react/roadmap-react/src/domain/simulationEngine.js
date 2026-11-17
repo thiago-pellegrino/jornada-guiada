@@ -5,7 +5,7 @@
  * Sem dependência de DOM ou React: testável com `node --test`.
  */
 
-import { WEEKS as DEFAULT_WEEKS, DEFAULT_START_WEEK_ID } from '../data/initialRoadmapData.js';
+import { WEEKS as DEFAULT_WEEKS, DEFAULT_START_WEEK_ID, featureCatalogKey } from '../data/initialRoadmapData.js';
 import { fmtNumber, fmtPct, fmtWeeks, plural } from './format.js';
 
 const EPS = 1e-6;
@@ -407,15 +407,40 @@ export function runSimulation(state, weeks = DEFAULT_WEEKS) {
   };
 }
 
+/** Status consolidado de uma feature potencialmente dividida entre múltiplas squads (prevalece a situação mais crítica entre as fatias com escopo). */
+export function aggregateFeatureStatus(schedules) {
+  const active = schedules.filter((s) => s && s.stories > 0);
+  if (active.length === 0) return FEATURE_STATUS.EMPTY;
+  if (active.some((s) => s.status === FEATURE_STATUS.NO_CAPACITY)) return FEATURE_STATUS.NO_CAPACITY;
+  if (active.some((s) => s.status === FEATURE_STATUS.OUT_OF_WINDOW)) return FEATURE_STATUS.OUT_OF_WINDOW;
+  if (active.some((s) => s.status === FEATURE_STATUS.POST_FREEZE)) return FEATURE_STATUS.POST_FREEZE;
+  return FEATURE_STATUS.ON_TIME;
+}
+
 function buildKpis(state, squads, features, ctx) {
   const all = Object.values(features);
   const totalStories = all.reduce((sum, f) => sum + f.stories, 0);
   const totalDemandHours = all.reduce((sum, f) => sum + f.effortHours, 0);
-  const onTime = all.filter((f) => f.status === FEATURE_STATUS.ON_TIME);
-  const storiesOnTime = onTime.reduce((sum, f) => sum + f.stories, 0);
+  const onTimeSlices = all.filter((f) => f.status === FEATURE_STATUS.ON_TIME);
+  const storiesOnTime = onTimeSlices.reduce((sum, f) => sum + f.stories, 0);
   const hoursBeforeFreeze = all.reduce((sum, f) => sum + Math.min(f.allocatedHoursBeforeFreeze, f.effortHours), 0);
   const totalWeeklyCapacity = squads.reduce((sum, s) => sum + s.weeklyCapacityHours, 0);
   const withDemand = squads.filter((s) => s.demandHours > EPS);
+
+  // Consolida features compartilhadas (mesma feature do mesmo épico) para não duplicar a contagem de features
+  const groupedFeatures = new Map();
+  for (const squad of state.squads) {
+    for (const feature of squad.features) {
+      const key = featureCatalogKey(feature.epic, feature.name);
+      if (!groupedFeatures.has(key)) groupedFeatures.set(key, []);
+      const sched = features[feature.id];
+      if (sched) groupedFeatures.get(key).push(sched);
+    }
+  }
+  const consolidated = [...groupedFeatures.values()].map((schedules) => ({
+    stories: schedules.reduce((sum, s) => sum + s.stories, 0),
+    status: aggregateFeatureStatus(schedules),
+  }));
 
   let bottleneck = null;
   for (const squad of withDemand) {
@@ -426,8 +451,8 @@ function buildKpis(state, squads, features, ctx) {
   const hasImpossible = recommendations.some((r) => r === null);
 
   return {
-    totalFeatures: all.length,
-    featuresWithScope: all.filter((f) => f.stories > 0).length,
+    totalFeatures: consolidated.length,
+    featuresWithScope: consolidated.filter((f) => f.stories > 0).length,
     totalStories,
     totalDemandHours,
     totalPeople: squads.reduce((sum, s) => sum + s.people, 0),
@@ -435,14 +460,14 @@ function buildKpis(state, squads, features, ctx) {
     availableHoursBeforeFreeze: ctx.eligibleBeforeFreeze.length * totalWeeklyCapacity,
     availableHoursTotalHorizon: ctx.eligible.length * totalWeeklyCapacity,
     balanceHoursBeforeFreeze: ctx.eligibleBeforeFreeze.length * totalWeeklyCapacity - totalDemandHours,
-    featuresCompletedBeforeFreeze: onTime.length,
+    featuresCompletedBeforeFreeze: consolidated.filter((f) => f.status === FEATURE_STATUS.ON_TIME).length,
     storiesCompletedBeforeFreeze: storiesOnTime,
     completionPctBeforeFreeze: totalStories > 0 ? storiesOnTime / totalStories : 1,
     hoursDeliveredBeforeFreeze: hoursBeforeFreeze,
     hoursPctBeforeFreeze: totalDemandHours > 0 ? hoursBeforeFreeze / totalDemandHours : 1,
-    featuresPostFreeze: all.filter((f) => f.status === FEATURE_STATUS.POST_FREEZE).length,
-    featuresOutOfWindow: all.filter((f) => f.status === FEATURE_STATUS.OUT_OF_WINDOW).length,
-    featuresNoCapacity: all.filter((f) => f.status === FEATURE_STATUS.NO_CAPACITY).length,
+    featuresPostFreeze: consolidated.filter((f) => f.status === FEATURE_STATUS.POST_FREEZE).length,
+    featuresOutOfWindow: consolidated.filter((f) => f.status === FEATURE_STATUS.OUT_OF_WINDOW).length,
+    featuresNoCapacity: consolidated.filter((f) => f.status === FEATURE_STATUS.NO_CAPACITY).length,
     totalSpilloverHours: all.reduce((sum, f) => sum + f.spilloverHours, 0),
     bottleneckSquadKey: bottleneck ? bottleneck.squadKey : null,
     maxRequiredWeeks: globalRequiredWeeks,
@@ -626,7 +651,7 @@ export function applyScenarioPatch(state, patch) {
 export function computeScenarioFingerprint(state) {
   const payload = JSON.stringify({
     p: state.premises,
-    s: state.squads.map((squad) => [squad.key, squad.people, squad.features.map((f) => f.stories)]),
+    s: state.squads.map((squad) => [squad.key, squad.people, squad.features.map((f) => [f.id, f.epic, f.name, f.stories])]),
     m: state.manualAllocations,
   });
   let hash = 5381;
@@ -652,11 +677,11 @@ export function buildCopilotInsights(state, result, weeks = DEFAULT_WEEKS) {
       title: bottleneck ? `${bottleneck.shortName} é o gargalo` : 'Nenhum gargalo identificado',
       paragraphs: bottleneck
         ? [
-            Number.isFinite(bottleneck.requiredWeeks)
-              ? `${bottleneck.shortName} precisa de ${fmtWeeks(bottleneck.requiredWeeks)} semanas para concluir ${plural(bottleneck.stories, 'história', 'histórias')}, frente a ${context.eligibleBeforeFreezeCount} semanas úteis até o Freezing e ${context.eligibleCount} até ${context.lastWeekCode}.`
-              : `${bottleneck.shortName} está sem profissionais e não tem capacidade para entregar ${plural(bottleneck.stories, 'história', 'histórias')}.`,
-            `Término previsto do backlog: ${kpis.globalEndLabel}.`,
-          ]
+          Number.isFinite(bottleneck.requiredWeeks)
+            ? `${bottleneck.shortName} precisa de ${fmtWeeks(bottleneck.requiredWeeks)} semanas para concluir ${plural(bottleneck.stories, 'história', 'histórias')}, frente a ${context.eligibleBeforeFreezeCount} semanas úteis até o Freezing e ${context.eligibleCount} até ${context.lastWeekCode}.`
+            : `${bottleneck.shortName} está sem profissionais e não tem capacidade para entregar ${plural(bottleneck.stories, 'história', 'histórias')}.`,
+          `Término previsto do backlog: ${kpis.globalEndLabel}.`,
+        ]
         : ['Todas as squads estão sem escopo pendente.'],
       bullets: squads
         .filter((s) => s.demandHours > 0)

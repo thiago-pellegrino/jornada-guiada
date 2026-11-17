@@ -226,7 +226,12 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-epicos" aria-labelledby="tab-epicos" className="tabpanel" hidden={tab !== 'epicos'}>
-              <EpicsTab scenario={scenario} result={result} onStoriesChange={sim.setFeatureStories} />
+              <EpicsTab
+                scenario={scenario}
+                result={result}
+                onStoriesChange={sim.setFeatureStories}
+                onFeatureTotalStoriesChange={sim.setEpicFeatureTotalStories}
+              />
             </div>
 
             <div role="tabpanel" id="panel-escopo-squads" aria-labelledby="tab-escopo-squads" className="tabpanel" hidden={tab !== 'escopo-squads'}>

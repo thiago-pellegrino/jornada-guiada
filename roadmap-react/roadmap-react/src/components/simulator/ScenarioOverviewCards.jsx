@@ -75,7 +75,7 @@ export default function ScenarioOverviewCards({ scenario, result }) {
                 <tr key={squad.squadKey}>
                   <th scope="row">
                     <span className="squad-dot" style={{ background: `var(${squad.colorToken})` }} aria-hidden="true" />
-                    {squad.shortName} · {squad.title.split(' - ')[0]}
+                    {squad.shortName}
                   </th>
                   <td className="num tabular">{squad.people}</td>
                   <td className="num tabular">{fmtNumber(squad.weeklyCapacityHours)}</td>

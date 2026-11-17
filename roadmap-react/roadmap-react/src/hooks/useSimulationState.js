@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   WEEKS,
   LIMITS,
@@ -9,8 +9,11 @@ import {
   createNewSquad,
   createCustomSquad,
   associateFeatureInScenario,
+  updateFeatureStoriesInScenario,
+  updateEpicFeatureTotalStoriesInScenario,
   moveFeatureInScenario,
   removeFeatureInScenario,
+  removeSquadInScenario,
   BASE_SQUAD_KEYS,
   normalizeSquadName,
   formatSquadShortName,
@@ -221,16 +224,22 @@ export function useSimulationState() {
       const v = clampInt(value, LIMITS.stories);
       if (v === null) return;
       commit(
-        (s) => ({
-          ...s,
-          squads: s.squads.map((q) =>
-            q.features.some((f) => f.id === featureId)
-              ? { ...q, features: q.features.map((f) => (f.id === featureId ? { ...f, stories: v } : f)) }
-              : q,
-          ),
-        }),
+        (s) => updateFeatureStoriesInScenario(s, featureId, v),
         'Histórias da feature',
         `stories-${featureId}`,
+      );
+    },
+    [commit],
+  );
+
+  const setEpicFeatureTotalStories = useCallback(
+    (epic, name, value) => {
+      const v = clampInt(value, LIMITS.stories);
+      if (v === null) return;
+      commit(
+        (s) => updateEpicFeatureTotalStoriesInScenario(s, epic, name, v),
+        'Total de histórias da feature',
+        `epic-stories-${epic}-${name}`,
       );
     },
     [commit],
@@ -282,13 +291,7 @@ export function useSimulationState() {
   const removeSquad = useCallback(
     (squadKey) => {
       if (BASE_SQUAD_KEYS.includes(squadKey)) return;
-      commit((s) => {
-        const squad = s.squads.find((q) => q.key === squadKey);
-        if (!squad) return s;
-        const manualAllocations = { ...s.manualAllocations };
-        squad.features.forEach((feature) => delete manualAllocations[feature.id]);
-        return { ...s, squads: s.squads.filter((q) => q.key !== squadKey), manualAllocations };
-      }, 'Remover squad');
+      commit((s) => removeSquadInScenario(s, squadKey), 'Remover squad');
     },
     [commit],
   );
@@ -396,6 +399,7 @@ export function useSimulationState() {
     addCustomSquad,
     removeSquad,
     setFeatureStories,
+    setEpicFeatureTotalStories,
     associateFeature,
     moveFeature,
     removeFeature,

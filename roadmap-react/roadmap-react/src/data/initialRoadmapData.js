@@ -272,12 +272,63 @@ export const EPICS = Object.freeze(
   [...new Set(INITIAL_SQUADS.flatMap((squad) => squad.features.map((feature) => feature.epic)))].sort(),
 );
 
+/** Chave canônica que identifica uma mesma feature dentro de um mesmo épico. */
+export function featureCatalogKey(epic, name) {
+  const cleanEpic = String(epic ?? '').trim() || '—';
+  const cleanName = String(name ?? '').trim();
+  return `${cleanEpic}||${cleanName}`;
+}
+
+/**
+ * Divide `totalStories` histórias inteiras da forma mais equilibrada possível entre `count` squads
+ * (ex.: 5 histórias em 2 squads -> [3, 2]; 11 histórias em 2 squads -> [6, 5]).
+ */
+export function splitStoriesEvenly(totalStories, count) {
+  if (count <= 0) return [];
+  const total = Math.max(0, Math.round(Number(totalStories) || 0));
+  const base = Math.floor(total / count);
+  const remainder = total % count;
+  return Array.from({ length: count }, (_, index) =>
+    Math.min(LIMITS.stories.max, base + (index < remainder ? 1 : 0)),
+  );
+}
+
+/**
+ * Distribui `totalStories` histórias inteiras proporcionalmente aos pesos informados (método dos
+ * maiores restos), recaindo para divisão equilibrada quando todos os pesos forem zero.
+ */
+export function distributeStoriesByWeights(totalStories, weights) {
+  const count = weights.length;
+  if (count === 0) return [];
+  const total = Math.max(0, Math.round(Number(totalStories) || 0));
+  const safeWeights = weights.map((w) => Math.max(0, Number(w) || 0));
+  const weightSum = safeWeights.reduce((sum, w) => sum + w, 0);
+  if (weightSum <= 0) return splitStoriesEvenly(total, count);
+
+  const exact = safeWeights.map((w) => (w / weightSum) * total);
+  const floors = exact.map((val) => Math.min(LIMITS.stories.max, Math.floor(val)));
+  let remainder = total - floors.reduce((sum, val) => sum + val, 0);
+
+  const order = exact
+    .map((val, index) => ({ index, frac: val - Math.floor(val) }))
+    .sort((a, b) => (Math.abs(b.frac - a.frac) > 1e-9 ? b.frac - a.frac : a.index - b.index));
+
+  for (const { index } of order) {
+    if (remainder <= 0) break;
+    if (floors[index] < LIMITS.stories.max) {
+      floors[index] += 1;
+      remainder -= 1;
+    }
+  }
+  return floors;
+}
+
 /** Catálogo canônico de features disponíveis para associação às squads. */
 export const FEATURE_CATALOG = Object.freeze(
   INITIAL_SQUADS.flatMap((squad) =>
     squad.features.map((feature) =>
       Object.freeze({
-        catalogKey: `${feature.epic}||${feature.name}`,
+        catalogKey: featureCatalogKey(feature.epic, feature.name),
         epic: feature.epic,
         name: feature.name,
         defaultStories: feature.stories,
@@ -354,30 +405,211 @@ export function nextFeatureId(squads, squadKey) {
   return `${squadKey}-${seq}`;
 }
 
-/** Associa uma feature (do catálogo ou nova) a uma squad com a respectiva quantidade de histórias. */
-export function associateFeatureInScenario(scenario, squadKey, { epic = '—', name = '', stories = 0 } = {}) {
+function clampStories(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(LIMITS.stories.max, Math.max(LIMITS.stories.min, Math.round(n)));
+}
+
+/**
+ * Associa uma feature (do catálogo ou nova) a uma squad.
+ * Quando a mesma feature do mesmo épico já existe em outra(s) squad(s), as histórias da feature
+ * são divididas entre as squads participantes (mantendo o total da feature).
+ */
+export function associateFeatureInScenario(scenario, squadKey, { epic = '—', name = '', stories } = {}) {
   const squad = scenario.squads.find((q) => q.key === squadKey);
   const cleanName = String(name ?? '').trim().slice(0, 120);
   if (!squad || !cleanName) return scenario;
   const cleanEpic = String(epic ?? '').trim().slice(0, 24) || '—';
-  const n = Number(stories);
-  const clampedStories = Number.isFinite(n)
-    ? Math.min(LIMITS.stories.max, Math.max(LIMITS.stories.min, Math.round(n)))
-    : 0;
+  const targetKey = featureCatalogKey(cleanEpic, cleanName);
+
+  // Impede duplicar a mesma feature do mesmo épico dentro da própria squad
+  if (squad.features.some((f) => featureCatalogKey(f.epic, f.name) === targetKey)) {
+    return scenario;
+  }
+
+  const existingRefs = [];
+  for (const q of scenario.squads) {
+    for (const f of q.features) {
+      if (featureCatalogKey(f.epic, f.name) === targetKey) {
+        existingRefs.push(f);
+      }
+    }
+  }
+
   const id = nextFeatureId(scenario.squads, squadKey);
-  const created = { id, epic: cleanEpic, name: cleanName, stories: clampedStories };
+
+  // Caso 1: nenhuma outra squad possui esta feature ainda
+  if (existingRefs.length === 0) {
+    const catalogItem = FEATURE_CATALOG.find((item) => item.catalogKey === targetKey);
+    const initialStories =
+      stories === undefined || stories === null ? (catalogItem?.defaultStories ?? 0) : clampStories(stories);
+    const created = { id, epic: cleanEpic, name: cleanName, stories: initialStories };
+    return {
+      ...scenario,
+      squads: scenario.squads.map((q) => (q.key === squadKey ? { ...q, features: [...q.features, created] } : q)),
+    };
+  }
+
+  // Caso 2: feature já associada a outra(s) squad(s) -> divide as histórias entre as squads
+  const existingTotal = existingRefs.reduce((sum, f) => sum + Math.max(0, f.stories), 0);
+  let targetStories;
+  if (stories === undefined || stories === null) {
+    const even = splitStoriesEvenly(existingTotal, existingRefs.length + 1);
+    targetStories = even[even.length - 1];
+  } else {
+    targetStories = clampStories(stories);
+  }
+
+  let updatedById;
+  if (existingTotal > 0 && targetStories <= existingTotal) {
+    const remaining = existingTotal - targetStories;
+    const redistributed = distributeStoriesByWeights(
+      remaining,
+      existingRefs.map((f) => Math.max(0, f.stories)),
+    );
+    updatedById = new Map(existingRefs.map((f, index) => [f.id, redistributed[index]]));
+  } else if (existingTotal > 0 && targetStories > existingTotal) {
+    updatedById = new Map(existingRefs.map((f) => [f.id, 0]));
+  } else {
+    updatedById = new Map(existingRefs.map((f) => [f.id, f.stories]));
+  }
+
+  const created = { id, epic: cleanEpic, name: cleanName, stories: targetStories };
   return {
     ...scenario,
-    squads: scenario.squads.map((q) => (q.key === squadKey ? { ...q, features: [...q.features, created] } : q)),
+    squads: scenario.squads.map((q) => {
+      const updatedFeatures = q.features.map((f) =>
+        updatedById.has(f.id) ? { ...f, stories: updatedById.get(f.id) } : f,
+      );
+      if (q.key === squadKey) return { ...q, features: [...updatedFeatures, created] };
+      return updatedFeatures.some((f, idx) => f !== q.features[idx]) ? { ...q, features: updatedFeatures } : q;
+    }),
   };
 }
 
-/** Transfere uma feature existente (e suas histórias) para outra squad. */
+/**
+ * Atualiza as histórias de uma feature em uma squad.
+ * Se a mesma feature do mesmo épico estiver dividida com outra(s) squad(s), rebalanceia o restante
+ * automaticamente para preservar o total de histórias da feature (ex.: total 5 -> editar 3 para 4 ajusta a outra para 1).
+ */
+export function updateFeatureStoriesInScenario(scenario, featureId, rawValue) {
+  const nextStories = clampStories(rawValue);
+  let targetFeature = null;
+  for (const q of scenario.squads) {
+    const found = q.features.find((f) => f.id === featureId);
+    if (found) {
+      targetFeature = found;
+      break;
+    }
+  }
+  if (!targetFeature || targetFeature.stories === nextStories) return scenario;
+
+  const targetKey = featureCatalogKey(targetFeature.epic, targetFeature.name);
+  const siblings = [];
+  for (const q of scenario.squads) {
+    for (const f of q.features) {
+      if (f.id !== featureId && featureCatalogKey(f.epic, f.name) === targetKey) {
+        siblings.push(f);
+      }
+    }
+  }
+
+  if (siblings.length === 0) {
+    return {
+      ...scenario,
+      squads: scenario.squads.map((q) =>
+        q.features.some((f) => f.id === featureId)
+          ? { ...q, features: q.features.map((f) => (f.id === featureId ? { ...f, stories: nextStories } : f)) }
+          : q,
+      ),
+    };
+  }
+
+  const groupTotal =
+    Math.max(0, targetFeature.stories) + siblings.reduce((sum, f) => sum + Math.max(0, f.stories), 0);
+  const siblingShares =
+    nextStories <= groupTotal
+      ? distributeStoriesByWeights(
+        groupTotal - nextStories,
+        siblings.map((f) => Math.max(0, f.stories)),
+      )
+      : siblings.map(() => 0);
+
+  const updates = new Map([[featureId, nextStories]]);
+  siblings.forEach((f, index) => updates.set(f.id, siblingShares[index]));
+
+  return {
+    ...scenario,
+    squads: scenario.squads.map((q) =>
+      q.features.some((f) => updates.has(f.id))
+        ? { ...q, features: q.features.map((f) => (updates.has(f.id) ? { ...f, stories: updates.get(f.id) } : f)) }
+        : q,
+    ),
+  };
+}
+
+/**
+ * Atualiza o total de histórias de uma feature (épico + nome) e redistribui proporcionalmente
+ * (ou de forma equilibrada) entre todas as squads associadas a ela.
+ */
+export function updateEpicFeatureTotalStoriesInScenario(scenario, epic, name, rawTotal) {
+  const total = clampStories(rawTotal);
+  const targetKey = featureCatalogKey(epic, name);
+  const matches = [];
+  for (const q of scenario.squads) {
+    for (const f of q.features) {
+      if (featureCatalogKey(f.epic, f.name) === targetKey) matches.push(f);
+    }
+  }
+  if (matches.length === 0) return scenario;
+  const currentTotal = matches.reduce((sum, f) => sum + Math.max(0, f.stories), 0);
+  if (currentTotal === total) return scenario;
+
+  const shares = distributeStoriesByWeights(
+    total,
+    matches.map((f) => Math.max(0, f.stories)),
+  );
+  const updates = new Map(matches.map((f, index) => [f.id, shares[index]]));
+  return {
+    ...scenario,
+    squads: scenario.squads.map((q) =>
+      q.features.some((f) => updates.has(f.id))
+        ? { ...q, features: q.features.map((f) => (updates.has(f.id) ? { ...f, stories: updates.get(f.id) } : f)) }
+        : q,
+    ),
+  };
+}
+
+/** Transfere uma feature existente (e suas histórias) para outra squad, somando caso a squad destino já possua a mesma feature do mesmo épico. */
 export function moveFeatureInScenario(scenario, featureId, targetSquadKey) {
   const sourceSquad = scenario.squads.find((q) => q.features.some((f) => f.id === featureId));
   const targetSquad = scenario.squads.find((q) => q.key === targetSquadKey);
   if (!sourceSquad || !targetSquad || sourceSquad.key === targetSquadKey) return scenario;
   const feature = sourceSquad.features.find((f) => f.id === featureId);
+  const targetKey = featureCatalogKey(feature.epic, feature.name);
+  const existingInTarget = targetSquad.features.find((f) => featureCatalogKey(f.epic, f.name) === targetKey);
+
+  if (existingInTarget) {
+    const manualAllocations = { ...scenario.manualAllocations };
+    delete manualAllocations[featureId];
+    const mergedStories = clampStories(Math.max(0, existingInTarget.stories) + Math.max(0, feature.stories));
+    return {
+      ...scenario,
+      squads: scenario.squads.map((q) => {
+        if (q.key === sourceSquad.key) return { ...q, features: q.features.filter((f) => f.id !== featureId) };
+        if (q.key === targetSquadKey) {
+          return {
+            ...q,
+            features: q.features.map((f) => (f.id === existingInTarget.id ? { ...f, stories: mergedStories } : f)),
+          };
+        }
+        return q;
+      }),
+      manualAllocations,
+    };
+  }
+
   return {
     ...scenario,
     squads: scenario.squads.map((q) => {
@@ -388,18 +620,62 @@ export function moveFeatureInScenario(scenario, featureId, targetSquadKey) {
   };
 }
 
-/** Desassocia/remove uma feature de sua squad (limpando eventual alocação manual). */
+/**
+ * Desassocia/remove uma feature de sua squad (limpando eventual alocação manual).
+ * Se outras squads compartilharem a mesma feature do mesmo épico, redistribui as histórias para elas.
+ */
 export function removeFeatureInScenario(scenario, featureId) {
   const owner = scenario.squads.find((q) => q.features.some((f) => f.id === featureId));
   if (!owner) return scenario;
+  const removed = owner.features.find((f) => f.id === featureId);
+  const targetKey = featureCatalogKey(removed.epic, removed.name);
+  const siblings = [];
+  for (const q of scenario.squads) {
+    for (const f of q.features) {
+      if (f.id !== featureId && featureCatalogKey(f.epic, f.name) === targetKey) {
+        siblings.push(f);
+      }
+    }
+  }
+
+  const updates = new Map();
+  if (siblings.length > 0 && removed.stories > 0) {
+    const newTotal = siblings.reduce((sum, f) => sum + Math.max(0, f.stories), 0) + Math.max(0, removed.stories);
+    const shares = distributeStoriesByWeights(
+      newTotal,
+      siblings.map((f) => Math.max(0, f.stories)),
+    );
+    siblings.forEach((f, index) => updates.set(f.id, shares[index]));
+  }
+
   const manualAllocations = { ...scenario.manualAllocations };
   delete manualAllocations[featureId];
   return {
     ...scenario,
-    squads: scenario.squads.map((q) =>
-      q.key === owner.key ? { ...q, features: q.features.filter((f) => f.id !== featureId) } : q,
-    ),
+    squads: scenario.squads.map((q) => {
+      const filtered = q.key === owner.key ? q.features.filter((f) => f.id !== featureId) : q.features;
+      const nextFeatures = filtered.map((f) => (updates.has(f.id) ? { ...f, stories: updates.get(f.id) } : f));
+      return nextFeatures.some((f, idx) => f !== q.features[idx]) || nextFeatures.length !== q.features.length
+        ? { ...q, features: nextFeatures }
+        : q;
+    }),
     manualAllocations,
+  };
+}
+
+/** Remove uma squad personalizada devolvendo histórias de features compartilhadas às demais squads. */
+export function removeSquadInScenario(scenario, squadKey) {
+  if (BASE_SQUAD_KEYS.includes(squadKey)) return scenario;
+  const squad = scenario.squads.find((q) => q.key === squadKey);
+  if (!squad) return scenario;
+
+  let next = scenario;
+  for (const feature of squad.features) {
+    next = removeFeatureInScenario(next, feature.id);
+  }
+  return {
+    ...next,
+    squads: next.squads.filter((q) => q.key !== squadKey),
   };
 }
 
