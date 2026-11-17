@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   EPICS,
   SCHEDULING_MODES,
@@ -59,6 +60,7 @@ export default function MatrixToolbar({
   visibleCount,
   totalCount,
 }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const set = (patch) => onFiltersChange({ ...filters, ...patch });
   const chips = [
     filters.text ? { key: 'text', label: `“${filters.text}”` } : null,
@@ -131,230 +133,243 @@ export default function MatrixToolbar({
             <Icon name={focus ? 'collapse' : 'expand'} size={15} />
             {focus ? 'Sair do foco' : 'Expandir matriz'}
           </button>
+          <button
+            type="button"
+            className={`icon-btn matrix-filter-toggle ${filtersOpen ? 'is-active' : ''} ${chips.length > 0 ? 'has-filters' : ''}`.trim()}
+            onClick={() => setFiltersOpen((open) => !open)}
+            aria-expanded={filtersOpen}
+            aria-controls="matrix-filters-panel"
+            aria-label={filtersOpen ? 'Ocultar filtros e parâmetros do cronograma' : 'Mostrar filtros e parâmetros do cronograma'}
+            title={filtersOpen ? 'Ocultar filtros e parâmetros' : 'Mostrar filtros e parâmetros'}
+          >
+            <Icon name="filter" size={16} />
+          </button>
         </div>
       </div>
 
-      <div className="filters" role="search" aria-label="Filtrar features da matriz">
-        <div className="field filters__search">
-          <label className="field-label" htmlFor="matrix-text">
-            Feature, épico ou squad
-          </label>
-          <div className="search-field">
-            <Icon name="search" size={16} />
-            <input
-              id="matrix-text"
-              type="search"
-              className="input"
-              value={filters.text}
-              onChange={(event) => set({ text: event.target.value })}
-              placeholder="Buscar na matriz…"
-              autoComplete="off"
-            />
+        <div id="matrix-filters-panel" className="matrix-filters-panel" hidden={!filtersOpen}>
+          <div className="filters" role="search" aria-label="Filtrar features da matriz">
+            <div className="field filters__search">
+              <label className="field-label" htmlFor="matrix-text">
+                Feature, épico ou squad
+              </label>
+              <div className="search-field">
+                <Icon name="search" size={16} />
+                <input
+                  id="matrix-text"
+                  type="search"
+                  className="input"
+                  value={filters.text}
+                  onChange={(event) => set({ text: event.target.value })}
+                  placeholder="Buscar na matriz…"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor="matrix-squad">
+                Squad
+              </label>
+              <select id="matrix-squad" className="input" value={filters.squad} onChange={(event) => set({ squad: event.target.value })}>
+                <option value="">Todas as squads</option>
+                {squads.map((squad) => (
+                  <option key={squad.key} value={squad.key}>
+                    {squad.shortName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor="matrix-epic">
+                Épico
+              </label>
+              <select id="matrix-epic" className="input" value={filters.epic} onChange={(event) => set({ epic: event.target.value })}>
+                <option value="">Todos os épicos</option>
+                {EPICS.map((epic) => (
+                  <option key={epic} value={epic}>
+                    {epic}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor="matrix-status">
+                Situação de prazo
+              </label>
+              <select id="matrix-status" className="input" value={filters.status} onChange={(event) => set({ status: event.target.value })}>
+                <option value="">Todas as situações</option>
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {STATUS_META[status].label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="matrix-squad">
-            Squad
-          </label>
-          <select id="matrix-squad" className="input" value={filters.squad} onChange={(event) => set({ squad: event.target.value })}>
-            <option value="">Todas as squads</option>
-            {squads.map((squad) => (
-              <option key={squad.key} value={squad.key}>
-                {squad.shortName}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="matrix-epic">
-            Épico
-          </label>
-          <select id="matrix-epic" className="input" value={filters.epic} onChange={(event) => set({ epic: event.target.value })}>
-            <option value="">Todos os épicos</option>
-            {EPICS.map((epic) => (
-              <option key={epic} value={epic}>
-                {epic}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="matrix-status">
-            Situação de prazo
-          </label>
-          <select id="matrix-status" className="input" value={filters.status} onChange={(event) => set({ status: event.target.value })}>
-            <option value="">Todas as situações</option>
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {STATUS_META[status].label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
 
-      <div className="field-grid matrix-schedule-fields">
-        <div className="field">
-          <label className="field-label" htmlFor="start-week">
-            Semana inicial do planejamento
-          </label>
-          <select
-            id="start-week"
-            className="input"
-            value={yearWeek ?? ''}
-            onChange={(event) => onStartYearWeekChange(Number(event.target.value))}
-            aria-describedby="start-week-hint"
-          >
-            {startWeekOptions}
-          </select>
-          <p className="field-hint" id="start-week-hint">
-            {coverageNote
-              ? `${coverageNote} (${startColumn?.dateLabel}).`
-              : `Semanas de ${YEAR}. O cronograma começa em ${startColumn?.month?.toLowerCase()} (coluna S01 em ${startColumn?.dateLabel}).`}
-          </p>
-        </div>
-
-        <div className="field">
-          <label className="field-label" htmlFor="current-week">
-            Semana atual
-          </label>
-          <select
-            id="current-week"
-            className="input"
-            value={currentYearWeek ?? ''}
-            onChange={(event) => onCurrentYearWeekChange(Number(event.target.value))}
-            aria-describedby="current-week-hint"
-          >
-            {currentWeekOptions}
-          </select>
-          <p className="field-hint" id="current-week-hint">
-            {scheduleLabels.currentWeekHint}
-          </p>
-        </div>
-
-        <div className="field field--journey">
-          <label className="field-label" htmlFor="hpp">
-            Jornada Semanal
-          </label>
-          <div className="input-group">
-            <NumberInput
-              id="hpp"
-              className="input tabular"
-              value={hpp}
-              onCommit={onHoursPerPersonChange}
-              min={LIMITS.hoursPerPersonPerWeek.min}
-              max={LIMITS.hoursPerPersonPerWeek.max}
-              invalidMessage="Informe uma jornada entre 1 e 60 horas."
-              aria-describedby="hpp-hint"
-            />
-            <span className="input-group__unit">h</span>
-          </div>
-          <div className="chip-toggle" role="group" aria-label="Atalhos de jornada semanal">
-            {JOURNEY_PRESETS.map((preset) => (
-              <button
-                key={preset.value}
-                type="button"
-                className="chip-toggle__btn"
-                aria-pressed={hpp === preset.value}
-                onClick={() => onHoursPerPersonChange(preset.value)}
+          <div className="field-grid matrix-schedule-fields">
+            <div className="field">
+              <label className="field-label" htmlFor="start-week">
+                Semana inicial do planejamento
+              </label>
+              <select
+                id="start-week"
+                className="input"
+                value={yearWeek ?? ''}
+                onChange={(event) => onStartYearWeekChange(Number(event.target.value))}
+                aria-describedby="start-week-hint"
               >
-                {preset.label} <span className="chip-toggle__hint">{preset.hint}</span>
+                {startWeekOptions}
+              </select>
+              <p className="field-hint" id="start-week-hint">
+                {coverageNote
+                  ? `${coverageNote} (${startColumn?.dateLabel}).`
+                  : `Semanas de ${YEAR}. O cronograma começa em ${startColumn?.month?.toLowerCase()} (coluna S01 em ${startColumn?.dateLabel}).`}
+              </p>
+            </div>
+
+            <div className="field">
+              <label className="field-label" htmlFor="current-week">
+                Semana atual
+              </label>
+              <select
+                id="current-week"
+                className="input"
+                value={currentYearWeek ?? ''}
+                onChange={(event) => onCurrentYearWeekChange(Number(event.target.value))}
+                aria-describedby="current-week-hint"
+              >
+                {currentWeekOptions}
+              </select>
+              <p className="field-hint" id="current-week-hint">
+                {scheduleLabels.currentWeekHint}
+              </p>
+            </div>
+
+            <div className="field field--journey">
+              <label className="field-label" htmlFor="hpp">
+                Jornada Semanal
+              </label>
+              <div className="input-group">
+                <NumberInput
+                  id="hpp"
+                  className="input tabular"
+                  value={hpp}
+                  onCommit={onHoursPerPersonChange}
+                  min={LIMITS.hoursPerPersonPerWeek.min}
+                  max={LIMITS.hoursPerPersonPerWeek.max}
+                  invalidMessage="Informe uma jornada entre 1 e 60 horas."
+                  aria-describedby="hpp-hint"
+                />
+                <span className="input-group__unit">h</span>
+              </div>
+              <div className="chip-toggle" role="group" aria-label="Atalhos de jornada semanal">
+                {JOURNEY_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    className="chip-toggle__btn"
+                    aria-pressed={hpp === preset.value}
+                    onClick={() => onHoursPerPersonChange(preset.value)}
+                  >
+                    {preset.label} <span className="chip-toggle__hint">{preset.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="field">
+              <label className="field-label" htmlFor="sprint-one">
+                SP 01 no cronograma
+              </label>
+              <select
+                id="sprint-one"
+                className="input"
+                value={sprintOneValue}
+                onChange={(event) => onSprintOneChange(event.target.value || null)}
+              >
+                <option value="">Padrão do roadmap (17/08)</option>
+                {sprintOneOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="field-hint">Recalcula sprints de 2 semanas e inicia as alocações na SP 01 (ou clique em uma semana na tabela).</p>
+            </div>
+
+            <div className="field">
+              <span className="field-label" id="freeze-label">
+                Congelamento (Freezing)
+              </span>
+              <div className="input input--readonly" aria-labelledby="freeze-label" role="note">
+                <Icon name="lock" size={16} />
+                <span className="tabular">{FREEZE_DATE_LABEL}</span>
+              </div>
+              <p className="field-hint">{scheduleLabels.freezeHint}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mode-row matrix-mode-bar">
+          <span className="field-label" id="mode-label">
+            Modalidade de alocação
+          </span>
+          <div className="segmented segmented--sm" role="radiogroup" aria-labelledby="mode-label">
+            {SCHEDULING_MODES.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                role="radio"
+                aria-checked={mode === option.id}
+                className={`segmented__btn ${mode === option.id ? 'is-selected' : ''}`}
+                onClick={() => onModeChange(option.id)}
+              >
+                {option.label} <span className="segmented__hint">{option.short}</span>
               </button>
             ))}
           </div>
+          <p className="field-hint">{SCHEDULING_MODES.find((option) => option.id === mode)?.description}</p>
         </div>
 
-        <div className="field">
-          <label className="field-label" htmlFor="sprint-one">
-            SP 01 no cronograma
-          </label>
-          <select
-            id="sprint-one"
-            className="input"
-            value={sprintOneValue}
-            onChange={(event) => onSprintOneChange(event.target.value || null)}
-          >
-            <option value="">Padrão do roadmap (17/08)</option>
-            {sprintOneOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
+        <p className="field-hint matrix-toolbar__note" id="hpp-hint">
+          {planningNote ? `${planningNote} ` : ''}Horizonte de alocação a partir de {scheduleLabels.allocStartCode}:{' '}
+          <strong className="tabular">{context.eligibleBeforeFreezeCount}</strong> semanas úteis até o Freezing e{' '}
+          <strong className="tabular">{context.eligibleCount}</strong> até {scheduleLabels.lastPlanningCode}.
+        </p>
+
+        {chips.length > 0 ? (
+          <div className="chips" aria-label="Filtros ativos">
+            {chips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                className="chip"
+                onClick={() => set({ [chip.key]: '' })}
+                aria-label={`Remover filtro ${chip.label}`}
+              >
+                {chip.label}
+                <Icon name="close" size={13} />
+              </button>
             ))}
-          </select>
-          <p className="field-hint">Recalcula sprints de 2 semanas e inicia as alocações na SP 01 (ou clique em uma semana na tabela).</p>
-        </div>
-
-        <div className="field">
-          <span className="field-label" id="freeze-label">
-            Congelamento (Freezing)
-          </span>
-          <div className="input input--readonly" aria-labelledby="freeze-label" role="note">
-            <Icon name="lock" size={16} />
-            <span className="tabular">{FREEZE_DATE_LABEL}</span>
+            <button type="button" className="btn btn--link" onClick={() => onFiltersChange({ ...EMPTY_FILTERS })}>
+              Limpar filtros
+            </button>
           </div>
-          <p className="field-hint">{scheduleLabels.freezeHint}</p>
-        </div>
-      </div>
+        ) : null}
 
-      <div className="mode-row matrix-mode-bar">
-        <span className="field-label" id="mode-label">
-          Modalidade de alocação
-        </span>
-        <div className="segmented segmented--sm" role="radiogroup" aria-labelledby="mode-label">
-          {SCHEDULING_MODES.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              role="radio"
-              aria-checked={mode === option.id}
-              className={`segmented__btn ${mode === option.id ? 'is-selected' : ''}`}
-              onClick={() => onModeChange(option.id)}
-            >
-              {option.label} <span className="segmented__hint">{option.short}</span>
+        {mode === 'manual' ? (
+          <div className="note note--info">
+            <Icon name="info" size={17} />
+            <p>
+              <strong>Alocação manual:</strong> informe as histórias (US) por semana. A coluna Freezing e as semanas antes da SP 01 ficam bloqueadas.
+              Duplo clique no nome distribui a feature automaticamente; botão direito limpa a feature.
+            </p>
+            <button type="button" className="btn btn--sm" onClick={onReseedManual}>
+              <Icon name="wand" size={15} /> Redistribuir tudo (Fluxo Contínuo)
             </button>
-          ))}
-        </div>
-        <p className="field-hint">{SCHEDULING_MODES.find((option) => option.id === mode)?.description}</p>
+          </div>
+        ) : null}
       </div>
-
-      <p className="field-hint matrix-toolbar__note" id="hpp-hint">
-        {planningNote ? `${planningNote} ` : ''}Horizonte de alocação a partir de {scheduleLabels.allocStartCode}:{' '}
-        <strong className="tabular">{context.eligibleBeforeFreezeCount}</strong> semanas úteis até o Freezing e{' '}
-        <strong className="tabular">{context.eligibleCount}</strong> até {scheduleLabels.lastPlanningCode}.
-      </p>
-
-      {chips.length > 0 ? (
-        <div className="chips" aria-label="Filtros ativos">
-          {chips.map((chip) => (
-            <button
-              key={chip.key}
-              type="button"
-              className="chip"
-              onClick={() => set({ [chip.key]: '' })}
-              aria-label={`Remover filtro ${chip.label}`}
-            >
-              {chip.label}
-              <Icon name="close" size={13} />
-            </button>
-          ))}
-          <button type="button" className="btn btn--link" onClick={() => onFiltersChange({ ...EMPTY_FILTERS })}>
-            Limpar filtros
-          </button>
-        </div>
-      ) : null}
-
-      {mode === 'manual' ? (
-        <div className="note note--info">
-          <Icon name="info" size={17} />
-          <p>
-            <strong>Alocação manual:</strong> informe as histórias (US) por semana. A coluna Freezing e as semanas antes da SP 01 ficam bloqueadas.
-            Duplo clique no nome distribui a feature automaticamente; botão direito limpa a feature.
-          </p>
-          <button type="button" className="btn btn--sm" onClick={onReseedManual}>
-            <Icon name="wand" size={15} /> Redistribuir tudo (Fluxo Contínuo)
-          </button>
-        </div>
-      ) : null}
-    </div>
-  );
+      );
 }

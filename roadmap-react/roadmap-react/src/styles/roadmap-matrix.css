@@ -681,10 +681,39 @@
   }
 }
 
+.matrix-filters-panel {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.matrix-filters-panel[hidden] {
+  display: none;
+}
+
+.matrix-filter-toggle {
+  position: relative;
+}
+
+.matrix-filter-toggle.is-active,
+.matrix-filter-toggle.is-active:hover {
+  background: var(--color-selected-bg);
+  border-color: var(--color-selected-bg);
+  color: var(--color-selected-text);
+}
+
+.matrix-filter-toggle.has-filters:not(.is-active)::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary-600);
+}
+
 .matrix-mode-bar {
   margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-border);
 }
 
 .matrix-toolbar__actions .scenario-actions {
