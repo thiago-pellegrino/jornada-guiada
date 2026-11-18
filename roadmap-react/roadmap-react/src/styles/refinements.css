@@ -1,0 +1,118 @@
+/*
+ * Ajustes visuais globais (carregado depois dos demais estilos, antes do print):
+ * - cantos mais arredondados em botões, campos e boxes;
+ * - todos os botões de texto com a mesma altura (a do "Criar squad");
+ * - fonte do sistema um pouco maior (raiz padrão 14,5px; ver useFontScale).
+ * Para voltar ao visual anterior, basta remover o import deste arquivo em main.jsx.
+ */
+
+:root {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --control-h: 36px;
+}
+
+html {
+  font-size: var(--font-root-size, 14.5px);
+}
+
+/* Botões: uma só altura, mesmo respiro e mesma fonte (o tamanho "sm" deixa de encolher). */
+.btn,
+.btn--sm {
+  min-height: var(--control-h);
+  padding: 0 14px;
+  gap: 8px;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+}
+.squad-create-bar__btn {
+  height: var(--control-h);
+}
+.btn--link {
+  min-height: 28px;
+  padding: 0 6px;
+}
+
+/* Campos e seletores alinhados com os botões. */
+.input,
+.input--sm {
+  height: var(--control-h);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+}
+.cell-input {
+  border-radius: 6px;
+}
+
+/* Controles segmentados e botões de ícone. */
+.segmented {
+  border-radius: var(--radius-md);
+}
+.segmented__btn {
+  border-radius: 6px;
+}
+.icon-btn,
+.topbar-util-btn,
+.copilot-toggle {
+  border-radius: var(--radius-md);
+}
+.copilot-toggle__mark {
+  border-radius: 6px;
+}
+
+/* Boxes, tabelas, mensagens e avisos. */
+.table-scroll,
+.matrix-scroll,
+.empty {
+  border-radius: var(--radius-lg);
+}
+.epic .table-scroll,
+.squad-scope .table-scroll {
+  border-radius: 0;
+}
+.note,
+.toast,
+.chart__tip,
+.suggestion,
+.proposal-card__changes,
+.cp-stale,
+.proposal-done {
+  border-radius: var(--radius-md);
+}
+.msg--user,
+.msg--assistant,
+.copilot__emblem {
+  border-radius: var(--radius-lg);
+}
+
+/* Textos em px que não acompanhavam a escala da fonte. */
+.mosaic-tabs-bar__tab {
+  font-size: 12.5px;
+}
+.hero-tile__pill,
+.hero-tile__footer {
+  font-size: 12px;
+}
+.jg-ml { margin-left: var(--space-2); }
+
+/* Barra das abas com o mesmo degradê do botão "Entrar" da tela de acesso. */
+:root {
+  --brand-gradient: linear-gradient(90deg, #215ad7 0%, #5e6fe1 50%, #a650cf 100%);
+}
+.mosaic-tabs-bar,
+[data-theme='dark'] .mosaic-tabs-bar {
+  background: var(--brand-gradient);
+  border-top-color: rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(20, 22, 80, 0.35);
+}
+.mosaic-tabs-bar__switch-track {
+  background: rgba(20, 24, 90, 0.4);
+}
+.mosaic-tabs-bar__switch.is-on .mosaic-tabs-bar__switch-track {
+  background: #1d2f8f;
+}
+.mosaic-tabs-bar__toggle.is-collapsed {
+  box-shadow: 0 1px 4px rgba(20, 22, 80, 0.25);
+}

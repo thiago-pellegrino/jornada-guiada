@@ -17,6 +17,7 @@ import DarklabTab from './components/simulator/DarklabTab.jsx';
 import FutureBacklogTab from './components/simulator/FutureBacklogTab.jsx';
 import ProjectsTab from './components/simulator/ProjectsTab.jsx';
 import EpicsTab from './components/simulator/EpicsTab.jsx';
+import ProjectBar from './components/journey/ProjectBar.jsx';
 import SquadScopeTab from './components/simulator/SquadScopeTab.jsx';
 import ProjectionChartCard from './components/simulator/ProjectionChartCard.jsx';
 import KpiSummaryColumn from './components/simulator/KpiSummaryColumn.jsx';
@@ -76,6 +77,16 @@ export default function App() {
   const copilotButtonRef = useRef(null);
   const lastScrollTopRef = useRef(new WeakMap());
   const ignoreScrollUntilRef = useRef(0);
+
+  // Links internos da Jornada Guiada (ex.: "Ir para o DarkLab") navegam pelo hash.
+  useEffect(() => {
+    function onHashChange() {
+      const fromHash = window.location.hash.replace('#', '');
+      if (TABS.some((item) => item.id === fromHash)) setTab(fromHash);
+    }
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   useEffect(() => {
     if (window.location.hash !== `#${tab}`) window.history.replaceState(null, '', `#${tab}`);
@@ -282,6 +293,7 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-epicos" aria-label="Épicos, Features e Histórias" className="tabpanel" hidden={tab !== 'epicos'}>
+              <ProjectBar current="epicos" className="jg-projectbar--spaced" />
               <EpicsTab
                 scenario={scenario}
                 result={result}
@@ -291,6 +303,7 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-escopo-squads" aria-label="Escopo das Squads" className="tabpanel" hidden={tab !== 'escopo-squads'}>
+              <ProjectBar current="escopo-squads" className="jg-projectbar--spaced" />
               <SquadScopeTab
                 scenario={scenario}
                 result={result}

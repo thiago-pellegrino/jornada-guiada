@@ -51,7 +51,24 @@ npm test         # testes do motor e da persistência (node --test)
 npm run build    # build de produção em dist/
 ```
 
-## Estrutura
+## Jornada Guiada (protótipo sem backend)
+
+As abas **Criação de Contexto → Darklab → Projetos → Backlog do Futuro** seguem o fluxo
+Contexto → DarkLab → Projeto → Backlog sobre um único projeto (`PRJ-NNN`), criado no Contexto antes do
+primeiro upload e usado como identificador em todas as etapas.
+
+- As capacidades são lidas em tempo de build de `../../especificações/*.md` (frontmatter + exemplo mínimo
+  de saída). Alterar uma especificação muda o cartão e o resultado simulado.
+- Cada execução é **simulada** no navegador: o resultado é o exemplo mínimo da capacidade, ajustado ao
+  projeto (ids de fonte, épico, feature e história), gravado como nova revisão com estado de revisão humana.
+- Regras validadas: 002 só com todas as fontes analisadas; dependências do frontmatter; Backlog bloqueado
+  sem ficha do projeto pronta (`422 projeto_nao_definido`); etapa do projeto derivada e sem regressão;
+  permissões pelo papel do usuário no projeto (quem cria é Administrador).
+- Identificador interno do projeto no formato `PRJ-NNN-AAAA-MM-DD-SS` (código, data de criação e sequência
+  do dia); projetos salvos com o formato antigo são convertidos ao abrir.
+- Modo Turbo por fase, com opção de simular falha num nó: os dependentes ficam como pulados.
+- Estado em `localStorage` (`jornada.v1`); “Reiniciar protótipo”, na aba Projetos, apaga só esses dados.
+
 
 ```text
 src/
@@ -59,6 +76,9 @@ src/
 ├── domain/simulationEngine.js      # Motores C1, C0 e manual, KPIs, curva e Copiloto (puro)
 ├── domain/scenarioSerializer.js    # localStorage v2, migração do protótipo antigo, JSON e CSV
 ├── domain/format.js                # Formatação pt-BR
+├── domain/journey/                 # Leitor do catálogo de especificações e motor da jornada (puros)
+├── journey/                        # Catálogo (import.meta.glob) e JourneyProvider (estado + simulação)
+├── components/journey/             # Barra do projeto, cartões, Turbo, visualizador de artefato
 ├── hooks/useSimulationState.js     # Estado, Desfazer e restauração em dois cliques
 ├── hooks/useTheme.js               # Tema Claro / Escuro / Sistema
 ├── components/shell/               # Sidebar, Topbar, PageHeader, CopilotDrawer

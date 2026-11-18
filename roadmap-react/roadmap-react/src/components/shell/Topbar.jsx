@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon, { CopilotMark } from '../ui/Icon.jsx';
 import logo from '../../assets/logo-capgemini.png';
+import UserMenu from '../auth/UserMenu.jsx';
 
 const FAVORITES_KEY = 'roadmap.favorites.v1';
 const PAGE_ID = 'simulador-roadmap';
@@ -195,9 +196,7 @@ export default function Topbar({
             <strong>Delta</strong>
           </span>
         </button>
-        <span className="avatar" role="img" aria-label="Ambiente demonstrativo" title="Ambiente demonstrativo">
-          GP
-        </span>
+        <UserMenu />
       </div>
     </header>
   );

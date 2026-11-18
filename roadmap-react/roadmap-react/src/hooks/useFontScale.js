@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'roadmap.fontScale.v1';
 
-/** Escalas de fonte raiz em px (índice 2 = 13.5px é o padrão compacto). */
-export const FONT_SCALE_STEPS = Object.freeze([11.5, 12.5, 13.5, 14.5, 15.5, 17, 18.5]);
+/** Escalas de fonte raiz em px (índice 2 = 14.5px é o padrão). */
+export const FONT_SCALE_STEPS = Object.freeze([12.5, 13.5, 14.5, 15.5, 16.5, 18, 19.5]);
 export const DEFAULT_FONT_SCALE_INDEX = 2;
 
 function readInitialStep() {

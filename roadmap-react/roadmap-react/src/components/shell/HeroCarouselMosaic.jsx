@@ -2,6 +2,8 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { SCHEDULING_MODES } from '../../data/initialRoadmapData.js';
 import { fmtPct } from '../../domain/format.js';
 import Icon from '../ui/Icon.jsx';
+import { useOptionalJourney } from '../../journey/JourneyContext.jsx';
+import { stageLabel } from '../../domain/journey/journeyEngine.js';
 
 /** Fotos de cada opção do carrossel (src/assets/hero/<nome>.jpg|png|webp). Sem a foto, fica a arte SVG. */
 const HERO_IMAGES = import.meta.glob('../../assets/hero/*.{jpg,jpeg,png,webp}', { eager: true, import: 'default' });
@@ -105,6 +107,7 @@ export default function HeroCarouselMosaic({
 }) {
   const { kpis, context } = result;
   const modeLabel = SCHEDULING_MODES.find((m) => m.id === scenario.premises.schedulingMode)?.short || 'C1';
+  const journeyProject = useOptionalJourney()?.project ?? null;
 
   const groups = [
     {
@@ -114,7 +117,7 @@ export default function HeroCarouselMosaic({
       layout: 'featured',
       icon: 'compass',
       author: 'Gestão de Portfólio',
-      info: `${kpis.totalFeatures} features · ${kpis.totalStories} US`,
+      info: journeyProject ? `${journeyProject.code} · ${stageLabel(journeyProject.stage)}` : `${kpis.totalFeatures} features · ${kpis.totalStories} US`,
       slides: [
         { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
         { id: 'darklab', tab: 'darklab', title: 'Darklab: Inception, Discovery e Value', tabLabel: 'Darklab', image: 'jornada-darklab' },
