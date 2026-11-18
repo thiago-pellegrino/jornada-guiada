@@ -116,3 +116,77 @@ html {
 .mosaic-tabs-bar__toggle.is-collapsed {
   box-shadow: 0 1px 4px rgba(20, 22, 80, 0.25);
 }
+
+/*
+ * Botões: um só estilo em todas as páginas, o do "Novo projeto" do Contexto —
+ * pílula com contorno, fundo transparente, ícone + texto. O primário segue preenchido
+ * (mesma forma) e o de perigo mantém as cores de alerta; links de texto não mudam.
+ */
+.btn,
+.btn--sm,
+.btn--quiet,
+.nb-btn,
+.st-btn {
+  min-height: var(--control-h);
+  padding: 0 16px;
+  gap: 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-heading);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.btn:hover:not(:disabled),
+.btn--quiet:hover:not(:disabled),
+.nb-btn:hover:not(:disabled),
+.st-btn:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+.btn--primary,
+.nb-btn--primary,
+.st-btn--primary {
+  border-color: var(--color-selected-bg);
+  background: var(--color-selected-bg);
+  color: var(--color-selected-text);
+  font-weight: 600;
+}
+.btn--primary:hover:not(:disabled),
+.nb-btn--primary:hover:not(:disabled),
+.st-btn--primary:hover:not(:disabled) {
+  border-color: var(--color-selected-bg);
+  background: var(--color-selected-bg);
+  filter: brightness(0.92);
+}
+.btn--danger,
+.btn--danger:hover:not(:disabled),
+.st-btn--danger,
+.st-btn--danger:hover:not(:disabled) {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+.btn--link,
+.btn--link:hover:not(:disabled) {
+  min-height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-link);
+}
+.squad-create-bar__btn,
+.squad-scope__assoc-btn {
+  height: var(--control-h);
+}
+/* A tela de acesso mantém a própria paleta (degradê do "Entrar"); só ganha a forma de pílula. */
+.login__primary,
+.login__sso {
+  border-radius: 999px;
+}
+
+/* Barra de menu: ícone antes do nome de cada aba. */
+.mosaic-tabs-bar__tab { gap: 5px; padding: 0 5px; font-size: 12px; }
+.mosaic-tabs-bar__tab .icon { flex: none; opacity: 0.9; }
+.mosaic-tabs-bar__tab.is-active .icon { opacity: 1; }

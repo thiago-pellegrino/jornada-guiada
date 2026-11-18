@@ -119,10 +119,10 @@ export default function HeroCarouselMosaic({
       author: 'Gestão de Portfólio',
       info: journeyProject ? `${journeyProject.code} · ${stageLabel(journeyProject.stage)}` : `${kpis.totalFeatures} features · ${kpis.totalStories} US`,
       slides: [
-        { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
-        { id: 'darklab', tab: 'darklab', title: 'DarkLabs: Inception, Discovery e Value', tabLabel: 'DarkLabs', image: 'jornada-darklab' },
-        { id: 'projetos', tab: 'projetos', title: 'Gestão dos Projetos', tabLabel: 'Projetos', image: 'jornada-projetos' },
-        { id: 'backlog-futuro', tab: 'backlog-futuro', title: 'Backlog do Futuro', image: 'jornada-backlog-futuro' },
+        { id: 'contexto', tab: 'contexto', icon: 'fileText', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
+        { id: 'darklab', tab: 'darklab', icon: 'sparkle', title: 'DarkLabs: Inception, Discovery e Value', tabLabel: 'DarkLabs', image: 'jornada-darklab' },
+        { id: 'projetos', tab: 'projetos', icon: 'folder', title: 'Gestão dos Projetos', tabLabel: 'Projetos', image: 'jornada-projetos' },
+        { id: 'backlog-futuro', tab: 'backlog-futuro', icon: 'roadmap', title: 'Backlog do Futuro', image: 'jornada-backlog-futuro' },
       ],
     },
     {
@@ -134,8 +134,8 @@ export default function HeroCarouselMosaic({
       author: `${scenario.squads.length} squads · ${kpis.totalPeople} profissionais`,
       info: `${kpis.totalFeatures} features`,
       slides: [
-        { id: 'escopo-squads', tab: 'escopo-squads', title: 'Escopo das Squads', image: 'escopo-squads', position: 'center 30%' },
-        { id: 'epicos', tab: 'epicos', title: 'Épicos, Features e Histórias', image: 'escopo-epicos' },
+        { id: 'escopo-squads', tab: 'escopo-squads', icon: 'users', title: 'Escopo das Squads', image: 'escopo-squads', position: 'center 30%' },
+        { id: 'epicos', tab: 'epicos', icon: 'layers', title: 'Épicos, Features e Histórias', image: 'escopo-epicos' },
       ],
     },
     {
@@ -146,8 +146,8 @@ export default function HeroCarouselMosaic({
       author: 'Cronograma',
       info: `Início ${context.startWeekCode} · ${modeLabel}`,
       slides: [
-        { id: 'plan-gantt', tab: 'planejamento', view: 'gantt', title: 'Planejamento: cronograma em Gantt', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
-        { id: 'plan-grid', tab: 'planejamento', view: 'grid', title: 'Planejamento: grade de histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
+        { id: 'plan-gantt', tab: 'planejamento', icon: 'gantt', view: 'gantt', title: 'Planejamento: cronograma em Gantt', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
+        { id: 'plan-grid', tab: 'planejamento', icon: 'calendar', view: 'grid', title: 'Planejamento: grade de histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
       ],
     },
     {
@@ -158,8 +158,8 @@ export default function HeroCarouselMosaic({
       author: 'Diagnóstico',
       info: `${fmtPct(kpis.completionPctBeforeFreeze)} até o Freezing`,
       slides: [
-        { id: 'resultados', tab: 'resultados', title: 'Resultados e diagnóstico das squads', tabLabel: 'Resultados', image: 'resultados-diagnostico' },
-        { id: 'curva-res', tab: 'curva', title: 'Curva de entrega do backlog', tabLabel: 'Dashboards', image: 'resultados-curva' },
+        { id: 'resultados', tab: 'resultados', icon: 'gauge', title: 'Resultados e diagnóstico das squads', tabLabel: 'Resultados', image: 'resultados-diagnostico' },
+        { id: 'curva-res', tab: 'curva', icon: 'chart', title: 'Curva de entrega do backlog', tabLabel: 'Dashboards', image: 'resultados-curva' },
       ],
     },
   ];
@@ -395,7 +395,8 @@ export default function HeroCarouselMosaic({
                     title={item.title}
                     onClick={() => activate(group, sIdx)}
                   >
-                    {item.tabLabel ?? item.title}
+                    {item.icon ? <Icon name={item.icon} size={14} /> : null}
+                    <span>{item.tabLabel ?? item.title}</span>
                   </button>
                 );
               })}

@@ -1,38 +1,14 @@
-import { useId } from 'react';
 import { useOptionalAuth } from '../../auth/AuthContext.jsx';
-
-/** Ilustração padrão (pessoa genérica sobre o degradê da marca), usada quando não há foto. */
-function AvatarPadrao({ size }) {
-  const id = useId().replace(/:/g, '');
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#215ad7" />
-          <stop offset="0.55" stopColor="#5e6fe1" />
-          <stop offset="1" stopColor="#a650cf" />
-        </linearGradient>
-        <clipPath id={`${id}-clip`}>
-          <rect width="64" height="64" rx="32" />
-        </clipPath>
-      </defs>
-      <g clipPath={`url(#${id}-clip)`}>
-        <rect width="64" height="64" fill={`url(#${id}-bg)`} />
-        <circle cx="32" cy="25" r="11.5" fill="#f3f1ff" />
-        <path d="M10 64c1.5-13 10.5-21 22-21s20.5 8 22 21Z" fill="#f3f1ff" />
-        <path d="M20.5 24.5c0-7.5 5.2-12.5 11.5-12.5s11.5 5 11.5 12.5c-2.6-3.4-6.6-5.4-11.5-5.4s-8.9 2-11.5 5.4Z" fill="#2b2f6b" opacity="0.85" />
-      </g>
-    </svg>
-  );
-}
+import defaultUserPhoto from '../../assets/user-default.jpg';
 
 /**
  * Imagem do usuário, a mesma na barra superior e no menu do DarkLabs: a foto escolhida em
- * Configurações › Geral ou, sem foto, a ilustração padrão. `label=""` torna a imagem decorativa.
+ * Configurações › Geral ou, sem foto personalizada, o retrato padrão em estilo editorial.
+ * `label=""` torna a imagem decorativa.
  */
 export default function UserAvatar({ size = 32, className = '', label }) {
   const auth = useOptionalAuth();
-  const foto = auth?.session?.avatar;
+  const foto = auth?.session?.avatar || defaultUserPhoto;
   const nome = auth?.session?.name ?? 'Usuário';
   return (
     <span
@@ -40,7 +16,7 @@ export default function UserAvatar({ size = 32, className = '', label }) {
       style={{ width: size, height: size }}
       {...(label === '' ? { 'aria-hidden': true } : { role: 'img', 'aria-label': label ?? `Foto de ${nome}` })}
     >
-      {foto ? <img src={foto} alt="" width={size} height={size} /> : <AvatarPadrao size={size} />}
+      <img src={foto} alt="" width={size} height={size} decoding="async" />
     </span>
   );
 }
