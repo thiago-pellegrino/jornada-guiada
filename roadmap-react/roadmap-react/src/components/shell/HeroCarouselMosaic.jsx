@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { SCHEDULING_MODES } from '../../data/initialRoadmapData.js';
 import { fmtPct } from '../../domain/format.js';
 import Icon from '../ui/Icon.jsx';
@@ -105,8 +105,8 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
       author: 'Gestão de Portfólio',
       info: `${kpis.totalFeatures} features · ${kpis.totalStories} US`,
       slides: [
-        { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', image: 'jornada-contexto' },
-        { id: 'darklab', tab: 'darklab', title: 'Darklab: Inception, Discovery e Value', image: 'jornada-darklab' },
+        { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
+        { id: 'darklab', tab: 'darklab', title: 'Darklab: Inception, Discovery e Value', tabLabel: 'Darklab', image: 'jornada-darklab' },
         { id: 'backlog-futuro', tab: 'backlog-futuro', title: 'Backlog do Futuro', image: 'jornada-backlog-futuro' },
       ],
     },
@@ -131,8 +131,8 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
       author: 'Cronograma',
       info: `Início ${context.startWeekCode} · ${modeLabel}`,
       slides: [
-        { id: 'plan-gantt', tab: 'planejamento', view: 'gantt', title: 'Planejamento: cronograma em Gantt', image: 'planejamento-gantt' },
-        { id: 'plan-grid', tab: 'planejamento', view: 'grid', title: 'Planejamento: grade de histórias', image: 'planejamento-grid' },
+        { id: 'plan-gantt', tab: 'planejamento', view: 'gantt', title: 'Planejamento: cronograma em Gantt', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
+        { id: 'plan-grid', tab: 'planejamento', view: 'grid', title: 'Planejamento: grade de histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
       ],
     },
     {
@@ -143,13 +143,14 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
       author: 'Diagnóstico',
       info: `${fmtPct(kpis.completionPctBeforeFreeze)} até o Freezing`,
       slides: [
-        { id: 'resultados', tab: 'resultados', title: 'Resultados e diagnóstico das squads', image: 'resultados-diagnostico' },
-        { id: 'curva-res', tab: 'curva', title: 'Curva de entrega do backlog', image: 'resultados-curva' },
+        { id: 'resultados', tab: 'resultados', title: 'Resultados e diagnóstico das squads', tabLabel: 'Resultados', image: 'resultados-diagnostico' },
+        { id: 'curva-res', tab: 'curva', title: 'Curva de entrega do backlog', tabLabel: 'Dashboards', image: 'resultados-curva' },
       ],
     },
   ];
 
   const [indices, setIndices] = useState({ jornada: 0, escopo: 0, planejamento: 0, resultados: 0 });
+  const tabsBarRef = useRef(null);
 
   // Mantém o slide visível coerente com a aba aberta.
   useEffect(() => {
@@ -167,6 +168,12 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
     });
   }, [activeTab, matrixView]);
 
+  // Garante que a aba ativa na barra inferior esteja sempre visível em telas menores.
+  useEffect(() => {
+    const activeBtn = tabsBarRef.current?.querySelector('.mosaic-tabs-bar__tab.is-active');
+    activeBtn?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, [activeTab, matrixView]);
+
   function activate(group, index) {
     const slide = group.slides[index];
     setIndices((prev) => ({ ...prev, [group.id]: index }));
@@ -180,105 +187,160 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
     activate(group, (current + delta + group.slides.length) % group.slides.length);
   }
 
+  function isSlideActive(slide) {
+    return slide.tab === activeTab && (!slide.view || slide.view === matrixView);
+  }
+
+  function handleBarKeyDown(event) {
+    const buttons = [...(tabsBarRef.current?.querySelectorAll('[role="tab"]') || [])];
+    if (!buttons.length) return;
+    const currentIndex = buttons.indexOf(document.activeElement);
+    if (currentIndex === -1) return;
+    let nextIndex = -1;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % buttons.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = buttons.length - 1;
+    if (nextIndex !== -1) {
+      event.preventDefault();
+      buttons[nextIndex].focus();
+      buttons[nextIndex].click();
+    }
+  }
+
   return (
-    <nav className="hero-mosaic" aria-label="Grupos de abas da Jornada Guiada">
-      {groups.map((group) => {
-        const index = indices[group.id] ?? 0;
-        const slide = group.slides[index];
-        const isCurrent = slide.tab === activeTab && (!slide.view || slide.view === matrixView);
-        return (
-          <article
-            key={group.id}
-            className={['hero-tile', group.layout ? `hero-tile--${group.layout}` : '', isCurrent ? 'is-active' : '']
-              .filter(Boolean)
-              .join(' ')}
-            onClick={() => activate(group, index)}
-          >
-            <TileArtwork variant={group.art} />
-            {group.slides.map((item, sIdx) => {
-              const src = heroImage(item.image);
-              return src ? (
-                <img
-                  key={item.id}
-                  className={`hero-tile__photo ${sIdx === index ? 'is-visible' : ''}`}
-                  src={src}
-                  style={item.position ? { objectPosition: item.position } : undefined}
-                  alt=""
-                  aria-hidden="true"
-                  loading={sIdx === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
-                />
-              ) : null;
-            })}
-            <div className="hero-tile__scrim" aria-hidden="true" />
-
-            <span className="hero-tile__pill">{group.badge}</span>
-
-            <button
-              type="button"
-              className="hero-tile__arrow hero-tile__arrow--prev"
-              onClick={(event) => step(event, group, -1)}
-              aria-label={`Aba anterior em ${group.badge}`}
+    <>
+      <nav className="hero-mosaic" aria-label="Grupos de abas da Jornada Guiada">
+        {groups.map((group) => {
+          const index = indices[group.id] ?? 0;
+          const slide = group.slides[index];
+          const isCurrent = isSlideActive(slide);
+          return (
+            <article
+              key={group.id}
+              className={['hero-tile', group.layout ? `hero-tile--${group.layout}` : '', isCurrent ? 'is-active' : '']
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => activate(group, index)}
             >
-              <Icon name="chevronRight" size={18} className="is-flipped-x" />
-            </button>
-            <button
-              type="button"
-              className="hero-tile__arrow hero-tile__arrow--next"
-              onClick={(event) => step(event, group, 1)}
-              aria-label={`Próxima aba em ${group.badge}`}
-            >
-              <Icon name="chevronRight" size={18} />
-            </button>
+              <TileArtwork variant={group.art} />
+              {group.slides.map((item, sIdx) => {
+                const src = heroImage(item.image);
+                return src ? (
+                  <img
+                    key={item.id}
+                    className={`hero-tile__photo ${sIdx === index ? 'is-visible' : ''}`}
+                    src={src}
+                    style={item.position ? { objectPosition: item.position } : undefined}
+                    alt=""
+                    aria-hidden="true"
+                    loading={sIdx === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                ) : null;
+              })}
+              <div className="hero-tile__scrim" aria-hidden="true" />
 
-            <div className="hero-tile__body">
-              <h2 className="hero-tile__title">
-                <button
-                  type="button"
-                  className="hero-tile__trigger"
-                  aria-current={isCurrent ? 'page' : undefined}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    activate(group, index);
-                  }}
-                >
-                  {slide.title}
-                </button>
-              </h2>
-              <div className="hero-tile__footer">
-                <span className="hero-tile__author">
-                  <span className="hero-tile__avatar" aria-hidden="true">
-                    <Icon name={group.icon} size={14} />
+              <span className="hero-tile__pill">{group.badge}</span>
+
+              <button
+                type="button"
+                className="hero-tile__arrow hero-tile__arrow--prev"
+                onClick={(event) => step(event, group, -1)}
+                aria-label={`Aba anterior em ${group.badge}`}
+              >
+                <Icon name="chevronRight" size={18} className="is-flipped-x" />
+              </button>
+              <button
+                type="button"
+                className="hero-tile__arrow hero-tile__arrow--next"
+                onClick={(event) => step(event, group, 1)}
+                aria-label={`Próxima aba em ${group.badge}`}
+              >
+                <Icon name="chevronRight" size={18} />
+              </button>
+
+              <div className="hero-tile__body">
+                <h2 className="hero-tile__title">
+                  <button
+                    type="button"
+                    className="hero-tile__trigger"
+                    aria-current={isCurrent ? 'page' : undefined}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      activate(group, index);
+                    }}
+                  >
+                    {slide.title}
+                  </button>
+                </h2>
+                <div className="hero-tile__footer">
+                  <span className="hero-tile__author">
+                    <span className="hero-tile__avatar" aria-hidden="true">
+                      <Icon name={group.icon} size={14} />
+                    </span>
+                    <span className="hero-tile__author-name">{group.author}</span>
                   </span>
-                  <span className="hero-tile__author-name">{group.author}</span>
-                </span>
-                <span className="hero-tile__info tabular">
-                  {group.info} | <Icon name="layers" size={13} />
-                </span>
+                  <span className="hero-tile__info tabular">
+                    {group.info} | <Icon name="layers" size={13} />
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="hero-tile__dots" role="tablist" aria-label={`Abas de ${group.badge}`}>
-              {group.slides.map((item, sIdx) => (
+              <div className="hero-tile__dots" role="tablist" aria-label={`Abas de ${group.badge}`}>
+                {group.slides.map((item, sIdx) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={sIdx === index}
+                    aria-label={item.title}
+                    title={item.title}
+                    className={`hero-tile__dot ${sIdx === index ? 'is-selected' : ''}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      activate(group, sIdx);
+                    }}
+                  />
+                ))}
+              </div>
+            </article>
+          );
+        })}
+      </nav>
+
+      <div
+        ref={tabsBarRef}
+        className="mosaic-tabs-bar"
+        role="tablist"
+        aria-label="Opções da Jornada Guiada"
+        onKeyDown={handleBarKeyDown}
+      >
+        {groups.map((group, gIdx) => (
+          <Fragment key={group.id}>
+            {gIdx > 0 ? <span className="mosaic-tabs-bar__divider" aria-hidden="true" /> : null}
+            {group.slides.map((item, sIdx) => {
+              const active = isSlideActive(item);
+              return (
                 <button
                   key={item.id}
                   type="button"
                   role="tab"
-                  aria-selected={sIdx === index}
-                  aria-label={item.title}
+                  aria-selected={active}
+                  aria-controls={`panel-${item.tab}`}
+                  tabIndex={active ? 0 : -1}
+                  className={`mosaic-tabs-bar__tab ${active ? 'is-active' : ''}`}
                   title={item.title}
-                  className={`hero-tile__dot ${sIdx === index ? 'is-selected' : ''}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    activate(group, sIdx);
-                  }}
-                />
-              ))}
-            </div>
-          </article>
-        );
-      })}
-    </nav>
+                  onClick={() => activate(group, sIdx)}
+                >
+                  {item.tabLabel ?? item.title}
+                </button>
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
+    </>
   );
 }
 

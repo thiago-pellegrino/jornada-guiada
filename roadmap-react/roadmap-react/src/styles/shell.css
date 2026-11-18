@@ -1170,3 +1170,66 @@ body.has-overlay {
     grid-column: auto;
   }
 }
+
+/* ── Barra de abas azul clara abaixo do mosaico (mesma altura do topbar: 40px) ─ */
+.mosaic-tabs-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  height: var(--topbar-h);
+  padding: 0 8px;
+  gap: 2px;
+  background: linear-gradient(90deg, #1f82c4 0%, #268fd4 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid #176ba3;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.mosaic-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.mosaic-tabs-bar__divider {
+  align-self: center;
+  flex-shrink: 0;
+  width: 1px;
+  height: 18px;
+  margin: 0 3px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.mosaic-tabs-bar__tab {
+  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11.5px;
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease);
+}
+
+.mosaic-tabs-bar__tab:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.mosaic-tabs-bar__tab:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
+}
+
+.mosaic-tabs-bar__tab.is-active {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+  font-weight: var(--weight-bold);
+  box-shadow: inset 0 -3px 0 #ffffff;
+}

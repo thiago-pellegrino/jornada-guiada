@@ -92,7 +92,7 @@
 .matrix-scroll {
   position: relative;
   margin-top: 8px;
-  max-height: max(300px, calc(100vh - var(--topbar-h) - clamp(280px, 30vw, 360px) - 105px));
+  max-height: max(280px, calc(100vh - (var(--topbar-h) * 2) - clamp(280px, 30vw, 360px) - 105px));
   overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: 3px;
