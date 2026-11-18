@@ -3,7 +3,7 @@ import { CAP, ROLES, backlogCounts, fichaReadiness, latestRevision, stageLabel }
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import Icon from '../ui/Icon.jsx';
 import ProjectBar from '../journey/ProjectBar.jsx';
-import CreateProjectForm from '../journey/CreateProjectForm.jsx';
+import { NewProjectDialog } from '../notebooks/NotebookDialogs.jsx';
 import RunList from '../journey/RunList.jsx';
 import { EmptyState, ReadinessBadge, SimulatedNote, fmtBytes, fmtDateTime, goToTab } from '../journey/JourneyBits.jsx';
 
@@ -18,8 +18,8 @@ function FichaDoProjeto({ project }) {
   const rev = latestRevision(project, CAP.ficha);
   if (!rev) {
     return (
-      <EmptyState title="Ficha ainda não gerada" action={<button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>Ir para o DarkLab</button>}>
-        A ficha do projeto é consolidada pelo DarkLab (02-darklab-008) a partir dos motores executados.
+      <EmptyState title="Ficha ainda não gerada" action={<button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>Ir para o DarkLabs</button>}>
+        A ficha do projeto é consolidada pelo DarkLabs (02-darklab-008) a partir dos motores executados.
       </EmptyState>
     );
   }
@@ -28,7 +28,7 @@ function FichaDoProjeto({ project }) {
     <div className="jg-ficha">
       <div className="jg-ficha__head">
         <div>
-          <p className="jg-eyebrow">Nome proposto pelo DarkLab</p>
+          <p className="jg-eyebrow">Nome proposto pelo DarkLabs</p>
           <h3>{f.project?.proposedName ?? project.name}</h3>
           <p>{f.project?.summary}</p>
         </div>
@@ -180,7 +180,7 @@ function Membros({ project }) {
 
 /** Aba "Projetos": portfólio, ficha do projeto selecionado, etapas, fontes, membros e execuções. */
 export default function ProjectsTab() {
-  const { state, project, selectProject, can, renameProject, resetJourney } = useJourney();
+  const { state, project, selectProject, can, renameProject, resetJourney, createProject } = useJourney();
   const [criando, setCriando] = useState(false);
   const [editandoNome, setEditandoNome] = useState(false);
   const [nome, setNome] = useState('');
@@ -201,7 +201,13 @@ export default function ProjectsTab() {
             </button>
           </div>
         </header>
-        {criando ? <CreateProjectForm compact onDone={() => setCriando(false)} /> : null}
+        {criando ? (
+          <NewProjectDialog
+            nextCode={`PRJ-${String(state.projects.length + 1).padStart(3, '0')}`}
+            onClose={() => setCriando(false)}
+            onCreate={(nome, descricao) => createProject(nome, descricao) && setCriando(false)}
+          />
+        ) : null}
         {state.projects.length ? (
           <div className="table-scroll">
             <table className="jg-table jg-table--select">

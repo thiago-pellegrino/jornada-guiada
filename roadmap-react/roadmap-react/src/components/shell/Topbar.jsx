@@ -196,7 +196,15 @@ export default function Topbar({
             <strong>Delta</strong>
           </span>
         </button>
-        <UserMenu />
+        <UserMenu
+          theme={theme}
+          onThemeChange={onThemeChange}
+          fontScale={fontScale}
+          onFontDecrease={onFontDecrease}
+          onFontIncrease={onFontIncrease}
+          copilotOpen={copilotOpen}
+          onToggleCopilot={onToggleCopilot}
+        />
       </div>
     </header>
   );

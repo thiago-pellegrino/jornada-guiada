@@ -96,7 +96,7 @@ export default function ArtifactViewer() {
         <header className="jg-viewer__head">
           <div>
             <p className="jg-eyebrow">
-              {cap?.phase === 'contexto' ? 'Contexto' : cap?.phase === 'darklab' ? 'DarkLab' : 'Backlog do Futuro'} · {cap?.step} ·{' '}
+              {cap?.phase === 'contexto' ? 'Contexto' : cap?.phase === 'darklab' ? 'DarkLabs' : 'Backlog do Futuro'} · {cap?.step} ·{' '}
               <span className="jg-mono">{viewer.scopeKey}</span>
             </p>
             <h2 id="jg-viewer-title">{cap?.title ?? viewer.capabilityId}</h2>

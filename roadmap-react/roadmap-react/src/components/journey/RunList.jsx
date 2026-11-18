@@ -1,7 +1,7 @@
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import { RunStatus, fmtDateTime } from './JourneyBits.jsx';
 
-const FASE = { contexto: 'Contexto', darklab: 'DarkLab', 'backlog-do-futuro': 'Backlog' };
+const FASE = { contexto: 'Contexto', darklab: 'DarkLabs', 'backlog-do-futuro': 'Backlog' };
 
 /** Histórico de execuções do projeto (capacidades e Turbos). */
 export default function RunList({ limit = 12 }) {

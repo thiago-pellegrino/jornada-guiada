@@ -6,7 +6,7 @@ import { goToTab } from './JourneyBits.jsx';
 
 /**
  * Barra comum das abas da Jornada Guiada: projeto selecionado (identificador de toda a
- * jornada), etapas Contexto → DarkLab → Projeto → Backlog e papel simulado.
+ * jornada), etapas Contexto → DarkLabs → Projeto → Backlog e papel simulado.
  */
 export default function ProjectBar({ current, className = '' }) {
   const { state, project, selectProject } = useJourney();
@@ -87,7 +87,7 @@ export default function ProjectBar({ current, className = '' }) {
       </div>
       {aberto ? (
         <p className="jg-projectbar__help">
-          O projeto nasce no Contexto com o código <span className="jg-mono">PRJ-NNN</span> e o identificador interno <span className="jg-mono">PRJ-NNN-AAAA-MM-DD-SS</span> (data de criação e sequência do dia). O DarkLab o define na ficha do projeto;
+          O projeto nasce no Contexto com o código <span className="jg-mono">PRJ-NNN</span> e o identificador interno <span className="jg-mono">PRJ-NNN-AAAA-MM-DD-SS</span> (data de criação e sequência do dia). O DarkLabs o define na ficha do projeto;
           o Backlog do Futuro só começa com o projeto na etapa <em>Projeto definido</em>. As permissões vêm do seu papel no projeto. Nesta
           versão do protótipo tudo roda no navegador: execuções são simuladas a partir dos exemplos das especificações.
         </p>

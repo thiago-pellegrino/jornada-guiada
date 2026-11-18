@@ -120,7 +120,7 @@ export default function FutureBacklogTab() {
       <div className="jg-page">
         <ProjectBar current="backlog-futuro" />
         <EmptyState title="Crie o projeto no Contexto" action={<button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('contexto')}>Ir para o Contexto</button>}>
-          O Backlog do Futuro é gerado a partir da ficha de um projeto definido pelo DarkLab.
+          O Backlog do Futuro é gerado a partir da ficha de um projeto definido pelo DarkLabs.
         </EmptyState>
       </div>
     );
@@ -148,7 +148,7 @@ export default function FutureBacklogTab() {
             backend, gerar épicos sem ela responde <span className="jg-mono">422 projeto_nao_definido</span>.
           </p>
           <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
-            Concluir no DarkLab <Icon name="chevronRight" size={14} />
+            Concluir no DarkLabs <Icon name="chevronRight" size={14} />
           </button>
         </section>
       ) : null}

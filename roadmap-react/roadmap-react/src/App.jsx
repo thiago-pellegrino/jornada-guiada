@@ -29,7 +29,7 @@ import Toast from './components/ui/Toast.jsx';
 
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
-  { id: 'darklab', label: 'Darklab', icon: 'sparkle' },
+  { id: 'darklab', label: 'DarkLabs', icon: 'sparkle' },
   { id: 'projetos', label: 'Projetos', icon: 'folder' },
   { id: 'backlog-futuro', label: 'Backlog do Futuro', icon: 'roadmap' },
   { id: 'epicos', label: 'Épicos, Features e Histórias', icon: 'layers' },
@@ -78,7 +78,7 @@ export default function App() {
   const lastScrollTopRef = useRef(new WeakMap());
   const ignoreScrollUntilRef = useRef(0);
 
-  // Links internos da Jornada Guiada (ex.: "Ir para o DarkLab") navegam pelo hash.
+  // Links internos da Jornada Guiada (ex.: "Ir para o DarkLabs") navegam pelo hash.
   useEffect(() => {
     function onHashChange() {
       const fromHash = window.location.hash.replace('#', '');
@@ -280,7 +280,7 @@ export default function App() {
               <UpstreamTab />
             </div>
 
-            <div role="tabpanel" id="panel-darklab" aria-label="Darklab" className="tabpanel" hidden={tab !== 'darklab'}>
+            <div role="tabpanel" id="panel-darklab" aria-label="DarkLabs" className="tabpanel" hidden={tab !== 'darklab'}>
               <DarklabTab />
             </div>
 

@@ -32,7 +32,7 @@ export default function CreateProjectForm({ onDone, compact = false }) {
       {!compact ? (
         <p className="jg-muted">
           Toda a jornada acontece dentro de um projeto. Ele é criado aqui, antes do primeiro upload, e o mesmo identificador
-          segue para o DarkLab, a ficha do projeto e o Backlog do Futuro.
+          segue para o DarkLabs, a ficha do projeto e o Backlog do Futuro.
         </p>
       ) : null}
       <div className="field-grid field-grid--2">

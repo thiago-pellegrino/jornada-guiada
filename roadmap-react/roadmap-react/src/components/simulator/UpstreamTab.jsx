@@ -1,127 +1,98 @@
-import { useRef, useState } from 'react';
-import { CAP, checkEligibility, latestRevision, stageIndex } from '../../domain/journey/journeyEngine.js';
+import { useEffect, useState } from 'react';
+import { CAP, latestRevision, stageIndex } from '../../domain/journey/journeyEngine.js';
+import { getNotebook } from '../../domain/journey/notebooks.js';
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import Icon from '../ui/Icon.jsx';
-import Badge from '../ui/Badge.jsx';
-import AgentIcon from '../journey/AgentIcon.jsx';
 import ProjectBar from '../journey/ProjectBar.jsx';
-import CreateProjectForm from '../journey/CreateProjectForm.jsx';
 import CapabilityCard from '../journey/CapabilityCard.jsx';
 import TurboPanel from '../journey/TurboPanel.jsx';
-import { SimulatedNote, fmtBytes, goToTab } from '../journey/JourneyBits.jsx';
+import { EmptyState, SimulatedNote, goToTab } from '../journey/JourneyBits.jsx';
+import NotebooksPanel from '../notebooks/NotebooksPanel.jsx';
+import NotebookDetail from '../notebooks/NotebookDetail.jsx';
+import { NewProjectDialog } from '../notebooks/NotebookDialogs.jsx';
 
-const ACEITOS = '.pdf,.docx,.xlsx,.pptx,.csv,.txt,.md,.html,.htm';
+const OPEN_KEY = 'jornada.contexto.notebook';
 
-/** Aba "Contexto": criação do projeto, fontes do lote, análise, consolidação e os oito resultados. */
+function lerAberto() {
+  try {
+    return JSON.parse(window.sessionStorage.getItem(OPEN_KEY) ?? 'null');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Aba "Contexto": notebooks do projeto (cada um com suas fontes e a análise 001), consolidação,
+ * os oito resultados e o Modo Turbo. O projeto é criado aqui, por um diálogo.
+ */
 export default function UpstreamTab() {
-  const { catalog, project, can, pending, uploadFiles, runCapability, openArtifact } = useJourney();
-  const [novo, setNovo] = useState(false);
-  const inputRef = useRef(null);
+  const { catalog, project, state, can, createProject } = useJourney();
+  const [novoProjeto, setNovoProjeto] = useState(false);
+  // Notebook aberto, lembrado por projeto: { projectId, notebookId }.
+  const [aberto, setAberto] = useState(lerAberto);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(OPEN_KEY, JSON.stringify(aberto));
+    } catch {
+      /* ignora */
+    }
+  }, [aberto]);
+
+  const dialogoProjeto = novoProjeto ? (
+    <NewProjectDialog
+      nextCode={`PRJ-${String(state.projects.length + 1).padStart(3, '0')}`}
+      onClose={() => setNovoProjeto(false)}
+      onCreate={(nome, descricao) => {
+        if (createProject(nome, descricao)) {
+          setNovoProjeto(false);
+          setAberto(null);
+        }
+      }}
+    />
+  ) : null;
 
   if (!project) {
     return (
       <div className="jg-page">
         <ProjectBar current="contexto" />
-        <CreateProjectForm />
+        <EmptyState
+          title="Crie o primeiro projeto"
+          action={
+            <button type="button" className="btn btn--primary" onClick={() => setNovoProjeto(true)} disabled={!can('createProject')}>
+              <Icon name="folderPlus" size={16} /> Novo projeto
+            </button>
+          }
+        >
+          Toda a jornada acontece dentro de um projeto, criado aqui no Contexto. Depois, crie os notebooks do projeto com as suas
+          referências.
+        </EmptyState>
         <SimulatedNote />
+        {dialogoProjeto}
+      </div>
+    );
+  }
+
+  const notebook = aberto?.projectId === project.projectId ? getNotebook(project, aberto.notebookId) : null;
+  if (notebook) {
+    return (
+      <div className="jg-page">
+        <ProjectBar current="contexto" />
+        <NotebookDetail notebook={notebook} onBack={() => setAberto(null)} onNewProject={() => setNovoProjeto(true)} />
+        {dialogoProjeto}
       </div>
     );
   }
 
   const complementares = catalog.byPhase.contexto.filter((c) => c.number >= 3 && !c.isTurbo);
-  const pendentes = project.sources.filter((s) => !latestRevision(project, CAP.analisar, s.id));
   const consolidado = Boolean(latestRevision(project, CAP.consolidar));
 
   return (
     <div className="jg-page">
       <ProjectBar current="contexto" />
 
-      {novo ? <CreateProjectForm compact onDone={() => setNovo(false)} /> : null}
+      <NotebooksPanel onOpenNotebook={(notebookId) => setAberto({ projectId: project.projectId, notebookId })} onNewProject={() => setNovoProjeto(true)} />
 
-      <section className="surface" aria-labelledby="ctx-fontes">
-        <header className="surface-head">
-          <h2 id="ctx-fontes" className="surface-title">
-            <Icon name="upload" size={15} /> 001 · Fontes do lote e análise por artefato
-          </h2>
-          <div className="surface-head__actions">
-            {!novo ? (
-              <button type="button" className="btn btn--sm btn--quiet" onClick={() => setNovo(true)}>
-                <Icon name="folderPlus" size={14} /> Novo projeto
-              </button>
-            ) : null}
-            <button type="button" className="btn btn--sm" disabled={!can('upload')} onClick={() => inputRef.current?.click()}>
-              <Icon name="paperclip" size={14} /> Enviar arquivos
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--primary"
-              disabled={!can('run') || !pendentes.length}
-              onClick={() => pendentes.forEach((s) => runCapability(CAP.analisar, s.id))}
-            >
-              <AgentIcon size={15} /> Analisar pendentes ({pendentes.length})
-            </button>
-          </div>
-        </header>
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          accept={ACEITOS}
-          hidden
-          onChange={(e) => {
-            uploadFiles(e.target.files);
-            e.target.value = '';
-          }}
-        />
-        <p className="jg-muted">
-          Lote <span className="jg-mono">{project.batchId}</span>. Formatos aceitos: PDF, DOCX, XLSX, PPTX, CSV, TXT, MD e HTML. No
-          protótipo só o nome, o tipo e o tamanho são registrados; o conteúdo não sai do seu computador.
-        </p>
-        {project.sources.length ? (
-          <div className="table-scroll">
-            <table className="jg-table">
-              <thead>
-                <tr>
-                  <th scope="col">Fonte</th>
-                  <th scope="col">Arquivo</th>
-                  <th scope="col">Tamanho</th>
-                  <th scope="col">Situação</th>
-                  <th scope="col">Análise</th>
-                </tr>
-              </thead>
-              <tbody>
-                {project.sources.map((s) => {
-                  const rev = latestRevision(project, CAP.analisar, s.id);
-                  const rodando = pending[`${CAP.analisar}::${s.id}`];
-                  const elig = checkEligibility(project, catalog, CAP.analisar, s.id);
-                  return (
-                    <tr key={s.id}>
-                      <td className="jg-mono">{s.id}</td>
-                      <td>{s.name}</td>
-                      <td className="tabular">{fmtBytes(s.size)}</td>
-                      <td>
-                        {rodando ? <Badge variant="warn">Analisando…</Badge> : rev ? <Badge variant="ok">Analisada · r{rev.revision}</Badge> : <Badge variant="neutral">Enviada</Badge>}
-                      </td>
-                      <td>
-                        <button type="button" className="btn btn--sm" disabled={!can('run') || !elig.ok || rodando} onClick={() => runCapability(CAP.analisar, s.id)}>
-                          <AgentIcon size={15} /> {rev ? 'Reanalisar' : 'Analisar'}
-                        </button>
-                        {rev ? (
-                          <button type="button" className="btn btn--sm btn--quiet jg-ml" onClick={() => openArtifact(CAP.analisar, s.id)}>
-                            <Icon name="fileText" size={14} /> Abrir
-                          </button>
-                        ) : null}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="jg-empty__text">Nenhuma fonte ainda. Envie os documentos do projeto para começar.</p>
-        )}
-      </section>
 
       <div className="jg-grid jg-grid--2">
         <CapabilityCard capabilityId={CAP.consolidar} />
@@ -133,15 +104,15 @@ export default function UpstreamTab() {
           </header>
           {consolidado ? (
             <>
-              <p>Contexto consolidado. O DarkLab já pode enquadrar o problema deste projeto.</p>
+              <p>Contexto consolidado. O DarkLabs já pode enquadrar o problema deste projeto.</p>
               <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
-                Ir para o DarkLab <Icon name="chevronRight" size={14} />
+                Ir para o DarkLabs <Icon name="chevronRight" size={14} />
               </button>
             </>
           ) : (
             <p className="jg-muted">
               Quando todas as fontes estiverem analisadas, consolide o contexto (002). A consolidação libera os oito resultados
-              abaixo e o DarkLab{stageIndex(project.stage) >= 1 ? '' : ''}.
+              abaixo e o DarkLabs{stageIndex(project.stage) >= 1 ? '' : ''}.
             </p>
           )}
         </section>
@@ -164,6 +135,7 @@ export default function UpstreamTab() {
         disabledReason={project.sources.length ? null : 'Envie ao menos uma fonte.'}
       />
       <SimulatedNote />
+      {dialogoProjeto}
     </div>
   );
 }

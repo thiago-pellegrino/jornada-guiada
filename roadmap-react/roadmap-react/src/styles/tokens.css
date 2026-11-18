@@ -165,36 +165,38 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --color-bg: #0f1419;
-  --color-surface: #161c23;
-  --color-surface-subtle: #1c242c;
-  --color-surface-hover: #202a33;
-  --color-surface-selected: #26323d;
-  --color-border: #2b3641;
-  --color-border-strong: #62768a;
-  --color-border-field: #62768a;
-  --color-text: #e6eaee;
-  --color-text-heading: #f2f5f7;
-  --color-text-muted: #a3afbb;
-  --color-text-subtle: #8c99a6;
+  /* Grafite neutro (referência: cadernos de anotações) */
+  --color-bg: #1f1e1d;
+  --color-surface: #292929;
+  --color-surface-subtle: #2e2e2e;
+  --color-surface-hover: #333333;
+  --color-surface-selected: #3d3d3d;
+  --color-border: #3d3d3d;
+  --color-border-strong: #6b6b6b;
+  --color-border-field: #5f5f5f;
+  --color-text: #e6e6e6;
+  --color-text-heading: #f5f5f5;
+  --color-text-muted: #adadad;
+  --color-text-subtle: #8f8f8f;
 
-  --color-primary-600: #2f6f99;
-  --color-primary-700: #265671;
-  --color-primary-500: #7fb0d0;
-  --color-primary-50: #1c2a36;
-  --color-brand-900: #062b4f;
-  --color-brand-700: #10425f;
+  --color-primary-600: #e0e0e0;
+  --color-primary-700: #f0f0f0;
+  --color-primary-500: #c8c8c8;
+  --color-primary-50: #3a3a3a;
+  --color-on-primary: #1f1e1d;
+  --color-brand-900: #1f1e1d;
+  --color-brand-700: #2e2e2e;
   --color-accent-gold: #d2b66f;
-  --color-focus: #56bbb2;
-  --color-link: #7fb0d0;
-  --color-selected-bg: #2f6f99;
-  --color-selected-text: #ffffff;
-  --color-control-accent: #7fb0d0;
-  --color-toast-bg: #26323d;
+  --color-focus: #e6e6e6;
+  --color-link: #9cc3f5;
+  --color-selected-bg: #f5f5f5;
+  --color-selected-text: #1f1e1d;
+  --color-control-accent: #d6d6d6;
+  --color-toast-bg: #3a3a3a;
 
-  --color-info-bg: #1c2830;
-  --color-info-text: #9bb3c6;
-  --color-info-border: #2c3c48;
+  --color-info-bg: #2c3036;
+  --color-info-text: #b9c6d4;
+  --color-info-border: #454b53;
   --color-success-bg: #12302a;
   --color-success-text: #6fcfae;
   --color-success-border: #1f4d42;
@@ -229,13 +231,13 @@
   --chart-seq-500: #6da7ec;
   --chart-seq-600: #9ec5f4;
   --chart-seq-700: #cde2fb;
-  --chart-div-mid: #383835;
-  --chart-grid: #2b3641;
-  --chart-axis: #46586a;
-  --chart-ink: #e6eaee;
-  --chart-ink-muted: #a3afbb;
+  --chart-div-mid: #383838;
+  --chart-grid: #3d3d3d;
+  --chart-axis: #5f5f5f;
+  --chart-ink: #e6e6e6;
+  --chart-ink-muted: #adadad;
 
-  --scrim: #00000099;
+  --scrim: #000000a6;
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */

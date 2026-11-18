@@ -19,6 +19,17 @@ import {
   updateProject,
 } from '../domain/journey/journeyEngine.js';
 import Toast from '../components/ui/Toast.jsx';
+import {
+  addNotebookCreation,
+  continueNotebookChat,
+  removeNotebookChat,
+  startNotebookChat,
+  addNotebookReferences,
+  createNotebook as createNotebookFn,
+  removeNotebook,
+  renameNotebook as renameNotebookFn,
+  setNotebookShared,
+} from '../domain/journey/notebooks.js';
 
 const STORAGE_KEY = 'jornada.v1';
 const RUN_DELAY_MS = 650;
@@ -110,6 +121,66 @@ export function JourneyProvider({ children }) {
       if (!files.length) return;
       patchProject((p) => addSources(p, files));
       notify(`${files.length} fonte(s) enviada(s) ao lote do projeto.`);
+    },
+    [patchProject, notify],
+  );
+
+  const aFiles = (lista) => [...(lista ?? [])].map((f) => ({ name: f.name, size: f.size, type: f.type }));
+
+  /** Cria um notebook no projeto; arquivos entram também no lote de fontes. Devolve o id criado (ou null). */
+  const createNotebook = useCallback(
+    (name, { files, links = [] } = {}) => {
+      if (!String(name ?? '').trim()) return null;
+      const atual = selectedProject(stateRef.current);
+      if (!atual) return null;
+      const arquivos = aFiles(files);
+      const { notebookId } = createNotebookFn(atual, { name, files: arquivos, links });
+      patchProject((p) => createNotebookFn(p, { name, files: arquivos, links }).project);
+      const extra = arquivos.length ? ` ${arquivos.length} arquivo(s) também entraram nas fontes do lote.` : '';
+      notify(`Notebook “${String(name).trim()}” criado no projeto ${atual.code}.${extra}`);
+      return notebookId;
+    },
+    [patchProject, notify],
+  );
+
+  const addToNotebook = useCallback(
+    (notebookId, { files, links = [] } = {}) => {
+      const arquivos = aFiles(files);
+      if (!arquivos.length && !links.length) return;
+      patchProject((p) => addNotebookReferences(p, notebookId, { files: arquivos, links }));
+      notify(`${arquivos.length + links.length} referência(s) adicionada(s) ao caderno.`);
+    },
+    [patchProject, notify],
+  );
+
+  const toggleNotebookShared = useCallback(
+    (notebookId) =>
+      patchProject((p) => {
+        const nb = (p.notebooks ?? []).find((n) => n.id === notebookId);
+        return nb ? setNotebookShared(p, notebookId, !nb.shared) : p;
+      }),
+    [patchProject],
+  );
+
+  const deleteNotebook = useCallback((notebookId) => patchProject((p) => removeNotebook(p, notebookId)), [patchProject]);
+  const renameNotebook = useCallback((notebookId, name) => patchProject((p) => renameNotebookFn(p, notebookId, name)), [patchProject]);
+  /** Inicia uma conversa com o Delta no notebook; devolve o id do chat criado. */
+  const startChat = useCallback(
+    (notebookId, text) => {
+      const atual = selectedProject(stateRef.current);
+      if (!atual) return null;
+      const { chatId } = startNotebookChat(atual, notebookId, text);
+      if (chatId) patchProject((p) => startNotebookChat(p, notebookId, text).project);
+      return chatId;
+    },
+    [patchProject],
+  );
+  const continueChat = useCallback((notebookId, chatId, text) => patchProject((p) => continueNotebookChat(p, notebookId, chatId, text)), [patchProject]);
+  const deleteChat = useCallback((notebookId, chatId) => patchProject((p) => removeNotebookChat(p, notebookId, chatId)), [patchProject]);
+  const createNotebookArtifact = useCallback(
+    (notebookId, kind) => {
+      patchProject((p) => addNotebookCreation(p, notebookId, kind));
+      notify('Criação simulada adicionada ao caderno.');
     },
     [patchProject, notify],
   );
@@ -209,6 +280,15 @@ export function JourneyProvider({ children }) {
       renameProject,
       addMember,
       uploadFiles,
+      createNotebook,
+      addToNotebook,
+      toggleNotebookShared,
+      deleteNotebook,
+      renameNotebook,
+      startChat,
+      continueChat,
+      deleteChat,
+      createNotebookArtifact,
       runCapability,
       runTurbo,
       cancelTurbo,
@@ -218,7 +298,7 @@ export function JourneyProvider({ children }) {
       closeArtifact,
       notify,
     }),
-    [state, project, role, pending, viewer, createProject, selectProject, renameProject, addMember, uploadFiles, runCapability, runTurbo, cancelTurbo, setReview, resetJourney, openArtifact, closeArtifact, notify],
+    [state, project, role, pending, viewer, createProject, selectProject, renameProject, addMember, uploadFiles, createNotebook, addToNotebook, toggleNotebookShared, deleteNotebook, renameNotebook, startChat, continueChat, deleteChat, createNotebookArtifact, runCapability, runTurbo, cancelTurbo, setReview, resetJourney, openArtifact, closeArtifact, notify],
   );
 
   const clearToast = useCallback(() => setToast(null), []);

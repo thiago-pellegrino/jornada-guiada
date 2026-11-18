@@ -120,7 +120,7 @@ export default function HeroCarouselMosaic({
       info: journeyProject ? `${journeyProject.code} · ${stageLabel(journeyProject.stage)}` : `${kpis.totalFeatures} features · ${kpis.totalStories} US`,
       slides: [
         { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
-        { id: 'darklab', tab: 'darklab', title: 'Darklab: Inception, Discovery e Value', tabLabel: 'Darklab', image: 'jornada-darklab' },
+        { id: 'darklab', tab: 'darklab', title: 'DarkLabs: Inception, Discovery e Value', tabLabel: 'DarkLabs', image: 'jornada-darklab' },
         { id: 'projetos', tab: 'projetos', title: 'Gestão dos Projetos', tabLabel: 'Projetos', image: 'jornada-projetos' },
         { id: 'backlog-futuro', tab: 'backlog-futuro', title: 'Backlog do Futuro', image: 'jornada-backlog-futuro' },
       ],

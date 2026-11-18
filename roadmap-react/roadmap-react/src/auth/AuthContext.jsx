@@ -62,12 +62,46 @@ export function AuthProvider({ children }) {
     setSession(sessao);
   }, []);
 
+  /** Atualiza o nome exibido (Configurações › Geral). Mantém onde a sessão já estava guardada. */
+  const updateName = useCallback((name) => {
+    const nome = String(name ?? '').trim();
+    if (!nome) return;
+    setSession((atual) => {
+      if (!atual) return atual;
+      const nova = { ...atual, name: nome };
+      let lembrar = false;
+      try {
+        lembrar = Boolean(window.localStorage.getItem(STORAGE_KEY));
+      } catch {
+        /* ignora */
+      }
+      gravarSessao(nova, lembrar);
+      return nova;
+    });
+  }, []);
+
+  /** Foto do perfil (data URL pequena) ou null para voltar à imagem padrão. */
+  const updateAvatar = useCallback((avatar) => {
+    setSession((atual) => {
+      if (!atual) return atual;
+      const nova = { ...atual, avatar: avatar || null };
+      let lembrar = false;
+      try {
+        lembrar = Boolean(window.localStorage.getItem(STORAGE_KEY));
+      } catch {
+        /* ignora */
+      }
+      gravarSessao(nova, lembrar);
+      return nova;
+    });
+  }, []);
+
   const logout = useCallback(() => {
     gravarSessao(null, false);
     setSession(null);
   }, []);
 
-  const value = useMemo(() => ({ session, loginCorporate, logout }), [session, loginCorporate, logout]);
+  const value = useMemo(() => ({ session, loginCorporate, logout, updateName, updateAvatar }), [session, loginCorporate, logout, updateName, updateAvatar]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

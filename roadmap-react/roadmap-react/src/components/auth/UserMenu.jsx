@@ -1,11 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from '../ui/Icon.jsx';
-import { initialsOf, useOptionalAuth } from '../../auth/AuthContext.jsx';
+import { useOptionalAuth } from '../../auth/AuthContext.jsx';
+import SettingsDialog from '../settings/SettingsDialog.jsx';
+import UserAvatar from '../user/UserAvatar.jsx';
 
 /** Avatar da barra superior com o usuário da sessão e a opção Sair. Sem sessão, mostra o avatar estático. */
-export default function UserMenu() {
+export default function UserMenu({ theme, onThemeChange, fontScale, onFontDecrease, onFontIncrease, copilotOpen, onToggleCopilot }) {
   const auth = useOptionalAuth();
   const [open, setOpen] = useState(false);
+  const [configuracoes, setConfiguracoes] = useState(null); // null | seção inicial
+
+  // Outras partes da tela (ex.: "Editar perfil" no menu do DarkLabs) pedem para abrir as configurações.
+  useEffect(() => {
+    const abrir = (e) => {
+      setOpen(false);
+      setConfiguracoes(e.detail?.secao ?? 'geral');
+    };
+    window.addEventListener('jornada:abrir-configuracoes', abrir);
+    return () => window.removeEventListener('jornada:abrir-configuracoes', abrir);
+  }, []);
   const wrapRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -49,14 +62,29 @@ export default function UserMenu() {
         title={session.name}
         onClick={() => setOpen((v) => !v)}
       >
-        {initialsOf(session.name)}
+        <UserAvatar size={30} label="" />
       </button>
       {open ? (
         <div className="menu user-menu__panel" role="menu" aria-label="Conta">
           <div className="user-menu__who">
-            <strong>{session.name}</strong>
-            <span>{session.email ?? 'Conta corporativa'}</span>
+            <UserAvatar size={40} label="" />
+            <span className="user-menu__who-text">
+              <strong>{session.name}</strong>
+              <span>{session.email ?? 'Conta corporativa'}</span>
+            </span>
           </div>
+          <button
+            type="button"
+            role="menuitem"
+            className="menu__item"
+            onClick={() => {
+              setOpen(false);
+              setConfiguracoes('geral');
+            }}
+          >
+            <Icon name="settings" size={16} />
+            Configurações
+          </button>
           <button
             type="button"
             role="menuitem"
@@ -70,6 +98,21 @@ export default function UserMenu() {
             Sair
           </button>
         </div>
+      ) : null}
+      {configuracoes ? (
+        <SettingsDialog
+          initialSection={configuracoes}
+          onClose={() => setConfiguracoes(null)}
+          theme={theme}
+          onThemeChange={onThemeChange}
+          fontScale={fontScale}
+          onFontDecrease={onFontDecrease}
+          onFontIncrease={onFontIncrease}
+          onOpenDelta={() => {
+            setConfiguracoes(null);
+            if (!copilotOpen) onToggleCopilot?.();
+          }}
+        />
       ) : null}
     </div>
   );

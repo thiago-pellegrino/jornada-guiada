@@ -3,7 +3,7 @@
  * simuladas e Modo Turbo. Não chama IA nem backend: cada execução devolve o exemplo mínimo
  * da capacidade (lido de `especificações/`) ajustado ao projeto, como dado simulado.
  *
- * Fluxo: Contexto → DarkLab → Projeto → Backlog. O projeto é criado no Contexto e é o
+ * Fluxo: Contexto → DarkLabs → Projeto → Backlog. O projeto é criado no Contexto e é o
  * identificador de tudo o que vem depois (contrato §5.3, repositório §8).
  */
 
@@ -12,14 +12,14 @@ export const STORAGE_VERSION = 1;
 export const STAGES = Object.freeze([
   { id: 'contexto', label: 'Contexto', step: 'Contexto' },
   { id: 'contexto_consolidado', label: 'Contexto consolidado', step: 'Contexto' },
-  { id: 'darklab', label: 'DarkLab em andamento', step: 'DarkLab' },
+  { id: 'darklab', label: 'DarkLabs em andamento', step: 'DarkLabs' },
   { id: 'projeto_definido', label: 'Projeto definido', step: 'Projeto' },
   { id: 'backlog', label: 'Backlog em geração', step: 'Backlog' },
 ]);
 
 export const JOURNEY_STEPS = Object.freeze([
   { id: 'contexto', label: 'Contexto', tab: 'contexto', reachedAt: 'contexto' },
-  { id: 'darklab', label: 'DarkLab', tab: 'darklab', reachedAt: 'contexto_consolidado' },
+  { id: 'darklab', label: 'DarkLabs', tab: 'darklab', reachedAt: 'contexto_consolidado' },
   { id: 'projeto', label: 'Projeto', tab: 'projetos', reachedAt: 'projeto_definido' },
   { id: 'backlog', label: 'Backlog', tab: 'backlog-futuro', reachedAt: 'projeto_definido' },
   // Etapas de planejamento do simulador: liberadas quando o Backlog do Futuro existe; sem marca de concluída.
@@ -270,7 +270,7 @@ export function checkEligibility(project, catalog, capabilityId, scopeKey = 'pro
   }
   if (capabilityId === CAP.epicos) {
     const prontidao = fichaReadiness(project);
-    if (!prontidao) return { ok: false, reason: 'Projeto não definido: gere a ficha do projeto no DarkLab.', code: 'projeto_nao_definido' };
+    if (!prontidao) return { ok: false, reason: 'Projeto não definido: gere a ficha do projeto no DarkLabs.', code: 'projeto_nao_definido' };
     if (prontidao === 'insuficiente') {
       return { ok: false, reason: 'Projeto não definido: a ficha está insuficiente (falta o backlog do futuro do M7).', code: 'projeto_nao_definido' };
     }
@@ -402,7 +402,7 @@ export function applyCapabilityRun(project, catalog, capabilityId, { scopeKey = 
       ...proximo.runs,
     ];
   }
-  return advanceStage(proximo, `${cap.step} ${cap.phase === 'contexto' ? 'Contexto' : cap.phase === 'darklab' ? 'DarkLab' : 'Backlog'} r${revision}`, now);
+  return advanceStage(proximo, `${cap.step} ${cap.phase === 'contexto' ? 'Contexto' : cap.phase === 'darklab' ? 'DarkLabs' : 'Backlog'} r${revision}`, now);
 }
 
 export function setReviewState(project, capabilityId, scopeKey, revision, reviewState, role, now = new Date().toISOString()) {

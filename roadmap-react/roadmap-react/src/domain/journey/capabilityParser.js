@@ -8,7 +8,7 @@ const NOME_ARQUIVO = /^(0[1-3])-(contexto|darklab|backlog-do-futuro)-(\d{3})-([a
 
 export const PHASES = Object.freeze([
   { id: 'contexto', label: 'Contexto', prefix: '01' },
-  { id: 'darklab', label: 'DarkLab', prefix: '02' },
+  { id: 'darklab', label: 'DarkLabs', prefix: '02' },
   { id: 'backlog-do-futuro', label: 'Backlog do Futuro', prefix: '03' },
 ]);
 
