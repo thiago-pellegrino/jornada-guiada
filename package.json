@@ -1,11 +1,16 @@
 {
   "name": "simulador-roadmap",
   "private": true,
-  "description": "Atalhos para executar o Simulador de Roadmap e Capacity (app em roadmap-react/roadmap-react).",
+  "description": "Atalhos para executar o Simulador de Roadmap e Capacity (app em roadmap-react/roadmap-react) e validar o catálogo de especificações da Jornada Guiada.",
   "scripts": {
     "dev": "npm run dev --prefix roadmap-react/roadmap-react",
     "build": "npm run build --prefix roadmap-react/roadmap-react",
     "preview": "npm run preview --prefix roadmap-react/roadmap-react",
-    "test": "npm test --prefix roadmap-react/roadmap-react"
+    "test": "npm test --prefix roadmap-react/roadmap-react",
+    "validar:especificacoes": "node scripts/validar-catalogo.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
   }
 }

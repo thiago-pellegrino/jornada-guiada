@@ -125,6 +125,67 @@ const PATHS = {
       <path d="M3.5 9.5h17M3.5 14.5h17M10 9.5v10" />
     </>
   ),
+  fontDecrease: (
+    <>
+      <path d="M3 19 8 6l5 13M4.9 14.2h6.2" />
+      <path d="M15 11.5h6" />
+    </>
+  ),
+  fontIncrease: (
+    <>
+      <path d="M3 19 8 6l5 13M4.9 14.2h6.2" />
+      <path d="M15 11.5h6M18 8.5v6" />
+    </>
+  ),
+  mosaic: (
+    <>
+      <rect x="3" y="4" width="8" height="16" rx="1.5" />
+      <rect x="13.5" y="4" width="7.5" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="3" height="6.5" rx="1" />
+      <rect x="18.2" y="13.5" width="2.8" height="6.5" rx="1" />
+    </>
+  ),
+  sidebar: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </>
+  ),
+  chat: <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z" />,
+  folderPlus: (
+    <>
+      <path d="M3.5 6.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+      <path d="M12 10.5v5M9.5 13h5" />
+    </>
+  ),
+  paperclip: <path d="m21.4 11.1-8.8 8.8a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5" />,
+  fileText: (
+    <>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5M9 13h6M9 17h4" />
+    </>
+  ),
+  mic: (
+    <>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" />
+    </>
+  ),
+  micOff: (
+    <>
+      <path d="m3 3 18 18M9 9v2a3 3 0 0 0 5.1 2.1M15 9.5V6a3 3 0 0 0-5.7-1.3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 11.4 4.2M12 17.5V21M8.5 21h7" />
+    </>
+  ),
+  voice: <path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4" />,
+  volume: (
+    <>
+      <path d="M11 5 6 9H3v6h3l5 4z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" />
+    </>
+  ),
+  stop: <rect x="6.5" y="6.5" width="11" height="11" rx="1.5" />,
+  trash: <path d="M4 7h16M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7m-8.5 0 .8 12.5a1.5 1.5 0 0 0 1.5 1.5h6.4a1.5 1.5 0 0 0 1.5-1.5L17.5 7" />,
 };
 
 export default function Icon({ name, size = 20, className = '', strokeWidth = 1.65, title }) {

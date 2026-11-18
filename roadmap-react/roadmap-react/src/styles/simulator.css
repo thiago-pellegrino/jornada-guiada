@@ -18,9 +18,9 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -39,13 +39,13 @@
 /* ── Campos ────────────────────────────────────────────────────────────────── */
 .field {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   align-content: start;
   min-width: 0;
 }
 
 .field+.field-grid {
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .field-label {
@@ -56,7 +56,7 @@
 
 .field-grid {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .field-grid--2 {
@@ -80,8 +80,8 @@
 
 .input {
   width: 100%;
-  height: 40px;
-  padding: 0 12px;
+  height: 32px;
+  padding: 0 10px;
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -92,11 +92,11 @@
 select.input {
   -webkit-appearance: none;
   appearance: none;
-  padding-right: 38px;
+  padding-right: 32px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23303943' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 14px 14px;
+  background-position: right 10px center;
+  background-size: 12px 12px;
   text-overflow: ellipsis;
   cursor: pointer;
 }
@@ -137,13 +137,13 @@ select.input:focus-visible {
 
 .search-field>.icon {
   position: absolute;
-  left: 12px;
+  left: 10px;
   color: var(--color-text-subtle);
   pointer-events: none;
 }
 
 .search-field .input {
-  padding-left: 38px;
+  padding-left: 32px;
 }
 
 .input-group {
@@ -179,8 +179,8 @@ select.input:focus-visible {
 }
 
 .chip-toggle__btn {
-  min-height: 28px;
-  padding: 0 10px;
+  min-height: 24px;
+  padding: 0 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-surface);
@@ -249,8 +249,8 @@ select.input:focus-visible {
 
 .slider-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 98px;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 86px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -310,7 +310,7 @@ select.input:focus-visible {
   justify-content: space-between;
   gap: 8px;
   margin-top: 1px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   line-height: 1.15;
   color: var(--color-text-muted);
 }
@@ -318,7 +318,7 @@ select.input:focus-visible {
 .number-field {
   display: flex;
   align-items: center;
-  height: 28px;
+  height: 26px;
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -391,11 +391,11 @@ select.input:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 0 10px;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 8px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 4px;
   background: transparent;
   color: var(--color-text-muted);
   font-size: var(--text-xs);
@@ -417,7 +417,7 @@ select.input:focus-visible {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   padding: 0;
   border: 0;
@@ -425,7 +425,7 @@ select.input:focus-visible {
 }
 
 .segmented--lg .segmented__btn {
-  min-height: 44px;
+  min-height: 34px;
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -445,22 +445,23 @@ select.input:focus-visible {
   opacity: 0.8;
 }
 
-/* ── Selo de situação (DS §20.10.6: 150 × 22 px) ───────────────────────────── */
+/* ── Selo de situação ──────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   box-sizing: border-box;
   flex-shrink: 0;
-  width: 150px;
-  height: 22px;
-  padding: 3px 9px;
+  width: 128px;
+  height: 19px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
-  line-height: 16px;
+  line-height: 15px;
   white-space: nowrap;
+  vertical-align: middle;
   background: var(--color-info-bg);
   color: var(--color-info-text);
 }
@@ -508,8 +509,8 @@ select.input:focus-visible {
 }
 
 .kpi__value {
-  margin: 12px 0 6px;
-  font-size: var(--text-2xl);
+  margin: 6px 0 4px;
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   line-height: 1.15;
   letter-spacing: -0.6px;
@@ -541,8 +542,8 @@ select.input:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 12px;
-  padding: 4px 10px;
+  margin-top: 8px;
+  padding: 3px 8px;
   border-radius: 3px;
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
@@ -565,8 +566,8 @@ select.input:focus-visible {
 
 .kpi-bars {
   display: grid;
-  gap: 9px;
-  margin: 18px 0 0;
+  gap: 6px;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -634,9 +635,9 @@ select.input:focus-visible {
 .kpi-split {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 16px 0 0;
-  padding-top: 14px;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
 
@@ -647,7 +648,7 @@ select.input:focus-visible {
 
 .kpi-split dd {
   margin: 2px 0 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--color-text-heading);
 }
@@ -656,8 +657,8 @@ select.input:focus-visible {
 .diag-card__title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
+  gap: 6px;
+  font-size: 0.9375rem;
   font-weight: var(--weight-bold);
   color: var(--color-text-heading);
 }
@@ -705,14 +706,14 @@ select.input:focus-visible {
 }
 
 .squad-diag {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--color-border);
 }
 
 .squad-diag__item {
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -769,8 +770,8 @@ select.input:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--color-info-border);
   border-radius: 3px;
   background: var(--color-info-bg);
@@ -933,8 +934,8 @@ select.input:focus-visible {
 .milestones {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  margin: 18px 0 0;
+  gap: 8px;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -942,7 +943,7 @@ select.input:focus-visible {
 .milestone {
   display: grid;
   gap: 2px;
-  padding: 10px 8px;
+  padding: 7px 6px;
   border: 1px solid var(--color-border);
   border-radius: 3px;
   text-align: center;
@@ -959,7 +960,7 @@ select.input:focus-visible {
 }
 
 .milestone__value {
-  font-size: 16px;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--color-text-heading);
 }
@@ -970,7 +971,7 @@ select.input:focus-visible {
 }
 
 .table-scroll {
-  max-height: 360px;
+  max-height: 320px;
   overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: 3px;
@@ -985,29 +986,35 @@ select.input:focus-visible {
 .data-table thead th {
   position: sticky;
   top: 0;
-  padding: 10px 12px;
+  padding: 6px 10px;
   background: var(--color-surface-subtle);
   color: var(--color-text-heading);
-  font-size: var(--text-md);
+  font-size: var(--text-xs);
   font-weight: 700;
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
 .data-table thead th.num {
-  text-align: center;
+  text-align: right;
 }
 
 .data-table td,
 .data-table tbody th {
-  padding: 9px 12px;
+  padding: 5px 10px;
   border-top: 1px solid var(--color-border);
   text-align: left;
+  vertical-align: middle;
   font-weight: var(--weight-regular);
 }
 
 .data-table .num {
   text-align: right;
+}
+
+.data-table .cell-center {
+  text-align: center;
 }
 
 .data-table tr.is-freeze {
@@ -1028,7 +1035,7 @@ select.input:focus-visible {
 
 @media (max-width: 720px) {
   .surface {
-    padding: 18px 16px;
+    padding: 12px;
   }
 
   .slider-row {
@@ -1090,6 +1097,52 @@ select.input:focus-visible {
   gap: var(--card-gap);
 }
 
+/* Transição suave ao trocar de página: o painel reaparece (sai de display:none) e a animação reinicia. */
+.content > .tabpanel:not([hidden]) {
+  animation: tabpanel-enter 380ms var(--ease) both;
+}
+
+.content > .tabpanel:not([hidden]) > * {
+  animation: tabpanel-rise 460ms var(--ease) both;
+}
+
+.content > .tabpanel:not([hidden]) > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.content > .tabpanel:not([hidden]) > *:nth-child(n + 3) {
+  animation-delay: 100ms;
+}
+
+@keyframes tabpanel-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tabpanel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content > .tabpanel:not([hidden]),
+  .content > .tabpanel:not([hidden]) > * {
+    animation: none;
+  }
+}
+
 .stack-grid {
   display: flex;
   flex-direction: column;
@@ -1099,7 +1152,7 @@ select.input:focus-visible {
 .results-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: 360px;
+  grid-auto-rows: 300px;
   gap: var(--card-gap);
   align-items: stretch;
 }
@@ -1294,13 +1347,6 @@ select.input:focus-visible {
   margin-top: var(--card-gap);
 }
 
-@media (max-width: 1279px) {
-  .app.copilot-open .results-grid {
-    grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: auto;
-  }
-}
-
 @media (max-width: 1100px) {
   .results-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1373,6 +1419,10 @@ select.input:focus-visible {
   grid-column: 1 / -1;
 }
 
+.context-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .context-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1434,10 +1484,14 @@ select.input:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 16px;
-  padding: 12px var(--card-pad);
+  gap: 6px 12px;
+  padding: 8px var(--card-pad);
   cursor: pointer;
-  list-style-position: inside;
+  list-style: none;
+}
+
+.epic__summary::-webkit-details-marker {
+  display: none;
 }
 
 .epic[open]>.epic__summary {
@@ -1445,8 +1499,10 @@ select.input:focus-visible {
 }
 
 .epic__code {
+  min-width: 68px;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-heading);
 }
 
@@ -1467,17 +1523,50 @@ select.input:focus-visible {
   border-radius: 0;
 }
 
+.epic__table {
+  table-layout: fixed;
+  min-width: 680px;
+}
+
+.epic__table .col-epic-feature {
+  width: auto;
+}
+
+.epic__table .col-epic-squad {
+  width: 220px;
+}
+
+.epic__table .col-epic-stories {
+  width: 132px;
+}
+
+.epic__table .col-epic-hours {
+  width: 116px;
+}
+
+.epic__table .col-epic-status {
+  width: 168px;
+}
+
+.epic__table .cell-epic-feature {
+  padding-left: var(--card-pad);
+  overflow-wrap: anywhere;
+}
+
+.epic__table .cell-epic-status {
+  padding-right: var(--card-pad);
+}
+
 .cell-input.cell-input--boxed {
+  display: inline-block;
   width: 76px;
+  height: 26px;
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   padding: 0 8px;
-}
-
-.squad-scope td.num .cell-input--boxed,
-.epic td.num .cell-input--boxed {
-  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .squad-scope td.squad-scope__stories-cell {
@@ -1505,21 +1594,21 @@ select.input:focus-visible {
 /* ── Aba Escopo das Squads ─────────────────────────────────────────────────── */
 .squad-create-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 116px 176px;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 106px 156px;
+  gap: 10px;
   align-items: end;
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
 
 .squad-create-bar__people .input-group .input {
-  padding-right: 48px;
+  padding-right: 44px;
 }
 
 .squad-create-bar__btn {
   width: 100%;
-  height: 40px;
+  height: 32px;
   justify-content: center;
 }
 
@@ -1532,8 +1621,8 @@ select.input:focus-visible {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px 16px;
-  padding: 12px var(--card-pad);
+  gap: 8px 12px;
+  padding: 8px var(--card-pad);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -1541,40 +1630,40 @@ select.input:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
 .squad-scope__name-slot {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-width: 112px;
+  gap: 5px;
+  min-width: 104px;
 }
 
 .squad-scope__controls {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   margin-left: auto;
 }
 
 .squad-scope__people {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   color: var(--color-text-muted);
 }
 
 .input-group--people {
-  width: 116px;
+  width: 106px;
 }
 
 .input-group--people .input {
-  padding-right: 48px;
+  padding-right: 44px;
   font-weight: var(--weight-regular);
 }
 
@@ -1583,12 +1672,12 @@ select.input:focus-visible {
 }
 
 .input-group--us .input {
-  padding-right: 38px;
+  padding-right: 34px;
 }
 
 .input-group--readonly .input.input--readonly {
   display: block;
-  padding-right: 34px;
+  padding-right: 30px;
   background: var(--color-surface-selected);
   border-color: var(--color-border);
   color: var(--color-text-muted);
@@ -1597,22 +1686,22 @@ select.input:focus-visible {
 
 .squad-scope__capacity {
   display: inline-block;
-  min-width: 86px;
+  min-width: 78px;
   text-align: right;
 }
 
 .squad-scope__assoc {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 116px 176px;
-  gap: 10px 12px;
+  grid-template-columns: minmax(0, 1fr) 106px 156px;
+  gap: 8px 10px;
   align-items: end;
-  padding: 10px var(--card-pad);
+  padding: 8px var(--card-pad);
   background: var(--color-surface-subtle);
   border-bottom: 1px solid var(--color-border);
 }
 
 .squad-scope__assoc--custom {
-  grid-template-columns: minmax(180px, 1.3fr) 132px minmax(160px, 1fr) 116px 176px;
+  grid-template-columns: minmax(160px, 1.3fr) 118px minmax(140px, 1fr) 106px 156px;
 }
 
 .squad-scope__assoc-feature,
@@ -1624,7 +1713,7 @@ select.input:focus-visible {
 
 .squad-scope__assoc-btn {
   width: 100%;
-  height: 36px;
+  height: 32px;
   justify-content: center;
 }
 
@@ -1636,11 +1725,11 @@ select.input:focus-visible {
 
 .squad-scope__table {
   table-layout: fixed;
-  min-width: 780px;
+  min-width: 680px;
 }
 
 .squad-scope__table .col-scope-epic {
-  width: 112px;
+  width: 96px;
 }
 
 .squad-scope__table .col-scope-feature {
@@ -1648,19 +1737,19 @@ select.input:focus-visible {
 }
 
 .squad-scope__table .col-scope-squad {
-  width: 196px;
+  width: 172px;
 }
 
 .squad-scope__table .col-scope-stories {
-  width: 140px;
+  width: 120px;
 }
 
 .squad-scope__table .col-scope-hours {
-  width: 100px;
+  width: 88px;
 }
 
 .squad-scope__table .col-scope-remove {
-  width: 92px;
+  width: 80px;
 }
 
 .squad-scope__table thead th.th-scope-feature {
@@ -1709,12 +1798,12 @@ select.input:focus-visible {
 .epic__squad-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
   white-space: nowrap;
 }
 
-.squad-scope .cell-center {
-  text-align: center;
+.epic__squad-chip .squad-dot {
+  margin-right: 0;
 }
 
 .squad-scope__empty {
@@ -1725,7 +1814,7 @@ select.input:focus-visible {
 
 @media (max-width: 1040px) {
   .squad-scope__assoc--custom {
-    grid-template-columns: minmax(0, 1fr) 116px 176px;
+    grid-template-columns: minmax(0, 1fr) 106px 156px;
   }
 
   .squad-scope__assoc--custom .squad-scope__assoc-feature {
@@ -1734,6 +1823,7 @@ select.input:focus-visible {
 }
 
 @media (max-width: 820px) {
+
   .squad-create-bar,
   .squad-scope__assoc,
   .squad-scope__assoc--custom {

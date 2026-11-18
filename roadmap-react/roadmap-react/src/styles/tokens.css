@@ -148,14 +148,14 @@
   /* ── Layout ───────────────────────────────── */
   --sidebar-w: 254px;
   --sidebar-w-compact: 234px;
-  --topbar-h: 60px;
-  --topbar-h-mobile: 67px;
-  --content-max: 1460px;
-  --copilot-w: 410px;
-  --card-pad: 16px;
-  --card-gap: 10px;
-  --grid-row-dense: 40px;
-  --grid-row-comfort: 48px;
+  --topbar-h: 40px;
+  --topbar-h-mobile: 40px;
+  --content-max: 100%;
+  --copilot-w: 60vw;
+  --card-pad: 12px;
+  --card-gap: 8px;
+  --grid-row-dense: 30px;
+  --grid-row-comfort: 36px;
 
   /* ── Específicos do simulador ─────────────── */
   --freeze-hatch: repeating-linear-gradient(135deg, var(--color-danger-bg) 0 6px, transparent 6px 12px);
@@ -243,6 +243,10 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  font-size: var(--font-root-size, 13.5px);
 }
 
 html,

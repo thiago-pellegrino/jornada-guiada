@@ -84,14 +84,21 @@ export default function EpicsTab({ scenario, result, onStoriesChange, onFeatureT
             <span className="epic__share tabular">{fmtPct(totals.stories > 0 ? epic.stories / totals.stories : 0, 0)} das histórias</span>
           </summary>
           <div className="table-scroll">
-            <table className="data-table">
+            <table className="data-table epic__table">
+              <colgroup>
+                <col className="col-epic-feature" />
+                <col className="col-epic-squad" />
+                <col className="col-epic-stories" />
+                <col className="col-epic-hours" />
+                <col className="col-epic-status" />
+              </colgroup>
               <thead>
                 <tr>
-                  <th scope="col">Feature</th>
-                  <th scope="col">Squad</th>
-                  <th scope="col" className="num">Histórias</th>
-                  <th scope="col" className="num">Horas</th>
-                  <th scope="col">Situação</th>
+                  <th scope="col" className="cell-epic-feature">Feature</th>
+                  <th scope="col" className="cell-epic-squad">Squad</th>
+                  <th scope="col" className="cell-center">Histórias</th>
+                  <th scope="col" className="cell-center">Horas</th>
+                  <th scope="col" className="cell-center cell-epic-status">Situação</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,13 +110,13 @@ export default function EpicsTab({ scenario, result, onStoriesChange, onFeatureT
                   const endLabels = schedules.map((s) => s.endLabel).filter(Boolean);
                   return (
                     <tr key={item.key}>
-                      <th scope="row">{item.name}</th>
-                      <td>
+                      <th scope="row" className="cell-epic-feature">{item.name}</th>
+                      <td className="cell-epic-squad">
                         {item.entries.length === 1 ? (
-                          <>
+                          <span className="epic__squad-chip">
                             <span className="squad-dot" style={{ background: `var(${item.entries[0].squad.colorToken})` }} aria-hidden="true" />
                             {item.entries[0].squad.shortName}
-                          </>
+                          </span>
                         ) : (
                           <div className="epic__squad-list">
                             {item.entries.map(({ feature, squad }) => (
@@ -121,7 +128,7 @@ export default function EpicsTab({ scenario, result, onStoriesChange, onFeatureT
                           </div>
                         )}
                       </td>
-                      <td className="num">
+                      <td className="cell-center">
                         <NumberInput
                           className="cell-input cell-input--boxed tabular"
                           value={item.stories}
@@ -138,8 +145,8 @@ export default function EpicsTab({ scenario, result, onStoriesChange, onFeatureT
                           invalidMessage="Informe de 0 a 200 histórias."
                         />
                       </td>
-                      <td className="num tabular">{fmtNumber(effortHours)}</td>
-                      <td>
+                      <td className="cell-center tabular">{fmtNumber(effortHours)}</td>
+                      <td className="cell-center cell-epic-status">
                         <Badge variant={meta.variant} title={`${meta.label} — ${meta.description}${endLabels.length ? ` Término: ${endLabels.join(' / ')}` : ''}`}>
                           {meta.label}
                         </Badge>

@@ -1,0 +1,15 @@
+# Termos do caso de teste Credit on Wealth que não podem aparecer em especificações/.
+# Um termo por linha; a busca ignora maiúsculas e exige limite de palavra.
+Credit on Wealth
+credit-on-wealth
+credit_on_wealth
+CoW
+Bradesco
+Capgemini
+Prime
+Ágora
+PSEG
+Lombard
+Pluto
+Motive
+Principal e Private

@@ -340,12 +340,12 @@ function SquadScopeCard({
             </colgroup>
             <thead>
               <tr>
-                <th scope="col" className="cell-epic">Épico</th>
+                <th scope="col" className="cell-center cell-epic">Épico</th>
                 <th scope="col" className="th-scope-feature">Feature</th>
                 <th scope="col">Squad associada</th>
-                <th scope="col" className="num">Histórias (US)</th>
+                <th scope="col">Histórias (US)</th>
                 <th scope="col" className="cell-hours">Horas</th>
-                <th scope="col" className="cell-remove">Remover</th>
+                <th scope="col" className="cell-center cell-remove">Remover</th>
               </tr>
             </thead>
             <tbody>

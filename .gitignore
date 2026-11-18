@@ -1,0 +1,7 @@
+# Dependências
+node_modules/
+
+# Documentos confidenciais do caso de teste
+testes/credit-on-wealth/corpus/*
+!testes/credit-on-wealth/corpus/README.md
+!testes/credit-on-wealth/corpus/lista-de-fontes.csv
