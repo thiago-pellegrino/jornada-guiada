@@ -119,7 +119,7 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
       author: `${scenario.squads.length} squads · ${kpis.totalPeople} profissionais`,
       info: `${kpis.totalFeatures} features`,
       slides: [
-        { id: 'escopo-squads', tab: 'escopo-squads', title: 'Escopo das Squads', image: 'escopo-squads' },
+        { id: 'escopo-squads', tab: 'escopo-squads', title: 'Escopo das Squads', image: 'escopo-squads', position: 'center 30%' },
         { id: 'epicos', tab: 'epicos', title: 'Épicos, Features e Histórias', image: 'escopo-epicos' },
       ],
     },
@@ -202,6 +202,7 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
                   key={item.id}
                   className={`hero-tile__photo ${sIdx === index ? 'is-visible' : ''}`}
                   src={src}
+                  style={item.position ? { objectPosition: item.position } : undefined}
                   alt=""
                   aria-hidden="true"
                   loading={sIdx === 0 ? 'eager' : 'lazy'}
