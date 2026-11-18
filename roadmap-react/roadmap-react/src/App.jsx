@@ -15,6 +15,7 @@ import ContextTab from './components/simulator/ContextTab.jsx';
 import UpstreamTab from './components/simulator/UpstreamTab.jsx';
 import DarklabTab from './components/simulator/DarklabTab.jsx';
 import FutureBacklogTab from './components/simulator/FutureBacklogTab.jsx';
+import ProjectsTab from './components/simulator/ProjectsTab.jsx';
 import EpicsTab from './components/simulator/EpicsTab.jsx';
 import SquadScopeTab from './components/simulator/SquadScopeTab.jsx';
 import ProjectionChartCard from './components/simulator/ProjectionChartCard.jsx';
@@ -28,6 +29,7 @@ import Toast from './components/ui/Toast.jsx';
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
   { id: 'darklab', label: 'Darklab', icon: 'sparkle' },
+  { id: 'projetos', label: 'Projetos', icon: 'folder' },
   { id: 'backlog-futuro', label: 'Backlog do Futuro', icon: 'roadmap' },
   { id: 'epicos', label: 'Épicos, Features e Histórias', icon: 'layers' },
   { id: 'escopo-squads', label: 'Escopo das Squads', icon: 'users' },
@@ -61,6 +63,7 @@ export default function App() {
   const [matrixView, setMatrixView] = useState('gantt');
   const [focusMode, setFocusMode] = useState(false);
   const [mosaicCollapsed, setMosaicCollapsed] = useState(false);
+  const [autoHideMosaic, setAutoHideMosaic] = useState(false);
   // A semana atual é sempre carregada com a semana vigente de hoje (não é salva com o cenário).
   const [currentYearWeek, setCurrentYearWeek] = useState(() => currentYearWeekNumber());
   const [toast, setToast] = useState(null);
@@ -80,23 +83,27 @@ export default function App() {
     mainRef.current?.scrollTo({ top: 0 });
   }, [tab]);
 
-  const handleMainScroll = useCallback((event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement) || target.matches('input, select, textarea')) return;
+  const handleMainScroll = useCallback(
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || target.matches('input, select, textarea')) return;
 
-    const currentTop = target.scrollTop;
-    const prevTop = lastScrollTopRef.current.get(target) ?? 0;
-    lastScrollTopRef.current.set(target, currentTop);
+      const currentTop = target.scrollTop;
+      const prevTop = lastScrollTopRef.current.get(target) ?? 0;
+      lastScrollTopRef.current.set(target, currentTop);
 
-    if (performance.now() < ignoreScrollUntilRef.current) return;
-    if (currentTop > prevTop + 2 && currentTop > 4) {
-      setMosaicCollapsed((prev) => {
-        if (prev) return prev;
-        ignoreScrollUntilRef.current = performance.now() + 450;
-        return true;
-      });
-    }
-  }, []);
+      if (!autoHideMosaic) return;
+      if (performance.now() < ignoreScrollUntilRef.current) return;
+      if (currentTop > prevTop + 2 && currentTop > 4) {
+        setMosaicCollapsed((prev) => {
+          if (prev) return prev;
+          ignoreScrollUntilRef.current = performance.now() + 450;
+          return true;
+        });
+      }
+    },
+    [autoHideMosaic],
+  );
 
   const handleToggleMosaic = useCallback(() => {
     ignoreScrollUntilRef.current = performance.now() + 450;
@@ -236,11 +243,14 @@ export default function App() {
           onSelectMatrixView={setMatrixView}
           collapsed={mosaicCollapsed}
           onToggleCollapsed={handleToggleMosaic}
+          autoHide={autoHideMosaic}
+          onToggleAutoHide={() => setAutoHideMosaic((prev) => !prev)}
           scenario={scenario}
           result={result}
         />
 
-        <main ref={mainRef} id="main-content" className="main" tabIndex={-1} onScrollCapture={handleMainScroll}>
+        <div className="workspace-body">
+          <main ref={mainRef} id="main-content" className="main" tabIndex={-1} onScrollCapture={handleMainScroll}>
           <div className="content">
             <div className="print-only print-header">
               <p className="print-header__seal">Estudo simulado — dados de planejamento</p>
@@ -261,6 +271,10 @@ export default function App() {
 
             <div role="tabpanel" id="panel-darklab" aria-label="Darklab" className="tabpanel" hidden={tab !== 'darklab'}>
               <DarklabTab />
+            </div>
+
+            <div role="tabpanel" id="panel-projetos" aria-label="Gestão dos Projetos" className="tabpanel" hidden={tab !== 'projetos'}>
+              <ProjectsTab />
             </div>
 
             <div role="tabpanel" id="panel-backlog-futuro" aria-label="Backlog do Futuro" className="tabpanel" hidden={tab !== 'backlog-futuro'}>
@@ -387,19 +401,22 @@ export default function App() {
             <span>Simulação local · Sem execução de operações</span>
           </footer>
         </main>
-      </div>
 
-      <CopilotDrawer
-        open={copilotOpen}
-        onClose={closeCopilot}
-        scenario={scenario}
-        result={result}
-        onApplyPatch={(patch, label) => {
-          sim.applyPatch(patch, label);
-          notify('Proposta do Delta aplicada na simulação.');
-        }}
-        onUndo={sim.undo}
-      />
+        {copilotOpen ? <div className="copilot-backdrop" onClick={closeCopilot} aria-hidden="true" /> : null}
+
+        <CopilotDrawer
+          open={copilotOpen}
+          onClose={closeCopilot}
+          scenario={scenario}
+          result={result}
+          onApplyPatch={(patch, label) => {
+            sim.applyPatch(patch, label);
+            notify('Proposta do Delta aplicada na simulação.');
+          }}
+          onUndo={sim.undo}
+        />
+        </div>
+      </div>
 
       <Toast toast={toast} onDone={clearToast} />
     </div>

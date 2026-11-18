@@ -66,10 +66,12 @@
 
   .app,
   .workspace,
+  .workspace-body,
   .main {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
+    filter: none !important;
   }
 
   * {
@@ -82,6 +84,7 @@
   .hero-mosaic,
   .mosaic-tabs-bar,
   .copilot,
+  .copilot-backdrop,
   .skip-link,
   .mobile-shade,
   .focus-shade,

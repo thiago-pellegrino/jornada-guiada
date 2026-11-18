@@ -45,8 +45,17 @@ body.has-overlay {
   --mosaic-offset: 0px;
 }
 
+.workspace-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
 .main {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -54,6 +63,18 @@ body.has-overlay {
   overflow-x: hidden;
   overscroll-behavior: contain;
   outline: none;
+  transition: filter var(--motion-base) var(--ease);
+}
+
+.app.copilot-open .main {
+  filter: blur(2.5px);
+}
+
+.copilot-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--z-panel) - 1);
+  background: rgba(6, 43, 79, 0.08);
 }
 
 .content {
@@ -423,10 +444,13 @@ body.has-overlay {
 
 /* ── Copiloto ──────────────────────────────────────────────────────────────── */
 .copilot {
-  position: fixed;
+  position: absolute;
   inset: 0 0 0 auto;
   z-index: var(--z-panel);
-  width: min(var(--copilot-w), 100vw);
+  width: var(--copilot-w, 33.3333vw);
+  min-width: min(320px, 100vw);
+  max-width: 100vw;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--color-surface);
@@ -770,21 +794,6 @@ body.has-overlay {
 }
 
 /* ── Responsividade (sm 480 · md 720 · lg 1024 · xl 1280 · 2xl 1650) ───────── */
-@media (min-width: 1280px) {
-  .app.copilot-open .workspace {
-    margin-right: var(--copilot-w);
-  }
-
-  .app.copilot-open .copilot {
-    box-shadow: var(--shadow-panel);
-  }
-
-  .app.copilot-open .kbd,
-  .app.copilot-open .avatar {
-    display: none;
-  }
-}
-
 @media (min-width: 1650px) {
   .content {
     padding-top: 12px;
@@ -1214,6 +1223,74 @@ body.has-overlay {
   background: linear-gradient(90deg, #1f82c4 0%, #268fd4 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.18);
   border-bottom: 1px solid #176ba3;
+}
+
+.mosaic-tabs-bar__switch {
+  align-self: center;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.92);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+.mosaic-tabs-bar__switch:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.mosaic-tabs-bar__switch:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 1px;
+}
+
+.mosaic-tabs-bar__switch.is-on {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.52);
+}
+
+.mosaic-tabs-bar__switch-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 28px;
+  height: 15px;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 43, 79, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+.mosaic-tabs-bar__switch.is-on .mosaic-tabs-bar__switch-track {
+  background: #0a4f7a;
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.mosaic-tabs-bar__switch-thumb {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  transform: translateX(0);
+  transition:
+    transform 200ms var(--ease),
+    background-color var(--motion-fast) var(--ease);
+}
+
+.mosaic-tabs-bar__switch.is-on .mosaic-tabs-bar__switch-thumb {
+  background: #ffffff;
+  transform: translateX(13px);
 }
 
 .mosaic-tabs-bar__toggle {

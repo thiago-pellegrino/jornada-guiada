@@ -98,6 +98,8 @@ export default function HeroCarouselMosaic({
   onSelectMatrixView,
   collapsed = false,
   onToggleCollapsed,
+  autoHide = false,
+  onToggleAutoHide,
   scenario,
   result,
 }) {
@@ -116,6 +118,7 @@ export default function HeroCarouselMosaic({
       slides: [
         { id: 'contexto', tab: 'contexto', title: 'Upstream: Criação de Contexto', tabLabel: 'Criação de Contexto', image: 'jornada-contexto' },
         { id: 'darklab', tab: 'darklab', title: 'Darklab: Inception, Discovery e Value', tabLabel: 'Darklab', image: 'jornada-darklab' },
+        { id: 'projetos', tab: 'projetos', title: 'Gestão dos Projetos', tabLabel: 'Projetos', image: 'jornada-projetos' },
         { id: 'backlog-futuro', tab: 'backlog-futuro', title: 'Backlog do Futuro', image: 'jornada-backlog-futuro' },
       ],
     },
@@ -167,7 +170,8 @@ export default function HeroCarouselMosaic({
       const next = { ...prev };
       if (activeTab === 'contexto') next.jornada = 0;
       if (activeTab === 'darklab') next.jornada = 1;
-      if (activeTab === 'backlog-futuro') next.jornada = 2;
+      if (activeTab === 'projetos') next.jornada = 2;
+      if (activeTab === 'backlog-futuro') next.jornada = 3;
       if (activeTab === 'escopo-squads') next.escopo = 0;
       if (activeTab === 'epicos') next.escopo = 1;
       if (activeTab === 'planejamento') next.planejamento = matrixView === 'grid' ? 1 : 0;
@@ -329,6 +333,25 @@ export default function HeroCarouselMosaic({
       <div className="mosaic-tabs-bar">
         {onToggleCollapsed ? (
           <>
+            {onToggleAutoHide ? (
+              <button
+                type="button"
+                role="switch"
+                aria-checked={autoHide}
+                className={`mosaic-tabs-bar__switch ${autoHide ? 'is-on' : ''}`}
+                onClick={onToggleAutoHide}
+                aria-label="Esconder menu automaticamente ao rolar a página"
+                title={
+                  autoHide
+                    ? 'Esconder menu automaticamente ao rolar: ativado (ON)'
+                    : 'Esconder menu automaticamente ao rolar: desativado (OFF)'
+                }
+              >
+                <span className="mosaic-tabs-bar__switch-track" aria-hidden="true">
+                  <span className="mosaic-tabs-bar__switch-thumb" />
+                </span>
+              </button>
+            ) : null}
             <button
               type="button"
               className={`mosaic-tabs-bar__toggle ${collapsed ? 'is-collapsed' : ''}`}

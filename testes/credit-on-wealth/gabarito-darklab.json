@@ -1,0 +1,862 @@
+{
+  "descricao": "Gabarito do DarkLab extraído do HTML do caso de teste (posição documental até 16/11/2026). Uso exclusivo em testes; não faz parte das especificações.",
+  "mapaDeStatus": {
+    "done": "concluído",
+    "progress": "em andamento",
+    "acceptance": "em aceite",
+    "blocked": "impedido",
+    "pending": "pendente"
+  },
+  "fontes": {
+    "proposal": {
+      "titulo": "Proposta baseline · Solution & Business Case Discovery",
+      "arquivo": "Credit_on_Wealth_Proposta_Refeita_Completarev jam (1).pptx"
+    },
+    "workguide": {
+      "titulo": "Guia de Trabalho Credit on Wealth",
+      "arquivo": "Guia_Trabalho_Credit_on_Wealth.docx"
+    },
+    "prekickoff": {
+      "titulo": "Pré Kick-off ART · 21/10",
+      "arquivo": "20261021 - Anotações da transcrição - Pré Kick-off ART.docx"
+    },
+    "alignment2210": {
+      "titulo": "Apresentação Simone/Joyce/Audrey · 22/10",
+      "arquivo": "20261022 - Anotações da Apresentação Simone Joyce com Audrey ART.docx"
+    },
+    "milestonesDoc": {
+      "titulo": "Cronograma de Marcos e Atividades",
+      "arquivo": null
+    },
+    "scheduleConsolidation": {
+      "titulo": "Consolidação do Cronograma de Crédito",
+      "arquivo": null
+    },
+    "daily2710": {
+      "titulo": "Daily interna · 27/10",
+      "arquivo": "20261027 - Daily interna - Credit on Wealth.docx"
+    },
+    "briefing2810": {
+      "titulo": "Briefing Darklabs · 28/10",
+      "arquivo": null
+    },
+    "daily2810": {
+      "titulo": "Daily interna · 28/10",
+      "arquivo": "20261028 - Daily interna - Credit on Wealth.docx"
+    },
+    "daily2910": {
+      "titulo": "Daily interna · 29/10",
+      "arquivo": "20261029 - Daily interna - Credit on Wealth.docx"
+    },
+    "daily3010": {
+      "titulo": "Daily interna · 30/10",
+      "arquivo": "20261030 - Daily interna - Credit on Wealth.docx"
+    },
+    "architectureQuestionnaire": {
+      "titulo": "Questionário de arquitetura",
+      "arquivo": null
+    },
+    "daily0311": {
+      "titulo": "Daily interna · 03/11",
+      "arquivo": "20261103 - Daily interna - Credit on Wealth.docx"
+    },
+    "daily0411": {
+      "titulo": "Daily interna · 04/11",
+      "arquivo": "20261104 - Daily interna - Credit on Wealth.docx"
+    },
+    "businessCase0411": {
+      "titulo": "Product Discovery Business Case · 04/11",
+      "arquivo": null
+    },
+    "daily0511": {
+      "titulo": "Daily interna · 05/11",
+      "arquivo": "20261105 - Daily interna - Credit on Wealth.docx"
+    },
+    "daily0611": {
+      "titulo": "Daily interna · 06/11",
+      "arquivo": "20261106 - Daily interna - Credit on Wealth.docx"
+    },
+    "daily1211": {
+      "titulo": "Daily interna · 12/11",
+      "arquivo": "20261112 - Daily interna - Credit on Wealth.docx"
+    },
+    "charter": {
+      "titulo": "Project Charter Credit on Wealth",
+      "arquivo": null
+    },
+    "knowledgeBase": {
+      "titulo": "Knowledge Base Discovery",
+      "arquivo": null
+    },
+    "dependencyMap": {
+      "titulo": "Dependency Map Credit on Wealth",
+      "arquivo": null
+    },
+    "garantias": {
+      "titulo": "Descoberta incremental · Garantias",
+      "arquivo": "Credit_on_Wealth_Descoberta_Incremental_Garantias.docx"
+    },
+    "cronograma": {
+      "titulo": "Cronograma detalhado · 12/11",
+      "arquivo": "20261112 - Cronograma_Credit_On_Wealth.xlsx"
+    },
+    "ata2710": {
+      "titulo": "Ata da primeira sessão · 27/10",
+      "arquivo": "20261027 - Ata da Primeira Sessão de Trabalho - Credit on Wealth.docx"
+    },
+    "status0511": {
+      "titulo": "Status report · 05/11",
+      "arquivo": "20261105 - Status Report.pptx"
+    },
+    "status1211": {
+      "titulo": "Status report · 12/11",
+      "arquivo": "20261112 - Status Report.pptx"
+    },
+    "pendencias": {
+      "titulo": "Controle de pendências · 05/11",
+      "arquivo": "Controle_Pendencias_Credit_on_Wealth.xlsx"
+    },
+    "daily1611": {
+      "titulo": "Daily interna · 16/11",
+      "arquivo": "20261116 - Daily interna - Credit on Wealth.docx"
+    },
+    "investimentos": {
+      "titulo": "Discovery Investimentos · 06/11",
+      "arquivo": "Credit_on_Wealth_Export_Investimentos_06nov2026.docx"
+    },
+    "preco": {
+      "titulo": "Estratégia de Preço · 09/11",
+      "arquivo": "Credit_on_Wealth_Export_Estrategia_Preco_09nov2026.docx"
+    },
+    "capitalizacao": {
+      "titulo": "Capitalização · 09/11",
+      "arquivo": "Credit_on_Wealth_Export_Capitalizacao_09nov2026.docx"
+    },
+    "prototipo": {
+      "titulo": "Protótipo e jornadas · 09/11",
+      "arquivo": "Credit_on_Wealth_Export_Prototipo_09nov2026.docx"
+    },
+    "agora": {
+      "titulo": "Discovery Ágora · 10/11",
+      "arquivo": "Credit_on_Wealth_Export_Agora_10nov2026.docx"
+    },
+    "parcelados": {
+      "titulo": "Parcelados Prime · 16/11",
+      "arquivo": "20261116 - Product Discovery _ Parcelados Prime.docx"
+    },
+    "concorrencia": {
+      "titulo": "Avaliação da concorrência",
+      "arquivo": "Export_Completo_DELTA_Avaliacao_Concorrencia.docx"
+    },
+    "pluto": {
+      "titulo": "Análise Pluto",
+      "arquivo": "DELTA_Completo_Credit_on_Wealth_Pluto.docx"
+    },
+    "lombard": {
+      "titulo": "Descoberta incremental Lombard",
+      "arquivo": "Credit_on_Wealth_Descoberta_Incremental_Lombard.docx"
+    },
+    "motive": {
+      "titulo": "Motive + Capgemini ART · 06/11",
+      "arquivo": "20261106 - Credit on Wealth _ Discussion with Motive and Capgemini ART.docx"
+    },
+    "asis": {
+      "titulo": "AS-IS e questionário de arquitetura",
+      "arquivo": null
+    },
+    "arquitetura": {
+      "titulo": "Arquitetura AS-IS e TO-BE · v5",
+      "arquivo": "Credit on Wealth - Arquitetura As-Is e To-Be v5.pptx"
+    }
+  },
+  "motores": [
+    {
+      "motor": 1,
+      "verbo": "Enquadrar",
+      "nome": "Descoberta estratégica",
+      "faixa": "Upstream · AS IS",
+      "situacao": "Em fechamento",
+      "periodo": "27 out → Gate 1 · 23 nov",
+      "insumos": [
+        "Demandas, ambições, problemas e metas",
+        "Contexto do negócio",
+        "Documentos estratégicos",
+        "Stakeholders"
+      ],
+      "metodos": [
+        "Entrevistas com stakeholders",
+        "Análise documental",
+        "Desk research",
+        "Benchmarking",
+        "Workshops de enquadramento"
+      ],
+      "produtos": [
+        "Desafio enquadrado",
+        "Mapa inicial de oportunidades",
+        "Hipóteses de investigação",
+        "Stakeholders, restrições e resultados esperados",
+        "Critérios de sucesso"
+      ],
+      "atividades": [
+        {
+          "periodo": "27 OUT",
+          "titulo": "Kickoff e primeira sessão de trabalho",
+          "descricao": "Desafio, frentes, governança e dinâmica do discovery foram enquadrados com negócio, inovação e tribos.",
+          "status": "concluído",
+          "fontes": [
+            "ata2710",
+            "cronograma"
+          ]
+        },
+        {
+          "periodo": "05–12 NOV",
+          "titulo": "Governança e acompanhamento implantados",
+          "descricao": "Cronograma, ritos, comitês, stakeholders, status reports e controle de pendências foram estruturados.",
+          "status": "concluído",
+          "fontes": [
+            "status0511",
+            "status1211",
+            "pendencias"
+          ]
+        },
+        {
+          "periodo": "ATÉ 16 NOV",
+          "titulo": "Pacote G1 elaborado, mas não formalmente fechado",
+          "descricao": "Project Charter, Knowledge Base e Dependency Map têm elaboração inicial registrada; revisão, submissão e aceite permanecem abertos.",
+          "status": "em aceite",
+          "fontes": [
+            "cronograma",
+            "daily1611"
+          ]
+        },
+        {
+          "periodo": "19–23 NOV",
+          "titulo": "Revisar, enviar e obter o Gate 1",
+          "descricao": "Envio interno combinado para 19/11 e validação formal em 23/11, incluindo o benchmark solicitado.",
+          "status": "em andamento",
+          "fontes": [
+            "daily1611",
+            "status1211",
+            "cronograma"
+          ]
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Project Charter",
+          "status": "em aceite",
+          "nota": "Elaboração inicial concluída; revisão e aceite pendentes.",
+          "fontes": [
+            "cronograma"
+          ]
+        },
+        {
+          "nome": "Knowledge Base",
+          "status": "em aceite",
+          "nota": "Material produzido; consolidação e aceite não comprovados.",
+          "fontes": [
+            "cronograma"
+          ]
+        },
+        {
+          "nome": "Dependency Map",
+          "status": "em aceite",
+          "nota": "Material produzido; dependências e owners ainda precisam fechar.",
+          "fontes": [
+            "cronograma",
+            "status1211"
+          ]
+        },
+        {
+          "nome": "Gate 1 formal",
+          "status": "em andamento",
+          "nota": "Marco documental previsto para 23/11.",
+          "fontes": [
+            "status1211",
+            "daily1611"
+          ]
+        }
+      ],
+      "ressalva": "Há execução comprovada no motor, mas nenhum documento consultado comprova o aceite formal do Gate 1 até 16/11."
+    },
+    {
+      "motor": 2,
+      "verbo": "Compreender",
+      "nome": "Escuta e inteligência de sinais",
+      "faixa": "Upstream · AS IS",
+      "situacao": "Em andamento",
+      "periodo": "27 out → consolidação em curso",
+      "insumos": [
+        "Dores e comportamentos",
+        "Jornadas de clientes e colaboradores",
+        "Percepções e feedbacks",
+        "Tendências e sinais externos"
+      ],
+      "metodos": [
+        "Entrevistas em profundidade",
+        "Observação contextual",
+        "Análise de jornada",
+        "Social listening",
+        "Horizon scanning",
+        "Desk research"
+      ],
+      "produtos": [
+        "Mapa de dores, necessidades e sinais",
+        "Jornadas e padrões identificados",
+        "Insights fundamentados",
+        "Pílulas de solução priorizadas"
+      ],
+      "atividades": [
+        {
+          "periodo": "27 OUT–10 NOV",
+          "titulo": "Ciclo de sessões de negócio executado",
+          "descricao": "Sessões com Crédito, Prime, Produto/UX, Investimentos, Estratégia de Preço, Capitalização e Ágora levantaram jornadas, dores, dados e dependências.",
+          "status": "concluído",
+          "fontes": [
+            "ata2710",
+            "status0511",
+            "investimentos",
+            "preco",
+            "capitalizacao",
+            "agora"
+          ]
+        },
+        {
+          "periodo": "06–10 NOV",
+          "titulo": "Sinais externos e referências levantados",
+          "descricao": "Benchmark inicial, concorrência, Pluto, Lombard e conversa Motive + Capgemini registraram hipóteses e limitações.",
+          "status": "concluído",
+          "fontes": [
+            "cronograma",
+            "concorrencia",
+            "pluto",
+            "lombard",
+            "motive"
+          ]
+        },
+        {
+          "periodo": "13 NOV",
+          "titulo": "Workshop TO-BE realizado",
+          "descricao": "Grupos multidisciplinares levantaram dores e construíram jornadas e protótipos.",
+          "status": "concluído",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "periodo": "16 NOV",
+          "titulo": "Sessão Parcelados Prime realizada",
+          "descricao": "Foram aprofundados elegibilidade, efetivação de contratos, erros genéricos e expansão de garantias.",
+          "status": "concluído",
+          "fontes": [
+            "parcelados"
+          ]
+        },
+        {
+          "periodo": "APÓS 16 NOV",
+          "titulo": "Consolidar evidências e fechar lacunas",
+          "descricao": "Agenda com Retenção, relatório original da pesquisa e reteste de compreensão continuam sem comprovação de fechamento.",
+          "status": "em andamento",
+          "fontes": [
+            "status1211",
+            "prototipo"
+          ]
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Registros das sessões de discovery",
+          "status": "concluído",
+          "nota": "Entrevistas e discussões documentadas em atas e exports.",
+          "fontes": [
+            "investimentos",
+            "preco",
+            "capitalizacao",
+            "agora",
+            "parcelados"
+          ]
+        },
+        {
+          "nome": "Análises de mercado e referências",
+          "status": "concluído",
+          "nota": "Materiais documentais produzidos; não equivalem a seleção de fornecedor.",
+          "fontes": [
+            "concorrencia",
+            "pluto",
+            "lombard",
+            "motive"
+          ]
+        },
+        {
+          "nome": "Mapa consolidado de dores, jornadas e insights",
+          "status": "em aceite",
+          "nota": "Consolidação inicial disponível; síntese final e aceite não comprovados.",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "nome": "Relatório de pesquisa recuperado + reteste",
+          "status": "em andamento",
+          "nota": "Ainda precisa confirmar versões implantadas e compreensão das mudanças.",
+          "fontes": [
+            "prototipo"
+          ]
+        }
+      ],
+      "ressalva": "Sessões realizadas aparecem em verde; síntese, aceite e reteste permanecem estados separados."
+    },
+    {
+      "motor": 3,
+      "verbo": "Direcionar",
+      "nome": "Estratégia e visão de produto",
+      "faixa": "Downstream · TO BE",
+      "situacao": "Em andamento",
+      "periodo": "12 nov → 11 dez",
+      "insumos": [
+        "Pílulas de solução",
+        "Evidências da pesquisa",
+        "Objetivos estratégicos",
+        "Capacidades, restrições e métricas do negócio"
+      ],
+      "metodos": [
+        "Workshops de cocriação",
+        "Proposta de valor",
+        "Modelagem de negócio",
+        "Análise de viabilidade",
+        "Priorização por valor, esforço e risco"
+      ],
+      "produtos": [
+        "Proposta de valor e modelo de negócio",
+        "Product Statement Pack",
+        "Visão de produto",
+        "Métricas e prioridades",
+        "Roadmap inicial",
+        "Mapa de capacidades, parceiros e dependências"
+      ],
+      "atividades": [
+        {
+          "periodo": "12 NOV",
+          "titulo": "Direcionamento inicial do Business Case para Prime",
+          "descricao": "O último reporte formal direciona o VPL ao Prime; a intenção de mostrar outros segmentos ainda precisa entrar no escopo formal.",
+          "status": "concluído",
+          "fontes": [
+            "status1211",
+            "daily1611"
+          ]
+        },
+        {
+          "periodo": "13–16 NOV",
+          "titulo": "Workshop sendo convertido em visão e prioridades",
+          "descricao": "Insights precisam virar Product Vision, oportunidades, jornadas consolidadas, métricas e priorização.",
+          "status": "em andamento",
+          "fontes": [
+            "daily1611",
+            "cronograma"
+          ]
+        },
+        {
+          "periodo": "16 NOV",
+          "titulo": "Business Case dependente de dados",
+          "descricao": "Owners e bases de crédito, investimentos e relacionamento ainda não estavam consolidados.",
+          "status": "impedido",
+          "fontes": [
+            "daily1611",
+            "preco"
+          ]
+        },
+        {
+          "periodo": "ATÉ 11 DEZ",
+          "titulo": "Viabilidade, sourcing e recomendação",
+          "descricao": "Benchmark decisório, Build/Buy/Partner, TCO, Business Case e recomendação estratégica permanecem em construção.",
+          "status": "em andamento",
+          "fontes": [
+            "cronograma",
+            "preco",
+            "agora"
+          ]
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Product Vision + Product Statement Pack",
+          "status": "em andamento",
+          "nota": "Entregável esperado; não há aceite comprovado até 16/11.",
+          "fontes": [
+            "daily1611",
+            "cronograma"
+          ]
+        },
+        {
+          "nome": "Proposta de valor, métricas e prioridades",
+          "status": "em andamento",
+          "nota": "Síntese ainda precisa ser consolidada e validada.",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "nome": "Mapa de capacidades, parceiros e dependências",
+          "status": "em andamento",
+          "nota": "Apoiado por arquitetura v5 e Dependency Map, ambos ainda sujeitos a fechamento.",
+          "fontes": [
+            "arquitetura",
+            "cronograma"
+          ]
+        },
+        {
+          "nome": "Business Case + TCO + recomendação",
+          "status": "impedido",
+          "nota": "Conclusão prevista para 11/12; dados necessários ainda são impedimento.",
+          "fontes": [
+            "cronograma",
+            "daily1611",
+            "preco"
+          ]
+        }
+      ],
+      "ressalva": "O foco Prime foi direcionado, mas direção estratégica não equivale a Product Vision aprovada nem a Business Case concluído."
+    },
+    {
+      "motor": 4,
+      "verbo": "Materializar",
+      "nome": "Design e ativos digitais",
+      "faixa": "Downstream · TO BE",
+      "situacao": "Em andamento",
+      "periodo": "09 nov → 27 nov",
+      "insumos": [
+        "Visão de produto",
+        "Product Statement",
+        "Jornadas atuais e requisitos",
+        "Regras de negócio",
+        "Ativos existentes"
+      ],
+      "metodos": [
+        "Design Thinking",
+        "Service Design",
+        "Arquitetura de informação",
+        "Prototipação",
+        "Blueprint de serviço",
+        "Análise técnica e integrações",
+        "Curadoria de ativos digitais"
+      ],
+      "produtos": [
+        "Jornadas futuras, fluxos e protótipos",
+        "Blueprint do serviço",
+        "Visão técnica e integrações",
+        "Biblioteca de ativos digitais reutilizáveis",
+        "Backlog preparado para construção"
+      ],
+      "atividades": [
+        {
+          "periodo": "09 NOV",
+          "titulo": "Jornadas e protótipo apresentados",
+          "descricao": "Achados da pesquisa de 2025 e evoluções de aplicativo e jornada gerencial foram apresentados; não há comprovação de implantação ou reteste.",
+          "status": "concluído",
+          "fontes": [
+            "prototipo"
+          ]
+        },
+        {
+          "periodo": "13 NOV",
+          "titulo": "Workshop de jornada futura executado",
+          "descricao": "Dores, jornadas e protótipos foram trabalhados por grupos multidisciplinares.",
+          "status": "concluído",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "periodo": "16 NOV",
+          "titulo": "Consolidação inicial disponível",
+          "descricao": "O notebook já continha o consolidado, mas as telas dos protótipos ainda não haviam sido recebidas.",
+          "status": "em aceite",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "periodo": "16 NOV",
+          "titulo": "Arquitetura AS-IS/TO-BE evoluída à v5",
+          "descricao": "Material produzido com decisões e dependências ainda sujeitas a validações técnicas, jurídicas e de compliance.",
+          "status": "em aceite",
+          "fontes": [
+            "arquitetura",
+            "asis"
+          ]
+        },
+        {
+          "periodo": "ATÉ 27 NOV",
+          "titulo": "Consolidar e validar o pacote de design",
+          "descricao": "Product Vision, Service Blueprint, Protótipo Conceitual, jornada futura e aprovações da frente seguem em andamento.",
+          "status": "em andamento",
+          "fontes": [
+            "cronograma",
+            "daily1611"
+          ]
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Jornadas e protótipo de referência · 09/11",
+          "status": "em aceite",
+          "nota": "Apresentados; implantação e reteste não comprovados.",
+          "fontes": [
+            "prototipo"
+          ]
+        },
+        {
+          "nome": "Consolidado do workshop TO-BE",
+          "status": "em aceite",
+          "nota": "Material inicial disponível; telas e desdobramento ainda pendentes.",
+          "fontes": [
+            "daily1611"
+          ]
+        },
+        {
+          "nome": "Arquitetura AS-IS e TO-BE · v5",
+          "status": "em aceite",
+          "nota": "Arquivo existente; validações especializadas permanecem abertas.",
+          "fontes": [
+            "arquitetura"
+          ]
+        },
+        {
+          "nome": "Service Blueprint + Protótipo Conceitual",
+          "status": "em andamento",
+          "nota": "Entregáveis previstos para 27/11; arquivo final aprovado não localizado.",
+          "fontes": [
+            "cronograma",
+            "daily1611"
+          ]
+        },
+        {
+          "nome": "Biblioteca de ativos + backlog pronto",
+          "status": "pendente",
+          "nota": "Não há comprovação documental de fechamento até 16/11.",
+          "fontes": []
+        }
+      ],
+      "ressalva": "A existência de protótipos e da arquitetura v5 comprova material produzido, não uma solução implantada ou formalmente aceita."
+    },
+    {
+      "motor": 5,
+      "verbo": "Construir",
+      "nome": "MVP e validação",
+      "faixa": "Downstream · TO BE",
+      "situacao": "Não iniciado",
+      "periodo": "Planejado até 18 dez",
+      "insumos": [
+        "Protótipos e backlog priorizado",
+        "Hipóteses críticas",
+        "Arquitetura e requisitos",
+        "Critérios de qualidade",
+        "Plano de validação"
+      ],
+      "metodos": [
+        "Prova de conceito, quando necessária",
+        "Desenvolvimento incremental",
+        "Lean Startup",
+        "Testes de usabilidade",
+        "Instrumentação de dados",
+        "Validação em condições reais"
+      ],
+      "produtos": [
+        "PoC, quando necessária",
+        "MVP funcional com escopo delimitado",
+        "Testes e evidências de qualidade",
+        "Instrumentação e plano de validação"
+      ],
+      "atividades": [
+        {
+          "periodo": "ATÉ 16 NOV",
+          "titulo": "Definição de MVP ainda não iniciada",
+          "descricao": "Cronograma registra definição do MVP, priorização do backlog, roadmap e condicionantes de implementação como itens futuros.",
+          "status": "pendente",
+          "fontes": [
+            "cronograma"
+          ]
+        },
+        {
+          "periodo": "ATÉ 18 DEZ",
+          "titulo": "Planejar e decidir a próxima fase",
+          "descricao": "MVP, roadmaps de 12 e 24 meses, plano de transição e Decision Pack Executivo permanecem por iniciar.",
+          "status": "pendente",
+          "fontes": [
+            "cronograma"
+          ]
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "MVP definido e backlog priorizado",
+          "status": "pendente",
+          "nota": "Sem arquivo comprobatório localizado até 16/11.",
+          "fontes": [
+            "cronograma"
+          ]
+        },
+        {
+          "nome": "PoC / MVP funcional",
+          "status": "pendente",
+          "nota": "Não iniciado; os protótipos existentes não equivalem a MVP.",
+          "fontes": []
+        },
+        {
+          "nome": "Plano de validação e instrumentação",
+          "status": "pendente",
+          "nota": "Sem evidência documental de execução até 16/11.",
+          "fontes": []
+        },
+        {
+          "nome": "Roadmaps 12 e 24 meses + Decision Pack",
+          "status": "pendente",
+          "nota": "Entrega final planejada para 18/12.",
+          "fontes": [
+            "cronograma"
+          ]
+        }
+      ],
+      "ressalva": "Protótipo apresentado é insumo deste motor; não deve ser marcado como MVP construído."
+    },
+    {
+      "motor": 6,
+      "verbo": "Comprovar",
+      "nome": "Experimentação e impacto",
+      "faixa": "Downstream · TO BE",
+      "situacao": "Não iniciado",
+      "periodo": "Após MVP em operação",
+      "insumos": [
+        "MVP em operação",
+        "Dados de uso e telemetria",
+        "Feedbacks de clientes e equipes",
+        "Indicadores e hipóteses",
+        "Outcomes definidos"
+      ],
+      "metodos": [
+        "Testes A/B",
+        "Análise de funil",
+        "Pesquisas de satisfação",
+        "Análise comportamental",
+        "Acompanhamento de indicadores",
+        "Entrevistas pós-uso"
+      ],
+      "produtos": [
+        "Resultados dos experimentos",
+        "Indicadores de adoção, eficácia, qualidade e satisfação",
+        "Hipóteses confirmadas, rejeitadas ou inconclusivas",
+        "Recomendação de ajustar, ampliar ou interromper"
+      ],
+      "atividades": [
+        {
+          "periodo": "ATÉ 16 NOV",
+          "titulo": "Pré-condição ainda ausente",
+          "descricao": "Não há MVP em operação, telemetria ou plano de experimentação concluído nos documentos consultados.",
+          "status": "pendente",
+          "fontes": [
+            "cronograma"
+          ]
+        },
+        {
+          "periodo": "FASE FUTURA",
+          "titulo": "Executar experimentos e medir outcomes",
+          "descricao": "A/B, funil, satisfação, análise comportamental e acompanhamento de indicadores dependem do motor 5.",
+          "status": "pendente",
+          "fontes": []
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Plano de experimentação",
+          "status": "pendente",
+          "nota": "Arquivo não localizado até 16/11.",
+          "fontes": []
+        },
+        {
+          "nome": "Painel de indicadores e telemetria",
+          "status": "pendente",
+          "nota": "Depende de MVP instrumentado.",
+          "fontes": []
+        },
+        {
+          "nome": "Relatório de resultados e recomendação",
+          "status": "pendente",
+          "nota": "Sem experimentos concluídos para suportar este entregável.",
+          "fontes": []
+        }
+      ],
+      "ressalva": "Resultados de entrevistas e workshops são evidências de discovery; não são resultados de experimentos com MVP em operação."
+    },
+    {
+      "motor": 7,
+      "verbo": "Antecipar",
+      "nome": "Foresight e evolução contínua",
+      "faixa": "Downstream · TO BE",
+      "situacao": "Não iniciado",
+      "periodo": "Ciclo posterior aos experimentos",
+      "insumos": [
+        "Resultados dos experimentos",
+        "Aprendizados",
+        "Novos sinais e tendências",
+        "Mudanças de comportamento",
+        "Forças de transformação"
+      ],
+      "metodos": [
+        "Horizon scanning",
+        "Análise STEEP",
+        "Construção de cenários",
+        "Backcasting",
+        "Análise de implicações",
+        "Monitoramento de sinais"
+      ],
+      "produtos": [
+        "Cenários e implicações para o negócio",
+        "Oportunidades e experimentos futuros",
+        "Roadmap revisado",
+        "Backlog do futuro com evidências, prioridades e gatilhos de revisão"
+      ],
+      "atividades": [
+        {
+          "periodo": "ATÉ 16 NOV",
+          "titulo": "Motor ainda não iniciado formalmente",
+          "descricao": "Há sinais de mercado no discovery, mas não há ciclo formal de foresight, cenários ou backcasting comprovado.",
+          "status": "pendente",
+          "fontes": [
+            "concorrencia",
+            "pluto",
+            "lombard",
+            "motive"
+          ]
+        },
+        {
+          "periodo": "FASE FUTURA",
+          "titulo": "Converter aprendizados em evolução contínua",
+          "descricao": "Cenários, implicações, experimentos futuros, roadmap revisado e gatilhos de revisão dependem dos motores 5 e 6.",
+          "status": "pendente",
+          "fontes": []
+        }
+      ],
+      "entregaveis": [
+        {
+          "nome": "Mapa de cenários e implicações",
+          "status": "pendente",
+          "nota": "Arquivo não localizado até 16/11.",
+          "fontes": []
+        },
+        {
+          "nome": "Roadmap revisado por sinais e evidências",
+          "status": "pendente",
+          "nota": "Depende dos resultados dos experimentos.",
+          "fontes": []
+        },
+        {
+          "nome": "Backlog do futuro + gatilhos de revisão",
+          "status": "pendente",
+          "nota": "Não iniciado na posição documental.",
+          "fontes": []
+        }
+      ],
+      "ressalva": "Benchmarks e sinais externos já levantados são insumos potenciais, mas não comprovam a execução do motor de foresight."
+    }
+  ]
+}
