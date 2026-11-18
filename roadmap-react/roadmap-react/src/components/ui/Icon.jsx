@@ -137,6 +137,14 @@ const PATHS = {
       <path d="M15 11.5h6M18 8.5v6" />
     </>
   ),
+  mosaic: (
+    <>
+      <rect x="3" y="4" width="8" height="16" rx="1.5" />
+      <rect x="13.5" y="4" width="7.5" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="3" height="6.5" rx="1" />
+      <rect x="18.2" y="13.5" width="2.8" height="6.5" rx="1" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 20, className = '', strokeWidth = 1.65, title }) {

@@ -60,6 +60,7 @@ export default function App() {
   const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
   const [matrixView, setMatrixView] = useState('gantt');
   const [focusMode, setFocusMode] = useState(false);
+  const [mosaicCollapsed, setMosaicCollapsed] = useState(false);
   // A semana atual é sempre carregada com a semana vigente de hoje (não é salva com o cenário).
   const [currentYearWeek, setCurrentYearWeek] = useState(() => currentYearWeekNumber());
   const [toast, setToast] = useState(null);
@@ -70,11 +71,37 @@ export default function App() {
 
   const mainRef = useRef(null);
   const copilotButtonRef = useRef(null);
+  const lastScrollTopRef = useRef(new WeakMap());
+  const ignoreScrollUntilRef = useRef(0);
 
   useEffect(() => {
     if (window.location.hash !== `#${tab}`) window.history.replaceState(null, '', `#${tab}`);
+    ignoreScrollUntilRef.current = performance.now() + 250;
     mainRef.current?.scrollTo({ top: 0 });
   }, [tab]);
+
+  const handleMainScroll = useCallback((event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || target.matches('input, select, textarea')) return;
+
+    const currentTop = target.scrollTop;
+    const prevTop = lastScrollTopRef.current.get(target) ?? 0;
+    lastScrollTopRef.current.set(target, currentTop);
+
+    if (performance.now() < ignoreScrollUntilRef.current) return;
+    if (currentTop > prevTop + 2 && currentTop > 4) {
+      setMosaicCollapsed((prev) => {
+        if (prev) return prev;
+        ignoreScrollUntilRef.current = performance.now() + 450;
+        return true;
+      });
+    }
+  }, []);
+
+  const handleToggleMosaic = useCallback(() => {
+    ignoreScrollUntilRef.current = performance.now() + 450;
+    setMosaicCollapsed((prev) => !prev);
+  }, []);
   const matrixRef = useRef(null);
   const resetRef = useRef(sim.requestReset);
   resetRef.current = sim.requestReset;
@@ -182,7 +209,7 @@ export default function App() {
         Ir para o conteúdo principal
       </a>
 
-      <div className="workspace">
+      <div className={`workspace ${mosaicCollapsed ? 'is-mosaic-collapsed' : ''}`}>
         <Topbar
           theme={theme}
           onThemeChange={handleThemeChange}
@@ -207,11 +234,13 @@ export default function App() {
           matrixView={matrixView}
           onSelectTab={setTab}
           onSelectMatrixView={setMatrixView}
+          collapsed={mosaicCollapsed}
+          onToggleCollapsed={handleToggleMosaic}
           scenario={scenario}
           result={result}
         />
 
-        <main ref={mainRef} id="main-content" className="main" tabIndex={-1}>
+        <main ref={mainRef} id="main-content" className="main" tabIndex={-1} onScrollCapture={handleMainScroll}>
           <div className="content">
             <div className="print-only print-header">
               <p className="print-header__seal">Estudo simulado — dados de planejamento</p>

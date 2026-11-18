@@ -91,7 +91,16 @@ function TileArtwork({ variant }) {
  * Mosaico editorial (inspirado no layout DAILY.): cada box é um grupo de abas e funciona
  * como carrossel — setas e indicadores alternam entre as abas do grupo e abrem o conteúdo.
  */
-export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab, onSelectMatrixView, scenario, result }) {
+export default function HeroCarouselMosaic({
+  activeTab,
+  matrixView,
+  onSelectTab,
+  onSelectMatrixView,
+  collapsed = false,
+  onToggleCollapsed,
+  scenario,
+  result,
+}) {
   const { kpis, context } = result;
   const modeLabel = SCHEDULING_MODES.find((m) => m.id === scenario.premises.schedulingMode)?.short || 'C1';
 
@@ -210,7 +219,13 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
 
   return (
     <>
-      <nav className="hero-mosaic" aria-label="Grupos de abas da Jornada Guiada">
+      <div
+        id="hero-mosaic-panel"
+        className={`hero-mosaic-collapse ${collapsed ? 'is-collapsed' : ''}`}
+        inert={collapsed}
+      >
+        <div className="hero-mosaic-collapse__inner">
+          <nav className="hero-mosaic" aria-label="Grupos de abas da Jornada Guiada">
         {groups.map((group) => {
           const index = indices[group.id] ?? 0;
           const slide = group.slides[index];
@@ -307,38 +322,60 @@ export default function HeroCarouselMosaic({ activeTab, matrixView, onSelectTab,
             </article>
           );
         })}
-      </nav>
+          </nav>
+        </div>
+      </div>
 
-      <div
-        ref={tabsBarRef}
-        className="mosaic-tabs-bar"
-        role="tablist"
-        aria-label="Opções da Jornada Guiada"
-        onKeyDown={handleBarKeyDown}
-      >
-        {groups.map((group, gIdx) => (
-          <Fragment key={group.id}>
-            {gIdx > 0 ? <span className="mosaic-tabs-bar__divider" aria-hidden="true" /> : null}
-            {group.slides.map((item, sIdx) => {
-              const active = isSlideActive(item);
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  aria-controls={`panel-${item.tab}`}
-                  tabIndex={active ? 0 : -1}
-                  className={`mosaic-tabs-bar__tab ${active ? 'is-active' : ''}`}
-                  title={item.title}
-                  onClick={() => activate(group, sIdx)}
-                >
-                  {item.tabLabel ?? item.title}
-                </button>
-              );
-            })}
-          </Fragment>
-        ))}
+      <div className="mosaic-tabs-bar">
+        {onToggleCollapsed ? (
+          <>
+            <button
+              type="button"
+              className={`mosaic-tabs-bar__toggle ${collapsed ? 'is-collapsed' : ''}`}
+              onClick={onToggleCollapsed}
+              aria-expanded={!collapsed}
+              aria-controls="hero-mosaic-panel"
+              aria-label={collapsed ? 'Abrir menu principal (mosaico)' : 'Recolher menu principal (mosaico)'}
+              title={collapsed ? 'Abrir menu principal' : 'Recolher menu principal'}
+            >
+              <Icon name="mosaic" size={15} />
+              <Icon name="chevronDown" size={13} className={`mosaic-tabs-bar__chevron ${collapsed ? '' : 'is-open'}`} />
+            </button>
+            <span className="mosaic-tabs-bar__divider" aria-hidden="true" />
+          </>
+        ) : null}
+
+        <div
+          ref={tabsBarRef}
+          className="mosaic-tabs-bar__list"
+          role="tablist"
+          aria-label="Opções da Jornada Guiada"
+          onKeyDown={handleBarKeyDown}
+        >
+          {groups.map((group, gIdx) => (
+            <Fragment key={group.id}>
+              {gIdx > 0 ? <span className="mosaic-tabs-bar__divider" aria-hidden="true" /> : null}
+              {group.slides.map((item, sIdx) => {
+                const active = isSlideActive(item);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    aria-controls={`panel-${item.tab}`}
+                    tabIndex={active ? 0 : -1}
+                    className={`mosaic-tabs-bar__tab ${active ? 'is-active' : ''}`}
+                    title={item.title}
+                    onClick={() => activate(group, sIdx)}
+                  >
+                    {item.tabLabel ?? item.title}
+                  </button>
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
       </div>
     </>
   );
