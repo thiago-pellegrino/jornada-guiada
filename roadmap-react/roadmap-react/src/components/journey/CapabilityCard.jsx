@@ -35,7 +35,7 @@ export default function CapabilityCard({ capabilityId, scopeKey = 'projeto', com
           <span className="jg-dot jg-dot--running">Gerando…</span>
         ) : rev ? (
           <span className="jg-dot jg-dot--ok">
-            r{rev.revision} · {fmtDateTime(rev.generatedAt)} · {rev.reviewState}
+            R{rev.revision} · {fmtDateTime(rev.generatedAt)} · {rev.reviewState}
           </span>
         ) : (
           <span className="jg-dot">Não gerado</span>

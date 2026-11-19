@@ -5,6 +5,38 @@ import {
   applyScenarioPatch,
 } from '../../domain/simulationEngine.js';
 import Icon, { CopilotMark } from '../ui/Icon.jsx';
+import UserAvatar, { abrirConfiguracoes } from '../user/UserAvatar.jsx';
+import { useAuth } from '../../auth/AuthContext.jsx';
+import { useJourney } from '../../journey/JourneyContext.jsx';
+import { loadSettings, saveSettings } from '../../settings/settingsStore.js';
+import { getProvider } from '../../settings/byokCatalog.js';
+
+/** Modos de resposta do Delta (como no seletor de modelo da referência). */
+const MODOS = [
+  { id: 'auto', label: 'Auto', hint: 'Decide quanto tempo pensar' },
+  { id: 'rapida', label: 'Resposta rápida', hint: 'Responde na hora' },
+  { id: 'profunda', label: 'Pensar mais', hint: 'Pensa mais para dar respostas melhores' },
+];
+const MODO_KEY = 'jornada.delta.modo';
+function lerModo() {
+  try {
+    const v = window.localStorage.getItem(MODO_KEY);
+    return MODOS.some((m) => m.id === v) ? v : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+/** Modelos que o usuário configurou no B.Y.O.K.; "Auto" deixa o Delta escolher. */
+function modelosConfigurados(settings) {
+  return Object.entries(settings.byok.providers ?? {})
+    .map(([id, cfg]) => {
+      const provider = getProvider(id);
+      const model = provider?.models.find((m) => m.id === cfg.model);
+      return provider && model ? { id, label: `${provider.name} · ${model.name}` } : null;
+    })
+    .filter(Boolean);
+}
 
 const KEYWORDS = [
   { id: 'bottleneck', pattern: /gargal|atras|pior|lent/ },
@@ -113,6 +145,28 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
 
   // Estado de áudio conversacional (gravação/ditado e resposta por voz)
   const [voiceMode, setVoiceMode] = useState(false);
+  const [modelMenu, setModelMenu] = useState(false);
+  const [modo, setModo] = useState(lerModo);
+  const modelMenuRef = useRef(null);
+  useEffect(() => {
+    if (!modelMenu) return undefined;
+    const fora = (e) => {
+      if (!modelMenuRef.current?.contains(e.target)) setModelMenu(false);
+    };
+    const esc = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        setModelMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', fora);
+    document.addEventListener('keydown', esc, true);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      document.removeEventListener('keydown', esc, true);
+    };
+  }, [modelMenu]);
+  const [settings, setSettingsState] = useState(() => loadSettings());
   const [autoSpeak, setAutoSpeak] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
@@ -137,7 +191,9 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
   const bundle = useMemo(() => (open ? buildCopilotInsights(scenario, result) : null), [open, scenario, result]);
 
   useEffect(() => {
-    if (open) closeRef.current?.focus();
+    // preventScroll: a janela ainda está fora da tela no início do deslize; sem isso o navegador
+    // rolava a área da página para mostrar o botão e o conteúdo "andava" para a esquerda.
+    if (open) closeRef.current?.focus({ preventScroll: true });
     else {
       stopListening(false);
       stopSpeaking();
@@ -538,6 +594,136 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
 
   const normalizedQuery = normalize(navQuery.trim());
 
+  const { session } = useAuth();
+  const { project } = useJourney();
+  const papel = project?.members?.find((m) => m.id === 'usr-001')?.role ?? 'Administrador';
+  const modelos = modelosConfigurados(settings);
+  const modeloAtivo = modelos.find((m) => m.id === settings.byok.ativo) ?? null;
+  const escolherModo = (id) => {
+    setModo(id);
+    try {
+      window.localStorage.setItem(MODO_KEY, id);
+    } catch {
+      /* sem armazenamento: vale nesta sessão */
+    }
+    setModelMenu(false);
+  };
+  const modoAtual = MODOS.find((m) => m.id === modo) ?? MODOS[0];
+  const escolherModelo = (id) => {
+    const novo = { ...settings, byok: { ...settings.byok, ativo: id } };
+    setSettingsState(novo);
+    saveSettings(novo);
+    setModelMenu(false);
+  };
+  const vazio = messages.length === 0;
+
+  const chips = bundle ? (
+    <div className="delta-chips" aria-label="Sugestões">
+      {bundle.insights.map((insight) => (
+        <button key={insight.id} type="button" className="delta-chip" onClick={() => ask(insight.id)}>
+          {insight.question}
+        </button>
+      ))}
+      {bundle.proposals.map((proposal) => (
+        <button key={proposal.id} type="button" className="delta-chip delta-chip--action" onClick={() => propose(proposal.id)}>
+          <Icon name="wand" size={14} />
+          Preparar: {proposal.title}
+        </button>
+      ))}
+    </div>
+  ) : null;
+
+  // Sugestões e a explicação ficam sempre abaixo do campo de mensagem, com ou sem conversa.
+  const sugestoes = (
+    <>
+      {chips}
+      <p className="delta-hero__hint">
+        Organize conversas em pastas, envie documentos para análise contextual, converse por áudio ou peça simulações e propostas
+        confirmáveis sobre o roadmap.
+      </p>
+    </>
+  );
+
+  const composer = (
+    <form className={`copilot__composer delta-composer ${dragOver ? 'is-dragover' : ''}`} onSubmit={onSubmit}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="visually-hidden"
+        accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.md,.json,.html,.png,.jpg,.jpeg"
+        onChange={handleFileChange}
+      />
+
+      {attachments.length > 0 ? (
+        <div className="copilot__attachments" aria-label="Arquivos prontos para envio">
+          {attachments.map((att) => (
+            <span key={att.id} className="copilot-attachment-pill">
+              <Icon name="fileText" size={13} />
+              <span className="copilot-attachment-pill__name">{att.name}</span>
+              <span className="copilot-attachment-pill__size">{att.sizeLabel}</span>
+              <button
+                type="button"
+                className="copilot-attachment-pill__remove"
+                onClick={() => removeAttachment(att.id)}
+                aria-label={`Remover anexo ${att.name}`}
+              >
+                <Icon name="close" size={11} />
+              </button>
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="copilot__composer-row">
+        <button
+          type="button"
+          className="delta-round delta-round--ghost"
+          onClick={() => fileInputRef.current?.click()}
+          aria-label="Anexar arquivo"
+          title="Anexar arquivo (PDF, XLSX, DOCX, CSV, JSON, MD…)"
+        >
+          <Icon name="plus" size={18} />
+        </button>
+
+        <label htmlFor="copilot-input" className="visually-hidden">
+          Mensagem para o Delta
+        </label>
+        <textarea
+          id="copilot-input"
+          rows={1}
+          maxLength={2000}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) onSubmit(event);
+          }}
+          placeholder={
+            isListening
+              ? 'Ouvindo sua voz… fale agora ou clique no microfone para enviar.'
+              : 'Enviar uma mensagem para o Delta'
+          }
+        />
+
+        <button
+          type="button"
+          className={`delta-round ${isListening ? 'is-recording' : ''}`}
+          onClick={() => (isListening ? stopListening(true) : startListening())}
+          aria-pressed={isListening}
+          aria-label={isListening ? 'Concluir gravação e enviar áudio' : 'Conversar por voz'}
+          title={isListening ? 'Concluir e enviar áudio' : 'Conversar por voz'}
+        >
+          <Icon name={isListening ? 'stop' : 'voice'} size={17} />
+        </button>
+        {draft.trim() || attachments.length ? (
+          <button type="submit" className="delta-round delta-round--send" aria-label="Enviar mensagem" title="Enviar mensagem">
+            <Icon name="send" size={16} />
+          </button>
+        ) : null}
+      </div>
+    </form>
+  );
+
   return (
     <aside
       id="copilot-panel"
@@ -570,33 +756,38 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
               <CopilotMark size={20} />
             </span>
             <div className="copilot-nav__brand-text">
-              <div className="copilot__title-row">
-                <h2 id="copilot-title">Delta</h2>
-                <span className="copilot__agent-pill">Agente IA</span>
-              </div>
-              <p>Seu apoio em cada rotina</p>
+              <h2 id="copilot-title">Delta</h2>
             </div>
           </div>
 
-          <div className="copilot-nav__top">
-            <button
-              type="button"
-              className="btn btn--sm btn--primary copilot-nav__new-btn"
-              onClick={() => handleCreateChat(activeFolder?.id)}
-            >
-              <Icon name="plus" size={14} />
-              Novo chat
-            </button>
-            <button
-              type="button"
-              className="icon-btn copilot-nav__folder-btn"
-              onClick={() => setCreatingFolder((v) => !v)}
-              aria-label="Criar nova pasta"
-              title="Criar nova pasta"
-            >
-              <Icon name="folderPlus" size={15} />
-            </button>
-          </div>
+          <ul className="dnav" aria-label="Ações do Delta">
+            <li>
+              <button type="button" className="dnav__item dnav__item--new" onClick={() => handleCreateChat(activeFolder?.id)}>
+                <span className="dnav__plus" aria-hidden="true">
+                  <Icon name="plus" size={13} />
+                </span>
+                Novo chat
+              </button>
+            </li>
+            <li>
+              <button type="button" className="dnav__item" onClick={() => setCreatingFolder((v) => !v)} aria-expanded={creatingFolder}>
+                <Icon name="folderPlus" size={18} />
+                Nova pasta
+              </button>
+            </li>
+            <li>
+              <label className="dnav__item dnav__search">
+                <Icon name="search" size={18} />
+                <input
+                  type="search"
+                  placeholder="Pesquisar"
+                  value={navQuery}
+                  onChange={(event) => setNavQuery(event.target.value)}
+                  aria-label="Pesquisar pasta ou chat"
+                />
+              </label>
+            </li>
+          </ul>
 
           {creatingFolder ? (
             <form className="copilot-nav__new-folder" onSubmit={handleCreateFolder}>
@@ -614,19 +805,8 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
             </form>
           ) : null}
 
-          <div className="copilot-nav__search">
-            <Icon name="search" size={13} />
-            <input
-              type="search"
-              placeholder="Buscar pasta ou chat…"
-              value={navQuery}
-              onChange={(event) => setNavQuery(event.target.value)}
-              aria-label="Buscar pasta ou chat"
-            />
-          </div>
-
           <div className="copilot-nav__tree">
-            <span className="copilot-nav__section-label">Pastas e Conversas</span>
+            <span className="copilot-nav__section-label">Pastas e chats</span>
             {folders.map((folder) => {
               const folderChats = chats.filter((chat) => {
                 if (chat.folderId !== folder.id) return false;
@@ -648,12 +828,7 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
                       onClick={() => toggleFolder(folder.id)}
                       aria-expanded={folder.open}
                     >
-                      <Icon
-                        name="chevronRight"
-                        size={12}
-                        className={`copilot-folder__chevron ${folder.open ? 'is-open' : ''}`}
-                      />
-                      <Icon name="folder" size={14} className="copilot-folder__icon" />
+                      <Icon name="folder" size={17} className="copilot-folder__icon" />
                       <span className="copilot-folder__name">{folder.name}</span>
                       <span className="copilot-folder__count tabular">{folderChats.length}</span>
                     </button>
@@ -664,7 +839,7 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
                       aria-label={`Novo chat em ${folder.name}`}
                       title={`Novo chat em ${folder.name}`}
                     >
-                      <Icon name="plus" size={12} />
+                      <Icon name="plus" size={15} />
                     </button>
                   </div>
 
@@ -686,7 +861,7 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
                                 }
                               }}
                             >
-                              <Icon name="chat" size={13} className="copilot-chat-item__icon" />
+                              <Icon name="chat" size={15} className="copilot-chat-item__icon" />
                               <span className="copilot-chat-item__title">{chat.title}</span>
                               {chat.messages.length > 0 ? (
                                 <span className="copilot-chat-item__badge tabular">{chat.messages.length}</span>
@@ -711,6 +886,16 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
                 </div>
               );
             })}
+          </div>
+          <div className="dnav__user">
+            <UserAvatar size={30} />
+            <span className="dnav__who">
+              <span className="dnav__role">{papel}</span>
+              <span className="dnav__name">{session?.name ?? 'Usuário'}</span>
+            </span>
+            <button type="button" className="icon-btn dnav__gear" onClick={() => abrirConfiguracoes()} aria-label="Configurações" title="Configurações">
+              <Icon name="settings" size={16} />
+            </button>
           </div>
         </nav>
 
@@ -739,6 +924,84 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
               <Icon name="close" size={18} />
             </button>
           </header>
+
+          <div className="delta-toolbar">
+            <div className="delta-model" ref={modelMenuRef}>
+              <button
+                type="button"
+                className="delta-model__btn"
+                onClick={() => setModelMenu((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={modelMenu}
+                title={modeloAtivo ? `Modelo: ${modeloAtivo.label}` : 'Modo de resposta'}
+              >
+                {modoAtual.label}
+                <Icon name="chevronDown" size={14} />
+              </button>
+              {modelMenu ? (
+                <div className="delta-model__menu" role="menu" aria-label="Modo de resposta e modelo">
+                  {MODOS.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={modo === m.id}
+                      className="delta-model__opt"
+                      onClick={() => escolherModo(m.id)}
+                    >
+                      <span className="delta-model__check" aria-hidden="true">
+                        {modo === m.id ? <Icon name="check" size={15} /> : null}
+                      </span>
+                      <span className="delta-model__txt">
+                        <strong>{m.label}</strong>
+                        <span>{m.hint}</span>
+                      </span>
+                    </button>
+                  ))}
+                  {modelos.length ? (
+                    <>
+                      <span className="delta-model__group">Seus modelos (B.Y.O.K.)</span>
+                      {[{ id: null, label: 'Modelo do Delta', hint: 'Usa o modelo padrão da plataforma' }, ...modelos.map((m) => ({ ...m, hint: 'Com a sua chave de API' }))].map((m) => {
+                        const marcado = (modeloAtivo?.id ?? null) === m.id;
+                        return (
+                          <button
+                            key={m.id ?? 'padrao'}
+                            type="button"
+                            role="menuitemradio"
+                            aria-checked={marcado}
+                            className="delta-model__opt"
+                            onClick={() => escolherModelo(m.id)}
+                          >
+                            <span className="delta-model__check" aria-hidden="true">
+                              {marcado ? <Icon name="check" size={15} /> : null}
+                            </span>
+                            <span className="delta-model__txt">
+                              <strong>{m.label}</strong>
+                              <span>{m.hint}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  ) : null}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="delta-model__opt delta-model__opt--link"
+                    onClick={() => {
+                      setModelMenu(false);
+                      abrirConfiguracoes('byok');
+                    }}
+                  >
+                    <span className="delta-model__check" aria-hidden="true" />
+                    <span className="delta-model__txt">
+                      <strong>Configurar modelos e chaves…</strong>
+                    </span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
 
           {isListening || speakingMsgId ? (
             <div className={`copilot-voice-bar ${isListening ? 'is-listening' : ''} ${speakingMsgId ? 'is-speaking' : ''}`}>
@@ -799,30 +1062,15 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
           ) : null}
 
           <div className="copilot__body">
-            <div className="copilot__welcome">
-              <p>
-                Organize suas conversas em pastas, envie documentos para análise contextual, interaja por áudio conversacional ou peça simulações e propostas confirmáveis sobre o roadmap.
-              </p>
-            </div>
-
-            {bundle ? (
-              <div className="copilot__suggestions" aria-label="Sugestões">
-                {bundle.insights.map((insight) => (
-                  <button key={insight.id} type="button" className="suggestion" onClick={() => ask(insight.id)}>
-                    {insight.question}
-                    <Icon name="chevronRight" size={14} />
-                  </button>
-                ))}
-                {bundle.proposals.map((proposal) => (
-                  <button key={proposal.id} type="button" className="suggestion suggestion--action" onClick={() => propose(proposal.id)}>
-                    <Icon name="wand" size={15} />
-                    Preparar: {proposal.title}
-                  </button>
-                ))}
+            {vazio ? (
+              <div className="delta-hero">
+                <h3 className="delta-hero__title">Com o que posso ajudar?</h3>
+                {composer}
+                {sugestoes}
               </div>
             ) : null}
 
-            <ol className="copilot__log" role="log" aria-live="polite" aria-label="Conversa com o Delta">
+            <ol className="copilot__log" hidden={vazio} role="log" aria-live="polite" aria-label="Conversa com o Delta">
               {messages.map((message) => {
                 if (message.role === 'user') {
                   return (
@@ -969,94 +1217,18 @@ export default function CopilotDrawer({ open, onClose, scenario, result, onApply
             </ol>
           </div>
 
-          <form className={`copilot__composer ${dragOver ? 'is-dragover' : ''}`} onSubmit={onSubmit}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className="visually-hidden"
-              accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.md,.json,.html,.png,.jpg,.jpeg"
-              onChange={handleFileChange}
-            />
-
-            {attachments.length > 0 ? (
-              <div className="copilot__attachments" aria-label="Arquivos prontos para envio">
-                {attachments.map((att) => (
-                  <span key={att.id} className="copilot-attachment-pill">
-                    <Icon name="fileText" size={13} />
-                    <span className="copilot-attachment-pill__name">{att.name}</span>
-                    <span className="copilot-attachment-pill__size">{att.sizeLabel}</span>
-                    <button
-                      type="button"
-                      className="copilot-attachment-pill__remove"
-                      onClick={() => removeAttachment(att.id)}
-                      aria-label={`Remover anexo ${att.name}`}
-                    >
-                      <Icon name="close" size={11} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="copilot__composer-row">
-              <div className="copilot__composer-tools">
-                <button
-                  type="button"
-                  className="icon-btn copilot__tool-btn"
-                  onClick={() => fileInputRef.current?.click()}
-                  aria-label="Fazer upload de arquivo na IA"
-                  title="Upload de arquivo (PDF, XLSX, DOCX, CSV, JSON, MD…)"
-                >
-                  <Icon name="paperclip" size={16} />
-                </button>
-                <button
-                  type="button"
-                  className={`icon-btn copilot__tool-btn ${isListening ? 'is-recording' : ''}`}
-                  onClick={() => (isListening ? stopListening(true) : startListening())}
-                  aria-pressed={isListening}
-                  aria-label={isListening ? 'Concluir gravação e enviar áudio' : 'Iniciar gravação de áudio conversacional'}
-                  title={isListening ? 'Concluir e enviar áudio' : 'Falar por áudio conversacional'}
-                >
-                  <Icon name={isListening ? 'stop' : 'mic'} size={16} />
-                </button>
-              </div>
-
-              <label htmlFor="copilot-input" className="visually-hidden">
-                Mensagem para o Delta
-              </label>
-              <textarea
-                id="copilot-input"
-                rows={2}
-                maxLength={2000}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) onSubmit(event);
-                }}
-                placeholder={
-                  isListening
-                    ? 'Ouvindo sua voz… fale agora ou clique no microfone para enviar.'
-                    : 'Pergunte ao Delta, anexe arquivos ou use o microfone para conversar por voz…'
-                }
-              />
-
-              <button
-                type="submit"
-                className="copilot__send"
-                aria-label="Enviar mensagem"
-                title="Enviar mensagem"
-              >
-                <Icon name="send" size={17} />
-              </button>
+          {!vazio ? (
+            <div className="delta-dock">
+              {composer}
+              {sugestoes}
             </div>
-
-            <p className="copilot__legal">
-              Pastas, chats, uploads e áudio processados localmente no navegador · Arraste arquivos para anexar.
-            </p>
-          </form>
+          ) : null}
+          <p className="copilot__legal delta-legal">
+            Pastas, chats, uploads e áudio processados localmente no navegador · Arraste arquivos para anexar.
+          </p>
         </div>
       </div>
     </aside>
+
   );
 }

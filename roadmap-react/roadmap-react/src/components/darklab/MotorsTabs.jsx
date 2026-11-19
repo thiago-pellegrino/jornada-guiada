@@ -4,6 +4,7 @@ import { useJourney } from '../../journey/JourneyContext.jsx';
 import { RunStatus, fmtDateTime } from '../journey/JourneyBits.jsx';
 import DarklabMenuIcon from './DarklabMenuIcons.jsx';
 import { FAIXA, MOTOR_ICON, motorNames } from './MotorsJourney.jsx';
+import { MotorChronologyDialog, cronologiaDoMotor } from './MotorChronology.jsx';
 
 const COLUNAS = [
   { id: 'aceito', titulo: 'Executado e aceito', dica: 'Aceito por Aprovador ou Administrador.' },
@@ -63,7 +64,7 @@ export function ApprovalsBoard({ motores }) {
                       {coluna === 'andamento'
                         ? 'Executando…'
                         : rev
-                          ? `r${rev.revision} · gerado ${fmtDateTime(rev.generatedAt)}`
+                          ? `R${rev.revision} · gerado ${fmtDateTime(rev.generatedAt)}`
                           : motivo ?? 'Aguardando a etapa anterior.'}
                     </span>
                     {ultimo ? (
@@ -179,7 +180,7 @@ function resumoDatas(situacao, eventos, rev, motivo, anterior) {
     case 'pendente':
       return `${inicio} → revisado, aguardando aceite`;
     case 'produzido':
-      return `${inicio} → r${rev.revision} gerado ${dia(rev.generatedAt)}`;
+      return `${inicio} → R${rev.revision} gerado ${dia(rev.generatedAt)}`;
     case 'andamento':
       return inicio ? `${inicio} → execução em curso` : 'Execução em curso';
     case 'dependencia':
@@ -204,6 +205,7 @@ export function ExecutionTimeline({ motores }) {
   );
   const primeiroAberto = linhas.find((l) => l.situacao !== 'aceito')?.cap.id ?? linhas[0]?.cap.id ?? null;
   const [abertos, setAbertos] = useState(() => new Set(primeiroAberto ? [primeiroAberto] : []));
+  const [cronologia, setCronologia] = useState(null); // { capId, foco }
   const alternar = (id) =>
     setAbertos((atual) => {
       const novo = new Set(atual);
@@ -320,7 +322,7 @@ export function ExecutionTimeline({ motores }) {
                       <span className="mj-acc__docs">
                         {listRevisions(project, cap.id).map((r) => (
                           <button key={r.revision} type="button" className="mj-acc__doc" onClick={() => openArtifact(cap.id, 'projeto', r.revision)}>
-                            <DarklabMenuIcon name="file" size={15} /> Resultado r{r.revision} · {dia(r.generatedAt)}
+                            <DarklabMenuIcon name="file" size={15} /> Resultado R{r.revision} · {dia(r.generatedAt)}
                           </button>
                         ))}
                       </span>
@@ -329,24 +331,34 @@ export function ExecutionTimeline({ motores }) {
                 </div>
 
                 <section className="mj-acc__hist" aria-label={`Histórico do motor ${cap.number}`}>
-                  <h4>Execuções e revisões</h4>
+                  <div className="mj-acc__histhead">
+                    <h4>Execuções e revisões</h4>
+                    <button type="button" className="btn btn--sm" onClick={() => setCronologia({ capId: cap.id, foco: null })}>
+                      <DarklabMenuIcon name="history" size={15} /> Cronologia do motor
+                    </button>
+                  </div>
                   {eventos.length ? (
                     <ol className="mj-acc__events">
                       {eventos.map((e, k) => (
                         <li key={`${e.tipo}-${e.at}-${k}`} className={`mj-acc__ev mj-acc__ev--${e.tipo === 'revisao' ? (e.estado === 'aceito' ? 'ok' : 'rev') : e.status}`}>
-                          <span className="mj-acc__evdot" aria-hidden="true" />
-                          <time>{fmtDateTime(e.at)}</time>
-                          {e.tipo === 'revisao' ? (
-                            <span>
-                              r{e.revision} marcado como “{e.estado}” por {e.papel}
+                          <button type="button" className="mj-acc__evbtn" onClick={() => setCronologia({ capId: cap.id, foco: k })} title="Ver detalhes na cronologia do motor">
+                            <span className="mj-acc__evdot" aria-hidden="true" />
+                            <time>{fmtDateTime(e.at)}</time>
+                            {e.tipo === 'revisao' ? (
+                              <span>
+                                R{e.revision} marcado como “{e.estado}” por {e.papel}
+                              </span>
+                            ) : (
+                              <span>
+                                {e.turbo ? 'Modo Turbo' : 'Execução avulsa'} <RunStatus status={e.status} />
+                                {e.revision ? ` gerou R${e.revision}` : ''}
+                                {e.detalhe ? ` · ${e.detalhe}` : ''}
+                              </span>
+                            )}
+                            <span className="mj-acc__evmore" aria-hidden="true">
+                              Detalhes <DarklabMenuIcon name="chevron" size={13} />
                             </span>
-                          ) : (
-                            <span>
-                              {e.turbo ? 'Modo Turbo' : 'Execução avulsa'} <RunStatus status={e.status} />
-                              {e.revision ? ` gerou r${e.revision}` : ''}
-                              {e.detalhe ? ` · ${e.detalhe}` : ''}
-                            </span>
-                          )}
+                          </button>
                         </li>
                       ))}
                     </ol>
@@ -359,6 +371,34 @@ export function ExecutionTimeline({ motores }) {
           </li>
         );
       })}
+      {cronologia
+        ? (() => {
+            const i = linhas.findIndex((l) => l.cap.id === cronologia.capId);
+            const l = linhas[i];
+            if (!l) return null;
+            const prox = linhas[i + 1]?.cap;
+            const itens = cronologiaDoMotor({
+              project,
+              cap: l.cap,
+              eventos: l.eventos,
+              situacao: l.situacao,
+              motivo: l.motivo,
+              seguinte: prox ? `M${prox.number} · ${motorNames(prox).nome}` : null,
+            });
+            return (
+              <MotorChronologyDialog
+                cap={l.cap}
+                itens={itens}
+                foco={cronologia.foco}
+                onClose={() => setCronologia(null)}
+                onOpenResult={(revision) => {
+                  setCronologia(null);
+                  openArtifact(l.cap.id, 'projeto', revision);
+                }}
+              />
+            );
+          })()
+        : null}
     </ol>
   );
 }

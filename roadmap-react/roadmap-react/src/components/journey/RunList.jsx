@@ -23,7 +23,7 @@ export default function RunList({ limit = 12 }) {
         <tbody>
           {runs.map((r) => {
             const cap = catalog.byId.get(r.capabilityId);
-            const nos = r.nodes ? `${r.nodes.filter((n) => n.status === 'succeeded').length}/${r.nodes.length} nós` : `r${r.revision}`;
+            const nos = r.nodes ? `${r.nodes.filter((n) => n.status === 'succeeded').length}/${r.nodes.length} nós` : `R${r.revision}`;
             return (
               <tr key={r.runId}>
                 <td className="tabular">{fmtDateTime(r.startedAt)}</td>

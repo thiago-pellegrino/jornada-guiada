@@ -35,7 +35,7 @@ function FichaDoProjeto({ project }) {
         <div className="jg-ficha__status">
           <ReadinessBadge status={f.readiness?.status} />
           <span className="jg-muted">
-            r{rev.revision} · {rev.reviewState}
+            R{rev.revision} · {rev.reviewState}
           </span>
           <button type="button" className="btn btn--sm btn--quiet" onClick={() => openArtifact(CAP.ficha)}>
             <Icon name="fileText" size={14} /> Abrir artefato

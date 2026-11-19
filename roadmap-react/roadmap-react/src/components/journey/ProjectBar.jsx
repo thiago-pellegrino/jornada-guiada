@@ -2,16 +2,31 @@ import { useState } from 'react';
 import { JOURNEY_STEPS, stageIndex, stageLabel } from '../../domain/journey/journeyEngine.js';
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import Icon from '../ui/Icon.jsx';
-import { goToTab } from './JourneyBits.jsx';
+import { goToStep } from './JourneyBits.jsx';
+
+/** Etapas das abas de planejamento depois de Épicos (liberadas com o Backlog do Futuro, sem marca de concluída). */
+const ETAPAS_PLANEJAMENTO = Object.freeze([
+  { id: 'cronograma-gantt', label: 'Cronograma Gantt', tab: 'planejamento', view: 'gantt', reachedAt: null, availableAt: 'backlog' },
+  { id: 'cronograma', label: 'Cronograma', tab: 'planejamento', view: 'grid', reachedAt: null, availableAt: 'backlog' },
+  { id: 'resultados', label: 'Resultados', tab: 'resultados', reachedAt: null, availableAt: 'backlog' },
+  { id: 'dashboards', label: 'Dashboards', tab: 'curva', reachedAt: null, availableAt: 'backlog' },
+  { id: 'delta-builder', label: 'Delta Builder', tab: 'builder', reachedAt: null },
+]);
+const ETAPAS = Object.freeze([...JOURNEY_STEPS, ...ETAPAS_PLANEJAMENTO]);
+const VISIVEIS = 6;
 
 /**
  * Barra comum das abas da Jornada Guiada: projeto selecionado (identificador de toda a
  * jornada), etapas Contexto → DarkLabs → Projeto → Backlog e papel simulado.
  */
-export default function ProjectBar({ current, className = '' }) {
+export default function ProjectBar({ current, view = null, className = '' }) {
   const { state, project, selectProject } = useJourney();
   const [aberto, setAberto] = useState(false);
   const idx = project ? stageIndex(project.stage) : -1;
+  // Até Épicos: etapas 1–6. Nas abas seguintes: só as 6 últimas (Escopo das Squads → Dashboards).
+  const posAtual = ETAPAS.findIndex((e) => e.tab === current && (!e.view || !view || e.view === view));
+  const inicio = posAtual >= VISIVEIS ? ETAPAS.length - VISIVEIS : 0;
+  const etapas = ETAPAS.slice(inicio, inicio + VISIVEIS);
 
   return (
     <section className={`jg-projectbar ${className}`.trim()} aria-label="Projeto da jornada">
@@ -35,10 +50,11 @@ export default function ProjectBar({ current, className = '' }) {
       </div>
 
       <ol className="jg-steps" aria-label="Etapas da jornada">
-        {JOURNEY_STEPS.map((step, i) => {
+        {etapas.map((step, j) => {
+          const i = inicio + j;
           const atingida = Boolean(project && step.reachedAt && idx >= stageIndex(step.reachedAt));
           const disponivel = !step.availableAt || Boolean(project && idx >= stageIndex(step.availableAt));
-          const atual = step.tab === current;
+          const atual = step.tab === current && (!step.view || !view || step.view === view);
           const classes = ['jg-step', atingida && 'is-reached', atual && 'is-current', disponivel ? 'is-available' : 'is-pending', step.availableAt && 'is-planning']
             .filter(Boolean)
             .join(' ');
@@ -47,7 +63,7 @@ export default function ProjectBar({ current, className = '' }) {
               <button
                 type="button"
                 className="jg-step__btn"
-                onClick={() => goToTab(step.tab)}
+                onClick={() => goToStep(step)}
                 aria-current={atual ? 'step' : undefined}
                 title={disponivel ? undefined : 'Liberada quando o Backlog do Futuro do projeto for gerado'}
               >

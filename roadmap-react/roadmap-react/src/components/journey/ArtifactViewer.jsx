@@ -112,7 +112,7 @@ export default function ArtifactViewer() {
             <select className="input input--sm" value={rev.revision} onChange={(e) => setRevSel(Number(e.target.value))}>
               {revisoes.map((r) => (
                 <option key={r.revision} value={r.revision}>
-                  r{r.revision} · {fmtDateTime(r.generatedAt)}
+                  R{r.revision} · {fmtDateTime(r.generatedAt)}
                 </option>
               ))}
             </select>
@@ -227,7 +227,7 @@ export default function ArtifactViewer() {
                 <ul className="jg-list">
                   {env.evidenceRefs.map((e) => (
                     <li key={e.id}>
-                      <span className="jg-mono">{e.id}</span> · {e.sourceId} r{e.sourceRevision} · {e.locator}
+                      <span className="jg-mono">{e.id}</span> · {e.sourceId} R{e.sourceRevision} · {e.locator}
                       {e.excerpt ? <q> {e.excerpt}</q> : null}
                     </li>
                   ))}

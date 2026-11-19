@@ -91,49 +91,57 @@ export default function UpstreamTab() {
     <div className="jg-page">
       <ProjectBar current="contexto" />
 
-      <NotebooksPanel onOpenNotebook={(notebookId) => setAberto({ projectId: project.projectId, notebookId })} onNewProject={() => setNovoProjeto(true)} />
-
-
-      <div className="jg-grid jg-grid--2">
-        <CapabilityCard capabilityId={CAP.consolidar} />
-        <section className="surface jg-gate" aria-labelledby="ctx-next">
-          <header className="surface-head">
-            <h2 id="ctx-next" className="surface-title">
-              Próxima etapa
-            </h2>
-          </header>
-          {consolidado ? (
-            <>
-              <p>Contexto consolidado. O DarkLabs já pode enquadrar o problema deste projeto.</p>
-              <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
-                Ir para o DarkLabs <Icon name="chevronRight" size={14} />
-              </button>
-            </>
-          ) : (
-            <p className="jg-muted">
-              Quando todas as fontes estiverem analisadas, consolide o contexto (002). A consolidação libera os oito resultados
-              abaixo e o DarkLabs{stageIndex(project.stage) >= 1 ? '' : ''}.
-            </p>
-          )}
-        </section>
-      </div>
-
-      <section aria-labelledby="ctx-complementares">
-        <h2 id="ctx-complementares" className="jg-section-title">
-          Resultados complementares · 003 a 010
-        </h2>
-        <div className="jg-grid jg-grid--4">
-          {complementares.map((c) => (
-            <CapabilityCard key={c.id} capabilityId={c.id} compact />
-          ))}
+      {/* Notebooks à esquerda (50%); à direita, os boxes de execução dos agentes do Contexto. */}
+      <div className="ctx-split">
+        <div className="ctx-split__left">
+          <NotebooksPanel onOpenNotebook={(notebookId) => setAberto({ projectId: project.projectId, notebookId })} onNewProject={() => setNovoProjeto(true)} />
         </div>
-      </section>
 
-      <TurboPanel
-        phase="contexto"
-        description="Executa de ponta a ponta: 001 para cada fonte, 002 e os oito resultados na ordem das dependências. Uma falha marca como pulados só os dependentes."
-        disabledReason={project.sources.length ? null : 'Envie ao menos uma fonte.'}
-      />
+        <div className="ctx-split__right">
+          <TurboPanel
+            collapsible
+            defaultOpen={false}
+            phase="contexto"
+            description="Executa de ponta a ponta: 001 para cada fonte, 002 e os oito resultados na ordem das dependências. Uma falha marca como pulados só os dependentes."
+            disabledReason={project.sources.length ? null : 'Envie ao menos uma fonte.'}
+          />
+          <div className="jg-grid jg-grid--2">
+            <CapabilityCard capabilityId={CAP.consolidar} />
+            <section className="surface jg-gate" aria-labelledby="ctx-next">
+              <header className="surface-head">
+                <h2 id="ctx-next" className="surface-title">
+                  Próxima etapa
+                </h2>
+              </header>
+              {consolidado ? (
+                <>
+                  <p>Contexto consolidado. O DarkLabs já pode enquadrar o problema deste projeto.</p>
+                  <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
+                    Ir para o DarkLabs <Icon name="chevronRight" size={14} />
+                  </button>
+                </>
+              ) : (
+                <p className="jg-muted">
+                  Quando todas as fontes estiverem analisadas, consolide o contexto (002). A consolidação libera os oito resultados
+                  abaixo e o DarkLabs{stageIndex(project.stage) >= 1 ? '' : ''}.
+                </p>
+              )}
+            </section>
+          </div>
+
+          <section aria-labelledby="ctx-complementares">
+            <h2 id="ctx-complementares" className="jg-section-title">
+              Resultados complementares · 003 a 010
+            </h2>
+            <div className="jg-grid jg-grid--4">
+              {complementares.map((c) => (
+                <CapabilityCard key={c.id} capabilityId={c.id} compact />
+              ))}
+            </div>
+          </section>
+
+        </div>
+      </div>
       <SimulatedNote />
       {dialogoProjeto}
     </div>

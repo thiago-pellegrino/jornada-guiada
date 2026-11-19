@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { SCHEDULING_MODES } from '../../data/initialRoadmapData.js';
 import { fmtPct } from '../../domain/format.js';
 import Icon from '../ui/Icon.jsx';
+import { DarklabsMark } from '../auth/LoginScreen.jsx';
 import { useOptionalJourney } from '../../journey/JourneyContext.jsx';
 import { stageLabel } from '../../domain/journey/journeyEngine.js';
 
@@ -146,8 +147,8 @@ export default function HeroCarouselMosaic({
       author: 'Cronograma',
       info: `Início ${context.startWeekCode} · ${modeLabel}`,
       slides: [
-        { id: 'plan-gantt', tab: 'planejamento', icon: 'gantt', view: 'gantt', title: 'Planejamento: cronograma em Gantt', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
-        { id: 'plan-grid', tab: 'planejamento', icon: 'calendar', view: 'grid', title: 'Planejamento: grade de histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
+        { id: 'plan-gantt', tab: 'planejamento', icon: 'gantt', view: 'gantt', title: 'Cronograma', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
+        { id: 'plan-grid', tab: 'planejamento', icon: 'calendar', view: 'grid', title: 'Grade de Histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
       ],
     },
     {
@@ -160,6 +161,7 @@ export default function HeroCarouselMosaic({
       slides: [
         { id: 'resultados', tab: 'resultados', icon: 'gauge', title: 'Resultados e diagnóstico das squads', tabLabel: 'Resultados', image: 'resultados-diagnostico' },
         { id: 'curva-res', tab: 'curva', icon: 'chart', title: 'Curva de entrega do backlog', tabLabel: 'Dashboards', image: 'resultados-curva' },
+        { id: 'builder', tab: 'builder', icon: 'wand', title: 'Delta Builder: telas geradas por IA', tabLabel: 'Delta Builder', image: 'resultados-builder' },
       ],
     },
   ];
@@ -180,6 +182,7 @@ export default function HeroCarouselMosaic({
       if (activeTab === 'planejamento') next.planejamento = matrixView === 'grid' ? 1 : 0;
       if (activeTab === 'resultados') next.resultados = 0;
       if (activeTab === 'curva') next.resultados = 1;
+      if (activeTab === 'builder') next.resultados = 2;
       return next;
     });
   }, [activeTab, matrixView]);
@@ -197,10 +200,12 @@ export default function HeroCarouselMosaic({
     if (slide.view) onSelectMatrixView?.(slide.view);
   }
 
+  // Setas: só trocam a imagem/opção exibida no box; não abrem a página nem selecionam a aba.
   function step(event, group, delta) {
     event.stopPropagation();
     const current = indices[group.id] ?? 0;
-    activate(group, (current + delta + group.slides.length) % group.slides.length);
+    const next = (current + delta + group.slides.length) % group.slides.length;
+    setIndices((prev) => ({ ...prev, [group.id]: next }));
   }
 
   function isSlideActive(slide) {
@@ -261,7 +266,20 @@ export default function HeroCarouselMosaic({
                   />
                 ) : null;
               })}
+              {slide.id === 'contexto' && heroImage(slide.image) ? (
+                // Vela da "Upstream: Criação de Contexto": chama acesa, halo de luz e sombra em movimento.
+                <span className="hero-candle" aria-hidden="true">
+                  <span className="hero-candle__shadow" />
+                  <span className="hero-candle__glow" />
+                  <span className="hero-candle__flame" />
+                </span>
+              ) : null}
               <div className="hero-tile__scrim" aria-hidden="true" />
+              {group.badge === 'Jornada Guiada' ? (
+                <span className="hero-tile__mark" aria-hidden="true">
+                  <DarklabsMark tone="light" compact />
+                </span>
+              ) : null}
 
               <span className="hero-tile__pill">{group.badge}</span>
 

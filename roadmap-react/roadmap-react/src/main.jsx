@@ -15,6 +15,8 @@ import './styles/darklab.css';
 import './styles/notebooks.css';
 import './styles/settings.css';
 import './styles/login.css';
+import './styles/delta.css';
+import './styles/builder.css';
 import './styles/refinements.css';
 import './styles/print.css';
 

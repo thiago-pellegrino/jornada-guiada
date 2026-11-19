@@ -101,9 +101,16 @@ html {
 :root {
   --brand-gradient: linear-gradient(90deg, #215ad7 0%, #5e6fe1 50%, #a650cf 100%);
 }
+/* Cores do degradê da barra de abas. Claro: azul → violeta. Escuro: #292929 (mais claro) → #1f1e1d. */
+@property --tabs-c1 { syntax: '<color>'; inherits: true; initial-value: #215ad7; }
+@property --tabs-c2 { syntax: '<color>'; inherits: true; initial-value: #5e6fe1; }
+@property --tabs-c3 { syntax: '<color>'; inherits: true; initial-value: #a650cf; }
+:root { --tabs-c1: #215ad7; --tabs-c2: #5e6fe1; --tabs-c3: #a650cf; }
+:root[data-theme='dark'] { --tabs-c1: #292929; --tabs-c2: #252524; --tabs-c3: #1f1e1d; }
+:root { --tabs-gradient: linear-gradient(90deg, var(--tabs-c1) 0%, var(--tabs-c2) 50%, var(--tabs-c3) 100%); }
 .mosaic-tabs-bar,
 [data-theme='dark'] .mosaic-tabs-bar {
-  background: var(--brand-gradient);
+  background: var(--tabs-gradient);
   border-top-color: rgba(255, 255, 255, 0.18);
   border-bottom: 1px solid rgba(20, 22, 80, 0.35);
 }
@@ -113,6 +120,9 @@ html {
 .mosaic-tabs-bar__switch.is-on .mosaic-tabs-bar__switch-track {
   background: #1d2f8f;
 }
+[data-theme='dark'] .mosaic-tabs-bar { border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(0, 0, 0, 0.45); }
+[data-theme='dark'] .mosaic-tabs-bar__switch-track { background: rgba(255, 255, 255, 0.12); }
+[data-theme='dark'] .mosaic-tabs-bar__switch.is-on .mosaic-tabs-bar__switch-track { background: #5e6fe1; }
 .mosaic-tabs-bar__toggle.is-collapsed {
   box-shadow: 0 1px 4px rgba(20, 22, 80, 0.25);
 }
@@ -190,3 +200,153 @@ html {
 .mosaic-tabs-bar__tab { gap: 5px; padding: 0 5px; font-size: 12px; }
 .mosaic-tabs-bar__tab .icon { flex: none; opacity: 0.9; }
 .mosaic-tabs-bar__tab.is-active .icon { opacity: 1; }
+
+/* Barra superior 10px mais alta (só ela; a barra de abas continua com --topbar-h). */
+.topbar { height: calc(var(--topbar-h) + 10px); }
+@media (max-width: 720px) { .topbar { height: calc(var(--topbar-h-mobile) + 10px); } }
+
+/* Marca DarkLabs preta ao lado da Capgemini, separada por um filete. */
+.topbar__brand { gap: 14px; }
+.topbar__brand-sep { width: 1px; height: 26px; background: var(--color-border-strong); }
+.topbar__darklabs { display: inline-flex; align-items: center; }
+.topbar__darklabs .dl-mark { width: 66px; color: #1f1e1d; }
+/* Logos ajustadas ao fundo do topbar, sem caixas brancas: coloridas/pretas no claro, brancas no escuro. */
+.topbar__logo { padding: 0; border-radius: 0; background: transparent; }
+.topbar__logo--escuro { display: none; }
+:root[data-theme='dark'] .topbar__logo--claro { display: none; }
+:root[data-theme='dark'] .topbar__logo--escuro { display: block; }
+:root[data-theme='dark'] .topbar__darklabs .dl-mark { color: #ffffff; }
+
+/* Logo branca do DarkLabs, semitransparente, no canto superior direito do bloco Jornada Guiada. */
+.hero-tile__mark { position: absolute; top: 14px; right: 16px; z-index: 1; pointer-events: none; }
+.hero-tile__mark .dl-mark { width: 74px; color: #fff; opacity: 0.5; }
+
+/* Marca do Delta colorida: só as estrelas, sem caixa de fundo. */
+.copilot-toggle__mark { width: 24px; height: 24px; background: transparent; }
+.copilot-toggle__mark .copilot-glyph { width: 22px; height: 22px; }
+
+/* ── Vela da imagem "Upstream: Criação de Contexto" ─────────────────────────
+   Camadas sobre a foto, centradas na chama (≈ 50,2% × 52,3% da área visível com object-fit: cover):
+   a chama tremula, o halo quente pulsa e a sombra em volta oscila, como luz de vela. */
+.hero-candle {
+  --vela-x: 50.2%;
+  --vela-y: 52.3%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  transition: transform 600ms var(--ease);
+}
+.hero-tile:hover .hero-candle { transform: scale(1.04); }
+.hero-candle > span { position: absolute; pointer-events: none; }
+.hero-candle__shadow {
+  inset: -6%;
+  background: radial-gradient(circle at var(--vela-x) var(--vela-y), transparent 0, transparent 14%, rgba(0, 0, 0, 0.28) 42%, rgba(0, 0, 0, 0.42) 75%);
+  mix-blend-mode: multiply;
+  animation: vela-sombra 5.2s ease-in-out infinite;
+}
+.hero-candle__glow {
+  inset: 0;
+  background:
+    radial-gradient(circle at var(--vela-x) var(--vela-y), rgba(255, 196, 110, 0.55) 0, rgba(255, 150, 60, 0.28) 6%, rgba(255, 120, 40, 0.1) 16%, transparent 32%),
+    radial-gradient(ellipse 36% 22% at var(--vela-x) calc(var(--vela-y) + 9%), rgba(255, 140, 60, 0.16), transparent 70%);
+  mix-blend-mode: screen;
+  transform-origin: var(--vela-x) var(--vela-y);
+  animation: vela-halo 3.4s ease-in-out infinite;
+}
+.hero-candle__flame {
+  left: var(--vela-x);
+  top: var(--vela-y);
+  width: 1.15%;
+  aspect-ratio: 0.42;
+  border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 72%, #fffbe8 0%, #ffe39a 30%, rgba(255, 168, 60, 0.75) 58%, rgba(255, 120, 30, 0) 78%);
+  filter: blur(0.4px);
+  mix-blend-mode: screen;
+  transform: translate(-50%, -72%);
+  transform-origin: 50% 90%;
+  animation: vela-chama 3s ease-in-out infinite;
+}
+@keyframes vela-chama {
+  0%, 100% { transform: translate(-50%, -72%) scale(1, 1) skewX(0deg); opacity: 0.95; }
+  18% { transform: translate(-52%, -74%) scale(0.96, 1.1) skewX(-4deg); opacity: 1; }
+  37% { transform: translate(-49%, -71%) scale(1.04, 0.94) skewX(3deg); opacity: 0.88; }
+  58% { transform: translate(-51%, -75%) scale(0.98, 1.14) skewX(-2deg); opacity: 1; }
+  79% { transform: translate(-50%, -72%) scale(1.02, 0.97) skewX(2deg); opacity: 0.92; }
+}
+@keyframes vela-halo {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  14% { opacity: 1; transform: scale(1.05); }
+  29% { opacity: 0.78; transform: scale(0.98); }
+  47% { opacity: 0.96; transform: scale(1.03); }
+  63% { opacity: 0.8; transform: scale(0.99); }
+  82% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes vela-sombra {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  25% { transform: translate(-0.8%, 0.3%) scale(1.02); opacity: 1; }
+  50% { transform: translate(0.6%, -0.2%) scale(0.99); opacity: 0.82; }
+  75% { transform: translate(-0.4%, -0.3%) scale(1.01); opacity: 0.95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-candle__shadow, .hero-candle__glow, .hero-candle__flame { animation: none; }
+}
+
+/* Títulos de box com ícone: ícone e texto alinhados pelo centro, na mesma linha. */
+.surface-title:has(> .icon) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.surface-title > .icon { flex: none; }
+
+/* ── Setas dos boxes do menu de imagens ─────────────────────────────────────
+   Faixa vertical em cada lateral (do topo até a altura dos textos), com a seta centralizada nela;
+   ao passar o mouse a faixa escurece levemente. Os textos ganham mais respiro à esquerda. */
+.hero-tile__arrow {
+  top: 0;
+  bottom: 24%;
+  width: 52px;
+  height: auto;
+  transform: none;
+  isolation: isolate;
+}
+.hero-tile__arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, #000 72%, transparent);
+}
+.hero-tile__arrow--prev { left: 0; }
+.hero-tile__arrow--next { right: 0; }
+.hero-tile__arrow--prev::before { background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)); }
+.hero-tile__arrow--next::before { background: linear-gradient(270deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)); }
+.hero-tile__arrow:hover::before,
+.hero-tile__arrow:focus-visible::before { opacity: 1; }
+.hero-tile__arrow:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+.hero-tile__pill { z-index: 3; }
+.hero-tile__body { left: 48px; }
+/* Sombra leve nos textos dos boxes do menu de imagens, para destacá-los sobre as fotos. */
+.hero-tile__title,
+.hero-tile__footer {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Topbar e seus menus (usuário, tema etc.) sempre por cima das telas, da janela do Delta e do
+   botão flutuante; abaixo apenas dos diálogos (modais). */
+.topbar { z-index: calc(var(--z-modal, 60) - 2); }
+
+/* Rodapé (Capgemini / Simulação local) sempre visível na base da área de conteúdo, mesmo com
+   rolagem. Fica no fluxo da página (sticky), então nada do conteúdo fica escondido atrás dele. */
+.main-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+  background: var(--color-bg);
+}

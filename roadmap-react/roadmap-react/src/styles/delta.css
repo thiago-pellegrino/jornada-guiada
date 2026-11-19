@@ -1,0 +1,422 @@
+/*
+ * Delta (agente IA): layout no estilo de assistente — menu lateral com ações em lista,
+ * tela inicial centralizada com o campo em pílula e sugestões em chips. O cabeçalho de
+ * contexto ativo continua o de shell.css. Cores só por tokens, então vale nos dois temas.
+ */
+
+/* ── Menu lateral ─────────────────────────────────────────────────────────── */
+.copilot__sidebar { flex-basis: 252px; width: 252px; }
+/* Cabeçalho do menu e cabeçalho de contexto: mesma altura, mesmo fundo e a mesma linha de base,
+   em qualquer escala de fonte. */
+.copilot__sidebar .copilot-nav__brand,
+.copilot__main .copilot__head {
+  box-sizing: border-box;
+  height: 64px;
+  min-height: 64px;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+.copilot__sidebar .copilot-nav__brand { margin-bottom: 8px; }
+.copilot__sidebar .copilot-nav__brand-text p { line-height: 1.3; }
+.copilot__main .copilot__context-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copilot__emblem { width: 32px; height: 32px; border: 0; background: transparent; }
+.copilot__emblem .copilot-glyph { width: 28px; height: 28px; }
+
+.dnav { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 4px 10px 6px; list-style: none; }
+.dnav__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.dnav__item:hover { background: var(--color-surface-hover); }
+.dnav__item:focus-visible, .dnav__search:focus-within { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.dnav__item > .icon { flex: none; color: var(--color-text-muted); }
+.dnav__item--new { background: var(--color-surface-hover); font-weight: 600; }
+.dnav__plus {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-text-heading);
+  color: var(--color-surface);
+}
+.dnav__search { cursor: text; }
+.dnav__search input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  outline: none;
+}
+.dnav__search input::placeholder { color: var(--color-text-heading); opacity: 1; }
+.dnav__search input:focus::placeholder { color: var(--color-text-subtle); }
+
+.copilot__sidebar .copilot-nav__new-folder { padding: 0 10px 8px; }
+.copilot__sidebar .copilot-nav__tree { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 6px 10px 10px; }
+.copilot__sidebar .copilot-nav__section-label {
+  display: block;
+  padding: 10px 6px 6px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-muted);
+}
+.copilot__sidebar .copilot-folder__header,
+.copilot__sidebar .copilot-chat-item { border-radius: 8px; }
+/* Pasta: sem seta e sem contorno ao focar; o foco por teclado aparece como fundo da linha. */
+.copilot__sidebar .copilot-folder__toggle { gap: 8px; height: 32px; padding: 0 8px; font-size: var(--text-sm); }
+.copilot__sidebar .copilot-folder__toggle:focus,
+.copilot__sidebar .copilot-folder__toggle:focus-visible { outline: none; box-shadow: none; }
+.copilot__sidebar .copilot-folder__header:has(.copilot-folder__toggle:focus-visible) { background: var(--color-surface-hover); }
+.copilot__sidebar .copilot-folder__add { width: 26px; height: 26px; }
+.copilot__sidebar .copilot-chat-item { gap: 8px; min-height: 30px; }
+.copilot__sidebar .copilot-folder__chats { padding-left: 16px; }
+
+
+.dnav__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-border);
+}
+.dnav__who { display: flex; flex: 1; align-items: center; gap: 6px; min-width: 0; }
+.dnav__role {
+  flex: none;
+  padding: 1px 5px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  background: var(--color-surface-hover);
+  color: var(--color-text-heading);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+.dnav__name { overflow: hidden; color: var(--color-text-heading); font-size: var(--text-xs); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.dnav__gear { flex: none; width: 30px; height: 30px; border-radius: 8px; }
+
+/* ── Barra do modelo (abaixo do cabeçalho de contexto) ────────────────────── */
+.delta-toolbar { display: flex; align-items: center; padding: 10px 18px 0; }
+.delta-model { position: relative; }
+.delta-model__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+.delta-model__btn:hover, .delta-model__btn[aria-expanded='true'] { background: var(--color-surface-hover); }
+.delta-model__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 280px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.45);
+}
+.delta-model__opt {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.delta-model__opt:hover { background: var(--color-surface-hover); }
+.delta-model__opt[aria-checked='true'] { border-color: var(--color-text-heading); }
+.delta-model__opt:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.delta-model__check { display: grid; place-items: center; height: 20px; color: var(--color-text-heading); }
+.delta-model__txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.delta-model__txt strong { font-size: var(--text-sm); font-weight: 600; }
+.delta-model__txt span { font-size: var(--text-xs); color: var(--color-text-muted); }
+.delta-model__group { margin: 6px 12px 0; padding-top: 8px; border-top: 1px solid var(--color-border); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.delta-model__opt--link { margin-top: 2px; border-top-color: transparent; }
+.delta-model__opt--link strong { color: var(--color-link); font-weight: 600; }
+.delta-model__btn { background: var(--color-surface-hover); }
+
+/* ── Corpo: tela inicial centralizada e conversa ─────────────────────────── */
+.copilot__main .copilot__body { display: flex; flex-direction: column; gap: 12px; padding: 12px 18px; }
+.copilot__main .copilot__log { width: 100%; max-width: 760px; margin: 0 auto; }
+.delta-hero {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+.delta-hero__title { margin: 0; font-size: clamp(1.5rem, 2.2vw, 1.9rem); font-weight: 500; color: var(--color-text-heading); text-align: center; }
+.delta-hero__hint { max-width: 560px; margin: 0; font-size: var(--text-xs); line-height: 1.5; color: var(--color-text-muted); text-align: center; }
+
+/* Campo de mensagem em pílula: + anexar · texto · voz · enviar */
+.copilot__composer.delta-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 760px;
+  padding: 8px 8px 8px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 30px;
+  background: var(--color-surface);
+  box-shadow: 0 6px 20px -14px rgba(15, 23, 42, 0.35);
+}
+.copilot__composer.delta-composer:focus-within { border-color: var(--color-focus); }
+.copilot__composer.delta-composer.is-dragover { outline: 2px dashed var(--color-link); outline-offset: 3px; }
+.delta-composer .copilot__attachments { padding: 4px 8px 0; }
+.delta-composer .copilot__composer-row { display: flex; align-items: center; gap: 6px; }
+.delta-composer textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  max-height: 160px;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
+  box-shadow: none;
+}
+.delta-composer textarea::placeholder { color: var(--color-text-muted); }
+.delta-round {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-surface-hover);
+  color: var(--color-text-heading);
+  cursor: pointer;
+  transition: background-color 0.15s ease, filter 0.15s ease;
+}
+.delta-round:hover { filter: brightness(0.95); }
+.delta-round:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.delta-round--ghost { background: transparent; color: var(--color-text-muted); }
+.delta-round--ghost:hover { background: var(--color-surface-hover); color: var(--color-text-heading); filter: none; }
+.delta-round--send { background: var(--color-selected-bg); color: var(--color-selected-text); }
+.delta-round.is-recording {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  animation: pulse-record 1.2s ease-in-out infinite;
+}
+
+/* Sugestões: grade de chips do mesmo tamanho (2 colunas; 1 em larguras estreitas) */
+.delta-chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 760px;
+  container-type: inline-size;
+}
+.delta-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-heading);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+}
+.delta-chip .icon { flex: none; }
+.delta-chip:hover { background: var(--color-surface-hover); }
+.delta-chip:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.delta-chip--action { color: var(--color-link); }
+@media (max-width: 1100px) { .delta-chips { grid-template-columns: minmax(0, 1fr); } }
+
+/* Conversa em andamento: campo ancorado embaixo, centralizado */
+.delta-dock { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 8px 18px 4px; }
+.delta-dock .delta-hero__hint { margin-top: 2px; }
+.copilot__legal.delta-legal { margin: 0; padding: 4px 18px 10px; text-align: center; }
+
+@media (max-width: 900px) {
+  .copilot__sidebar { flex-basis: 220px; width: 220px; }
+  .delta-hero { padding-top: 8px; }
+}
+/* Nome do Delta sozinho ao lado das estrelas, um pouco maior. */
+.copilot__sidebar .copilot-nav__brand-text h2 { margin: 0; font-size: 1.3rem; line-height: 1.2; }
+
+/* ── Atalho flutuante do Delta (canto inferior direito) ──────────────────── */
+.delta-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 44px; /* acima do rodapé fixo */
+  z-index: calc(var(--z-panel, 50) + 5); /* acima das telas e painéis; abaixo de diálogos e menus */
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: 0 10px 28px -10px rgba(15, 23, 42, 0.45), 0 2px 6px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  animation: delta-fab-in 0.22s ease-out both;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.delta-fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 32px -10px rgba(15, 23, 42, 0.5), 0 3px 8px rgba(15, 23, 42, 0.14); }
+.delta-fab:active { transform: scale(0.97); }
+.delta-fab:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+:root[data-theme='dark'] .delta-fab { box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.4); }
+@keyframes delta-fab-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .delta-fab { animation: none; transition: none; } }
+@media print { .delta-fab { display: none; } }
+
+/* ── Janela do Delta: 70% da largura e abertura deslizando da direita ───────
+   A janela desliza da borda direita até a posição final em 0,7 s, num movimento contínuo
+   (sem disparar no início). O desfoque e o escurecimento da página acompanham o mesmo tempo,
+   para o movimento principal ser o da janela. */
+:root { --copilot-w: 70vw; --delta-abrir: 0.7s; }
+.copilot.is-open {
+  animation: delta-abrir var(--delta-abrir) cubic-bezier(0.33, 0.1, 0.25, 1) both;
+  will-change: transform;
+}
+.copilot-backdrop { animation: delta-fundo var(--delta-abrir) ease both; }
+.app .main { transition: filter var(--delta-abrir) ease; }
+@keyframes delta-abrir {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes delta-fundo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .copilot.is-open, .copilot-backdrop { animation: none; }
+}
+/* A área que contém a janela nunca rola na horizontal (nem por foco programático). */
+.workspace-body { overflow: clip; }
+
+/* ── Switch das estrelas do Delta (topbar) ─────────────────────────────────── */
+.delta-switch {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  margin-left: 2px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+}
+.delta-switch:hover { background: var(--color-surface-hover); }
+.delta-switch:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.delta-switch__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 32px;
+  height: 18px;
+  padding: 2px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface-subtle);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.delta-switch__thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f507e1, #2aa0fe 70%, #05f5ff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.delta-switch.is-on .delta-switch__track { border-color: #c99a1c; background: #fdf3d3; }
+.delta-switch.is-on .delta-switch__thumb { transform: translateX(14px); background: linear-gradient(135deg, #b8860b, #f2c94c 70%, #fff1a8); }
+:root[data-theme='dark'] .delta-switch.is-on .delta-switch__track { background: rgba(242, 201, 76, 0.18); }
+
+/* Estrelas douradas (switch ligado): mesma forma, degradê do ouro escuro ao dourado claro. */
+:root[data-delta-gold] .copilot-glyph .dlt-stop--1 { stop-color: #a8740a; }
+:root[data-delta-gold] .copilot-glyph .dlt-stop--2 { stop-color: #d4a017; }
+:root[data-delta-gold] .copilot-glyph .dlt-stop--3 { stop-color: #f2c94c; }
+:root[data-delta-gold] .copilot-glyph .dlt-stop--4 { stop-color: #ffe9a0; }
+
+/* Botão flutuante: as estrelas percorrem suavemente, alguns pixels, o traçado do infinito (∞)
+   — o mesmo símbolo da marca DarkLabs. */
+.delta-fab .copilot-glyph { animation: delta-infinito 6s linear infinite; }
+@keyframes delta-infinito {
+  0.0% { transform: translate(0.0px, 0.0px); }
+  6.25% { transform: translate(1.22px, 1.13px); }
+  12.5% { transform: translate(2.26px, 1.6px); }
+  18.75% { transform: translate(2.96px, 1.13px); }
+  25.0% { transform: translate(3.2px, 0.0px); }
+  31.25% { transform: translate(2.96px, -1.13px); }
+  37.5% { transform: translate(2.26px, -1.6px); }
+  43.75% { transform: translate(1.22px, -1.13px); }
+  50.0% { transform: translate(0.0px, -0.0px); }
+  56.25% { transform: translate(-1.22px, 1.13px); }
+  62.5% { transform: translate(-2.26px, 1.6px); }
+  68.75% { transform: translate(-2.96px, 1.13px); }
+  75.0% { transform: translate(-3.2px, 0.0px); }
+  81.25% { transform: translate(-2.96px, -1.13px); }
+  87.5% { transform: translate(-2.26px, -1.6px); }
+  93.75% { transform: translate(-1.22px, -1.13px); }
+  100.0% { transform: translate(-0.0px, -0.0px); }
+}
+@media (prefers-reduced-motion: reduce) { .delta-fab .copilot-glyph { animation: none; } }

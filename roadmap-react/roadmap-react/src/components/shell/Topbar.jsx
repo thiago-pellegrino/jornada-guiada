@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon, { CopilotMark } from '../ui/Icon.jsx';
-import logo from '../../assets/logo-capgemini.png';
+import logo from '../../assets/logo-capgemini-transparent.png';
+import logoBranco from '../../assets/logo-capgemini-white.png';
+import { DarklabsMark } from '../auth/LoginScreen.jsx';
 import UserMenu from '../auth/UserMenu.jsx';
 
 const FAVORITES_KEY = 'roadmap.favorites.v1';
@@ -102,7 +104,7 @@ function ThemeMenu({ preference, resolved, onChange }) {
   );
 }
 
-/** Barra superior (40px): logo Capgemini à esquerda; tamanho da fonte, favorito, PDF, tema, Delta e avatar à direita. */
+/** Barra superior (50px): logo Capgemini à esquerda; tamanho da fonte, favorito, PDF, tema, Delta e avatar à direita. */
 export default function Topbar({
   theme,
   onThemeChange,
@@ -130,10 +132,33 @@ export default function Topbar({
     onNotify?.(next ? 'Simulador adicionado aos favoritos.' : 'Simulador removido dos favoritos.');
   }
 
+  // Switch das estrelas do Delta: desligado = degradê atual; ligado = dourado. Vale para todos os
+  // ícones do Delta (topbar, janela do chat e botão flutuante) e fica salvo no navegador.
+  const [deltaDourado, setDeltaDourado] = useState(() => {
+    try {
+      return window.localStorage.getItem('jornada.delta.dourado') === '1';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-delta-gold', deltaDourado);
+    try {
+      window.localStorage.setItem('jornada.delta.dourado', deltaDourado ? '1' : '0');
+    } catch {
+      /* sem armazenamento: vale só nesta sessão */
+    }
+  }, [deltaDourado]);
+
   return (
     <header className="topbar">
       <span className="topbar__brand">
-        <img className="topbar__logo" src={logo} alt="Capgemini" width="972" height="225" />
+        <img className="topbar__logo topbar__logo--claro" src={logo} alt="Capgemini" width="972" height="225" />
+        <img className="topbar__logo topbar__logo--escuro" src={logoBranco} alt="Capgemini" width="972" height="225" />
+        <span className="topbar__brand-sep" aria-hidden="true" />
+        <span className="topbar__darklabs">
+          <DarklabsMark tone="dark" compact />
+        </span>
       </span>
 
       <div className="topbar__right">
@@ -181,6 +206,19 @@ export default function Topbar({
           <Icon name="fileExport" size={16} />
         </button>
         <ThemeMenu preference={theme.preference} resolved={theme.resolved} onChange={onThemeChange} />
+        <button
+          type="button"
+          role="switch"
+          aria-checked={deltaDourado}
+          className={`delta-switch ${deltaDourado ? 'is-on' : ''}`}
+          onClick={() => setDeltaDourado((v) => !v)}
+          aria-label="Estrelas do Delta douradas"
+          title={deltaDourado ? 'Estrelas do Delta: douradas' : 'Estrelas do Delta: degradê'}
+        >
+          <span className="delta-switch__track" aria-hidden="true">
+            <span className="delta-switch__thumb" />
+          </span>
+        </button>
         <button
           ref={copilotButtonRef}
           type="button"

@@ -10,6 +10,7 @@ import ScenarioActions from './components/shell/ScenarioActions.jsx';
 import Topbar from './components/shell/Topbar.jsx';
 import HeroCarouselMosaic from './components/shell/HeroCarouselMosaic.jsx';
 import CopilotDrawer from './components/shell/CopilotDrawer.jsx';
+import DeltaBuilder from './components/builder/DeltaBuilder.jsx';
 import ParametersCard from './components/simulator/ParametersCard.jsx';
 import ContextTab from './components/simulator/ContextTab.jsx';
 import UpstreamTab from './components/simulator/UpstreamTab.jsx';
@@ -26,6 +27,7 @@ import ScenarioOverviewCards from './components/simulator/ScenarioOverviewCards.
 import MatrixToolbar, { EMPTY_FILTERS } from './components/matrix/MatrixToolbar.jsx';
 import RoadmapMatrix, { featureMatches } from './components/matrix/RoadmapMatrix.jsx';
 import Toast from './components/ui/Toast.jsx';
+import { CopilotMark } from './components/ui/Icon.jsx';
 
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
@@ -37,6 +39,7 @@ const TABS = [
   { id: 'planejamento', label: 'Planejamento', icon: 'sliders' },
   { id: 'resultados', label: 'Resultados e diagnóstico', icon: 'gauge' },
   { id: 'curva', label: 'Curva de entrega', icon: 'chart' },
+  { id: 'builder', label: 'Delta Builder', icon: 'wand' },
 ];
 
 const THEME_LABELS = { light: 'Tema claro ativado', dark: 'Tema escuro ativado', system: 'Tema do sistema ativado' };
@@ -86,6 +89,15 @@ export default function App() {
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Etapas "Cronograma Gantt" e "Cronograma" da barra do projeto escolhem a visão da matriz.
+  useEffect(() => {
+    const onView = (event) => {
+      if (event.detail === 'gantt' || event.detail === 'grid') setMatrixView(event.detail);
+    };
+    window.addEventListener('jornada:matrix-view', onView);
+    return () => window.removeEventListener('jornada:matrix-view', onView);
   }, []);
 
   useEffect(() => {
@@ -320,6 +332,7 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-planejamento" aria-label="Planejamento" className="tabpanel" hidden={tab !== 'planejamento'}>
+              <ProjectBar current="planejamento" view={matrixView} className="jg-projectbar--spaced" />
               <ParametersCard
                 scenario={scenario}
                 result={result}
@@ -393,6 +406,7 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-resultados" aria-label="Resultados e diagnóstico" className="tabpanel" hidden={tab !== 'resultados'}>
+              <ProjectBar current="resultados" className="jg-projectbar--spaced" />
               <div className="results-grid">
                 <KpiSummaryColumn result={result} />
                 <SquadDiagnosticsCard result={result} onOpenCopilot={() => setCopilotOpen(true)} />
@@ -405,7 +419,12 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-curva" aria-label="Curva de entrega" className="tabpanel" hidden={tab !== 'curva'}>
+              <ProjectBar current="curva" className="jg-projectbar--spaced" />
               <ProjectionChartCard result={result} />
+            </div>
+
+            <div role="tabpanel" id="panel-builder" aria-label="Delta Builder" className="tabpanel" hidden={tab !== 'builder'}>
+              {tab === 'builder' ? <DeltaBuilder scenario={scenario} result={result} /> : null}
             </div>
           </div>
 
@@ -430,6 +449,22 @@ export default function App() {
         />
         </div>
       </div>
+
+      {/* Atalho flutuante do Delta: fixo no canto inferior direito, por cima de todas as telas;
+          some enquanto a janela do chat está aberta. */}
+      {!copilotOpen ? (
+        <button
+          type="button"
+          className="delta-fab"
+          onClick={() => setCopilotOpen(true)}
+          aria-label="Abrir o Delta"
+          aria-controls="copilot-panel"
+          aria-expanded="false"
+          title="Delta"
+        >
+          <CopilotMark size={28} />
+        </button>
+      ) : null}
 
       <Toast toast={toast} onDone={clearToast} />
     </div>

@@ -151,6 +151,20 @@ const PATHS = {
     </>
   ),
   play: <path d="M8 5.5v13l10-6.5-10-6.5Z" />,
+  refresh: (
+    <>
+      <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3" />
+      <path d="M19.5 4.5v4h-4" />
+    </>
+  ),
+  close: <path d="M6 6l12 12M18 6 6 18" />,
+  history: (
+    <>
+      <path d="M3.5 12a8.5 8.5 0 1 0 2.5-6" />
+      <path d="M3.5 4.5V8h3.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
 };
 
 export default function DarklabMenuIcon({ name, size = 18, className = '' }) {

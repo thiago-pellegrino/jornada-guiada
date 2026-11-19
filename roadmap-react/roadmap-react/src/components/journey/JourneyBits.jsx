@@ -6,6 +6,13 @@ export function goToTab(tab) {
   if (typeof window !== 'undefined') window.location.hash = `#${tab}`;
 }
 
+/** Vai para a aba da etapa; nas etapas do cronograma, também escolhe a visão (Gantt ou grade). */
+export function goToStep(step) {
+  if (typeof window === 'undefined') return;
+  if (step.view) window.dispatchEvent(new CustomEvent('jornada:matrix-view', { detail: step.view }));
+  goToTab(step.tab);
+}
+
 export function fmtDateTime(iso) {
   if (!iso) return '—';
   try {

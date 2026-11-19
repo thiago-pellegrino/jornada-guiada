@@ -15,30 +15,83 @@ function scrollParent(el) {
   return null;
 }
 
-/** Mantém --dlm-h igual à altura visível da área de rolagem (muda ao recolher o mosaico ou redimensionar). */
+/** Mantém --dlm-h igual à altura visível da área de rolagem (muda ao recolher o mosaico ou redimensionar), sem animar. */
 function useAlturaDaTela(ref) {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
     const alvo = scrollParent(el);
     const layout = el.parentElement;
+    const workspace = el.closest('.workspace');
     const medir = () => {
-      const visivel = alvo ? alvo.clientHeight : window.innerHeight;
-      // Espaço abaixo do layout (paddings da página): sem descontá-lo, o menu "sobe" no fim da rolagem.
+      // Usa a altura FINAL da área rolável: enquanto o bloco de imagens recolhe/expande (transição de
+      // 380 ms), a área muda a cada quadro; sem isso o menu "cresce para baixo" animado.
+      let visivel = alvo ? alvo.clientHeight : window.innerHeight;
+      const colapso = workspace?.querySelector('.hero-mosaic-collapse');
+      if (alvo && colapso) {
+        const atual = colapso.getBoundingClientRect().height;
+        const cheio = colapso.querySelector('.hero-mosaic')?.getBoundingClientRect().height ?? atual;
+        const recolhido = workspace.classList.contains('is-mosaic-collapsed');
+        visivel += recolhido ? atual : atual - cheio;
+      }
+      // Espaço abaixo do layout (paddings e rodapé da página): sem descontá-lo, o menu "sobe" no fim da
+      // rolagem. É medido pela posição exata do último elemento da área rolável — e não por scrollHeight,
+      // que é arredondado: o arredondamento mudava a altura do menu em 1 px, que mudava a página em 1 px,
+      // e o ciclo se repetia a cada quadro (o "tremor").
+      // Soma só o que existe de fato abaixo do layout: irmãos seguintes e paddings de cada nível até a
+      // área rolável, mais o rodapé. (A área de conteúdo estica para preencher a tela; usar a posição
+      // dela contava esse esticamento como conteúdo e encolhia o menu.)
       let abaixo = 8;
       if (alvo && layout) {
-        const fimDoLayout = layout.getBoundingClientRect().bottom - alvo.getBoundingClientRect().top + alvo.scrollTop;
-        abaixo = Math.max(8, alvo.scrollHeight - fimDoLayout);
+        const px = (v) => parseFloat(v) || 0;
+        const fimLayout = layout.getBoundingClientRect().bottom;
+        let fim = fimLayout;
+        let no = layout;
+        while (no.parentElement && no.parentElement !== alvo) {
+          const pai = no.parentElement;
+          for (let irmao = no.nextElementSibling; irmao; irmao = irmao.nextElementSibling) {
+            const r = irmao.getBoundingClientRect();
+            if (r.height) fim = Math.max(fim, r.bottom + px(window.getComputedStyle(irmao).marginBottom));
+          }
+          const ep = window.getComputedStyle(pai);
+          fim += px(ep.paddingBottom) + px(ep.borderBottomWidth);
+          no = pai;
+        }
+        for (let irmao = no.nextElementSibling; irmao; irmao = irmao.nextElementSibling) {
+          const ei = window.getComputedStyle(irmao);
+          fim += irmao.getBoundingClientRect().height + px(ei.marginTop) + px(ei.marginBottom);
+        }
+        abaixo = Math.max(8, fim - fimLayout + px(window.getComputedStyle(alvo).paddingBottom));
       }
-      el.style.setProperty('--dlm-h', `${Math.max(280, visivel - 8 - abaixo)}px`);
+      // Altura cheia (menu fixo a 8 px do topo enquanto a página rola) só quando o conteúdo da tela
+      // precisa de rolagem. Com pouco conteúdo, o menu ocupa só o espaço que sobra abaixo da barra
+      // do projeto — assim a página não ganha uma barra de rolagem à toa.
+      const cheia = visivel - 8 - abaixo;
+      let altura = cheia;
+      const conteudo = el.parentElement?.querySelector(':scope > .dlm-content');
+      if (alvo && layout && conteudo) {
+        const topoDoLayout = layout.getBoundingClientRect().top - alvo.getBoundingClientRect().top + alvo.scrollTop;
+        const semRolar = visivel - topoDoLayout - abaixo;
+        altura = Math.max(semRolar, Math.min(cheia, conteudo.getBoundingClientRect().height));
+      }
+      altura = Math.max(280, Math.floor(altura));
+      const atual = parseFloat(el.style.getPropertyValue('--dlm-h')) || 0;
+      // Só aplica mudanças reais (≥ 1 px): evita reagir ao próprio ajuste.
+      if (Math.abs(altura - atual) >= 1) el.style.setProperty('--dlm-h', `${altura}px`);
     };
     medir();
     const obs = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(medir) : null;
     if (obs && alvo) obs.observe(alvo);
     if (obs && layout) obs.observe(layout);
+    const conteudoObs = el.parentElement?.querySelector(':scope > .dlm-content');
+    if (obs && conteudoObs) obs.observe(conteudoObs);
+    // Remede no instante em que o bloco de imagens começa a recolher/expandir.
+    const classe = workspace && typeof MutationObserver !== 'undefined' ? new MutationObserver(medir) : null;
+    classe?.observe(workspace, { attributes: true, attributeFilter: ['class'] });
     window.addEventListener('resize', medir);
     return () => {
       obs?.disconnect();
+      classe?.disconnect();
       window.removeEventListener('resize', medir);
     };
   }, [ref]);

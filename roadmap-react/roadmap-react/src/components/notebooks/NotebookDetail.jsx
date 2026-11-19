@@ -93,7 +93,7 @@ function Referencias({ notebook, onAdd }) {
                   {r.name}
                 </span>
                 <span className="nbd-refs__meta">
-                  {r.kind === 'link' ? 'link' : `${r.sourceId} · ${rodando ? 'analisando…' : rev ? `analisada · r${rev.revision}` : 'enviada'}`}
+                  {r.kind === 'link' ? 'link' : `${r.sourceId} · ${rodando ? 'analisando…' : rev ? `analisada · R${rev.revision}` : 'enviada'}`}
                 </span>
               </span>
               {r.sourceId ? (

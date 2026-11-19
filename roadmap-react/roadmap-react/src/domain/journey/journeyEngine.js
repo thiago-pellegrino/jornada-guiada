@@ -402,7 +402,7 @@ export function applyCapabilityRun(project, catalog, capabilityId, { scopeKey = 
       ...proximo.runs,
     ];
   }
-  return advanceStage(proximo, `${cap.step} ${cap.phase === 'contexto' ? 'Contexto' : cap.phase === 'darklab' ? 'DarkLabs' : 'Backlog'} r${revision}`, now);
+  return advanceStage(proximo, `${cap.step} ${cap.phase === 'contexto' ? 'Contexto' : cap.phase === 'darklab' ? 'DarkLabs' : 'Backlog'} R${revision}`, now);
 }
 
 export function setReviewState(project, capabilityId, scopeKey, revision, reviewState, role, now = new Date().toISOString()) {

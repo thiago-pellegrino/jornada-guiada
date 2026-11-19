@@ -341,3 +341,12 @@
 .jg-step + .jg-step.is-planning.is-available::before { background: var(--color-primary-500); opacity: 0.5; }
 .jg-help-btn { width: var(--control-h, 36px); height: var(--control-h, 36px); color: var(--color-text-muted); }
 .jg-help-btn:hover, .jg-help-btn.is-active { color: var(--color-primary-700); background: var(--color-primary-50); }
+
+/* Modo Turbo recolhível */
+.jg-turbo__head-side { display: inline-flex; align-items: center; gap: 8px; }
+.jg-turbo__title { margin: 0; }
+.jg-turbo__toggle { width: 30px; height: 30px; }
+.jg-turbo__toggle .icon { transition: transform 0.18s ease; }
+.jg-turbo.is-open .jg-turbo__toggle .icon { transform: rotate(180deg); }
+.jg-turbo--collapsible.is-collapsed .surface-head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.jg-turbo__body { display: flex; flex-direction: column; gap: var(--space-2); }

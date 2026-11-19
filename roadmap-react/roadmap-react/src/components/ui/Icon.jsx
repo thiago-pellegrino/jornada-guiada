@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 /**
  * Biblioteca de ícones SVG inline (DS §5): viewBox 24×24, traço currentColor 1.65,
  * decorativos por padrão (aria-hidden). Sempre acompanhar de texto visível ou aria-label no controle.
@@ -212,24 +214,28 @@ export default function Icon({ name, size = 20, className = '', strokeWidth = 1.
 }
 
 /** Marca do Copiloto: vela/ponta de seta com ponto (DS §5), dourada sobre navy. */
+/**
+ * Marca do Delta: estrelas de IA com degradê magenta → violeta → azul → ciano
+ * (de baixo à esquerda para cima à direita).
+ */
 export function CopilotMark({ size = 20 }) {
+  const id = `dlt-${useId().replace(/:/g, '')}`;
   return (
-    <svg
-      className="icon copilot-glyph"
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M16 4 7 27l9-5 9 5z" />
-      <path d="M16 4v18" />
-      <circle cx="16" cy="13" r="1.4" fill="currentColor" />
+    <svg className="icon copilot-glyph" width={size} height={size} viewBox="1.85 5.2 26 26" fill="none" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={`${id}-f`} x1="3" y1="30" x2="27" y2="6" gradientUnits="userSpaceOnUse">
+          <stop className="dlt-stop dlt-stop--1" offset="0" stopColor="#f507e1" />
+          <stop className="dlt-stop dlt-stop--2" offset="0.38" stopColor="#8a5af0" />
+          <stop className="dlt-stop dlt-stop--3" offset="0.7" stopColor="#2aa0fe" />
+          <stop className="dlt-stop dlt-stop--4" offset="1" stopColor="#05f5ff" />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#${id}-f)`}>
+        <path d="M16.6 6.2Q17.8 15 26.4 16.2Q17.8 17.4 16.6 26.2Q15.4 17.4 6.8 16.2Q15.4 15 16.6 6.2Z" />
+        <path d="M7.1 30.4Q7.6 26.2 11.6 25.7Q7.6 25.2 7.1 21Q6.6 25.2 2.6 25.7Q6.6 26.2 7.1 30.4Z" />
+        <path d="M11.6 8.6Q11.8 9.9 13.1 10.1Q11.8 10.3 11.6 11.6Q11.4 10.3 10.1 10.1Q11.4 9.9 11.6 8.6Z" />
+        <path d="M24.4 6Q24.7 8.4 27.1 8.7Q24.7 9 24.4 11.4Q24.1 9 21.7 8.7Q24.1 8.4 24.4 6Z" />
+      </g>
     </svg>
   );
 }

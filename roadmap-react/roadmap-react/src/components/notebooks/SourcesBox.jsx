@@ -77,7 +77,7 @@ export default function SourcesBox({ notebook, onNewProject }) {
                       <td>{s.name}</td>
                       <td className="tabular">{fmtBytes(s.size)}</td>
                       <td>
-                        {rodando ? <Badge variant="warn">Analisando…</Badge> : rev ? <Badge variant="ok">Analisada · r{rev.revision}</Badge> : <Badge variant="neutral">Enviada</Badge>}
+                        {rodando ? <Badge variant="warn">Analisando…</Badge> : rev ? <Badge variant="ok">Analisada · R{rev.revision}</Badge> : <Badge variant="neutral">Enviada</Badge>}
                       </td>
                       <td>
                         <button type="button" className="btn btn--sm" disabled={!can('run') || !elig.ok || rodando} onClick={() => runCapability(CAP.analisar, s.id)}>

@@ -44,7 +44,7 @@ function NodeActions({ capabilityId, scopeKey, label }) {
       </button>
       {rev ? (
         <button type="button" className="btn btn--sm btn--link" onClick={() => openArtifact(capabilityId, scopeKey)}>
-          r{rev.revision}
+          R{rev.revision}
         </button>
       ) : null}
     </span>

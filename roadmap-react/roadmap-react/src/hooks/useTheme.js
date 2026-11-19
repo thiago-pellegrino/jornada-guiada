@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'theme';
 const OPTIONS = ['light', 'dark', 'system'];
-const THEME_COLORS = { light: '#f7f7f8', dark: '#0f1419' };
+const THEME_COLORS = { light: '#f7f7f8', dark: '#1f1e1d' };
 
 function readPreference() {
   try {

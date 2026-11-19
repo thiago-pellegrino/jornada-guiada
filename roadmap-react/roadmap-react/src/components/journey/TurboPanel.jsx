@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react';
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import Icon from '../ui/Icon.jsx';
 import { RunStatus, fmtDateTime } from './JourneyBits.jsx';
+import AgentIcon from './AgentIcon.jsx';
 
 /** Modo Turbo da fase: iniciar (com falha simulada opcional), acompanhar nós e cancelar. */
-export default function TurboPanel({ phase, description, disabledReason = null }) {
+export default function TurboPanel({ phase, description, disabledReason = null, collapsible = false, defaultOpen = true }) {
+  const [aberto, setAberto] = useState(collapsible ? defaultOpen : true);
   const { catalog, project, can, runTurbo, cancelTurbo, openArtifact } = useJourney();
   const [failAt, setFailAt] = useState('');
   const turbo = catalog.byPhase[phase]?.find((c) => c.isTurbo);
@@ -17,13 +19,42 @@ export default function TurboPanel({ phase, description, disabledReason = null }
   const feitos = nos.filter((n) => ['succeeded', 'failed', 'skipped', 'cancelled'].includes(n.status)).length;
 
   return (
-    <section className="surface jg-turbo" aria-labelledby={`turbo-${phase}`}>
+    <section className={`surface jg-turbo ${collapsible ? 'jg-turbo--collapsible' : ''} ${aberto ? 'is-open' : 'is-collapsed'}`} aria-labelledby={`turbo-${phase}`}>
       <header className="surface-head">
-        <h2 id={`turbo-${phase}`} className="surface-title">
-          <Icon name="wand" size={15} /> Modo Turbo · {turbo?.step ?? ''}
+        <h2 id={`turbo-${phase}`} className="jg-cap__head jg-turbo__title">
+          <span className="jg-cap__step tabular">{turbo?.step ?? ''}</span>
+          <span className="jg-cap__title">Modo Turbo</span>
         </h2>
-        {run ? <RunStatus status={run.status} /> : <span className="surface-meta">Nenhuma execução</span>}
+        <span className="jg-turbo__head-side">
+          {run ? <RunStatus status={run.status} /> : <span className="surface-meta">Nenhuma execução</span>}
+          {collapsible && !aberto ? (
+            <button
+              type="button"
+              className="btn btn--sm btn--primary"
+              disabled={Boolean(bloqueio) || rodando}
+              title={bloqueio ?? 'Executa todas as etapas de ponta a ponta'}
+              onClick={() => runTurbo(phase, { failAt: failAt || null })}
+            >
+              <AgentIcon size={15} /> {rodando ? 'Executando…' : 'Executar'}
+            </button>
+          ) : null}
+          {collapsible ? (
+            <button
+              type="button"
+              className="icon-btn jg-turbo__toggle"
+              onClick={() => setAberto((v) => !v)}
+              aria-expanded={aberto}
+              aria-controls={`turbo-${phase}-corpo`}
+              aria-label={aberto ? 'Recolher o Modo Turbo' : 'Abrir o Modo Turbo'}
+              title={aberto ? 'Recolher' : 'Abrir'}
+            >
+              <Icon name="chevronDown" size={16} />
+            </button>
+          ) : null}
+        </span>
       </header>
+      {aberto ? (
+      <div id={`turbo-${phase}-corpo`} className="jg-turbo__body">
       <p className="jg-muted">{description}</p>
       <div className="jg-turbo__controls">
         <button type="button" className="btn btn--primary btn--sm" disabled={Boolean(bloqueio) || rodando} title={bloqueio ?? undefined} onClick={() => runTurbo(phase, { failAt: failAt || null })}>
@@ -65,7 +96,7 @@ export default function TurboPanel({ phase, description, disabledReason = null }
                   {n.skipReason ? <span className="jg-node__note">{n.skipReason}</span> : null}
                   {n.status === 'succeeded' ? (
                     <button type="button" className="btn btn--sm btn--link" onClick={() => openArtifact(n.capabilityId, n.scopeKey, n.outputRevision)}>
-                      r{n.outputRevision}
+                      R{n.outputRevision}
                     </button>
                   ) : null}
                 </li>
@@ -73,6 +104,8 @@ export default function TurboPanel({ phase, description, disabledReason = null }
             })}
           </ol>
         </>
+      ) : null}
+      </div>
       ) : null}
     </section>
   );
