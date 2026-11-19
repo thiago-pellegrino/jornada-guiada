@@ -1245,3 +1245,64 @@ button.jf-cond__check:focus-visible { outline: 2px solid #fff; outline-offset: 2
   .ps-detail__head { grid-template-columns: auto minmax(0, 1fr); }
   .ps-detail__facts { grid-column: 1 / -1; }
 }
+
+/* ── Aprendizados e roadmap: tamanhos no padrão da Jornada dos 7 motores ───── */
+.ar-top { grid-template-columns: minmax(0, 1.9fr) minmax(250px, 1fr); }
+.ar-hero.is-collapsed { min-height: 0; padding: 18px 140px 16px 24px; }
+.ar-hero .mj-stats { margin-top: 12px; }
+.ar-seq { padding: 14px 18px; gap: 2px; }
+.ar-seq .ar-eyebrow { margin-bottom: 2px; font-size: 0.6rem; }
+.ar-seq__dates { margin: 0 0 4px; font-size: 1.25rem; }
+.ar-seq__text { font-size: var(--text-xs); }
+.ar-seq__start { margin-top: 8px; padding-top: 8px; }
+.ar-card { padding: 16px 18px; }
+.ar-h3 { font-size: var(--text-md, 1rem); }
+.ar-protocol .ar-sub { margin-top: 4px; }
+.ar-tag { padding: 5px 12px; font-size: 0.58rem; }
+.ar-steps { gap: 8px; margin-top: 12px; }
+.ar-step { gap: 6px; padding: 10px 12px; border-radius: 10px; box-shadow: none; }
+.ar-step__num { width: 22px; height: 22px; border-radius: 6px; font-size: 0.66rem; }
+.ar-step__title { font-size: var(--text-xs); }
+.ar-pill { padding: 3px 10px 3px 4px; font-size: 0.56rem; }
+.ar-pill__dot { width: 13px; height: 13px; }
+.ar-step__motors { font-size: 0.64rem; }
+.ar-lane { padding: 5px 12px 5px 6px; font-size: 0.7rem; }
+.ar-core { padding: 7px 14px; font-size: 0.7rem; }
+.ar-legend { gap: 4px 16px; font-size: 0.7rem; }
+.ar-swatch { width: 12px; height: 12px; }
+.ar-matrix { min-width: 980px; }
+.ar-matrix thead th { padding: 10px 10px 9px; }
+.ar-matrix__corner { width: 210px; font-size: 0.64rem; }
+.ar-matrix__date { margin-bottom: 2px; font-size: 0.58rem; }
+.ar-matrix__win { font-size: var(--text-xs); }
+.ar-matrix__now { margin-top: 4px; font-size: 0.52rem; }
+.ar-matrix tbody th, .ar-matrix tbody td { padding: 6px; }
+.ar-motor__box { gap: 10px; }
+.ar-motor__num { width: 32px; height: 36px; border-radius: 10px; font-size: var(--text-xs); }
+.ar-motor__text > strong { font-size: var(--text-xs); }
+.ar-motor__text > span:not(.ar-motor__meta) { font-size: 0.68rem; }
+.ar-motor__meta { margin-top: 4px; }
+.ar-motor__status { font-size: 0.56rem; }
+.ar-cells { gap: 4px; }
+.ar-cell { min-height: 44px; gap: 1px; padding: 6px 9px; border-radius: 8px; }
+.ar-cell strong { font-size: 0.68rem; line-height: 1.25; }
+.ar-cell span { font-size: 0.6rem; }
+.ar-marcos { gap: 10px; }
+.ar-marco { gap: 4px; padding: 12px 14px; }
+.ar-marco .ar-eyebrow { font-size: 0.58rem; }
+.ar-marco__title { font-size: var(--text-sm); }
+.ar-marco__text { margin-bottom: 4px; font-size: 0.68rem; }
+.ar-doc { gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 0.62rem; }
+.ar-bottom { gap: 10px; }
+.ar-learn { gap: 8px; margin-top: 10px; }
+.ar-learn__item { padding: 9px 12px; border-radius: 10px; }
+.ar-learn__head { margin-bottom: 4px; font-size: var(--text-xs); }
+.ar-learn__ok, .ar-learn__no { font-size: 0.68rem; }
+.ar-gaps { margin-top: 12px; padding-top: 10px; }
+.ar-gaps__title { font-size: var(--text-xs); }
+.ar-gaps li { font-size: 0.68rem; }
+.ar-waves { gap: 8px; margin-top: 10px; }
+.ar-wave { padding: 10px; }
+.ar-wave__title { font-size: var(--text-xs); }
+.ar-wave li { padding: 6px 8px; font-size: 0.68rem; }
+.ar-notice { padding: 9px 14px; }

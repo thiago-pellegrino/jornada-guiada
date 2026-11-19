@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import { EmptyState, goToTab } from '../journey/JourneyBits.jsx';
+import { DarklabsMark } from '../auth/LoginScreen.jsx';
 import DarklabMenuIcon from './DarklabMenuIcons.jsx';
 import { MOTOR_ICON, MOTOR_STATUS } from './MotorsJourney.jsx';
 import {
@@ -112,15 +113,15 @@ export default function DarklabRoadmapView({ onSelect }) {
     <div className="jg-page ar">
       {/* Abertura: o que a matriz mostra + próxima sequência crítica */}
       <div className="ar-top">
-        <section className="mj-hero ar-hero" aria-labelledby="ar-title">
-          <span className="ar-hero__seven" aria-hidden="true">
-            7
+        <section className="mj-hero is-collapsed ar-hero" aria-labelledby="ar-title">
+          <span className="mj-hero__mark" aria-hidden="true">
+            <DarklabsMark tone="light" />
           </span>
           <p className="mj-eyebrow">Roadmap × sete motores</p>
-          <h2 id="ar-title" className="ar-hero__title">
+          <h2 id="ar-title" className="mj-title">
             Ativações conectadas até a decisão — e além.
           </h2>
-          <p className="mj-lead ar-hero__lead">
+          <p className="pr-hero__lead ar-hero__lead">
             A matriz mostra quando cada motor foi ativado, quando apenas recebeu insumos e quando sua execução está planejada. Verde significa
             resultado aceito ou entrega com evidência de conclusão; âmbar, resultado gerado aguardando aceite.
           </p>
