@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { WEEKS, LIMITS, resolveYearWeek } from '../../data/initialRoadmapData.js';
 import { STATUS_META } from '../../domain/simulationEngine.js';
 import { fmtNumber, fmtPct, fmtWeeks, plural } from '../../domain/format.js';
@@ -53,6 +53,19 @@ export default function RoadmapMatrix({
   const [editingKey, setEditingKey] = useState(null);
   const [editingDraft, setEditingDraft] = useState('');
 
+  // Destaque de linha e coluna ao passar o mouse: a linha vem do CSS (:hover); a coluna marca as
+  // células da mesma semana (data-w) direto no DOM, sem renderizar a matriz a cada movimento.
+  const colunaAtual = useRef(null);
+  const tabelaRef = useRef(null);
+  function marcarColuna(semana) {
+    if (semana === colunaAtual.current) return;
+    const tabela = tabelaRef.current;
+    if (!tabela) return;
+    tabela.querySelectorAll('.is-hcol').forEach((el) => el.classList.remove('is-hcol'));
+    colunaAtual.current = semana;
+    if (semana) tabela.querySelectorAll(`[data-w="${semana}"]`).forEach((el) => el.classList.add('is-hcol'));
+  }
+
   function toggleSquadCollapse(squadKey) {
     setExpandedSquads((prev) => (prev.includes(squadKey) ? prev.filter((key) => key !== squadKey) : [...prev, squadKey]));
   }
@@ -106,7 +119,12 @@ export default function RoadmapMatrix({
 
   return (
     <div className="matrix-scroll" role="region" aria-labelledby="matrix-title" tabIndex={0}>
-      <table className={`matrix matrix--${view} ${manual ? 'matrix--manual' : ''}`}>
+      <table
+        ref={tabelaRef}
+        className={`matrix matrix--${view} ${manual ? 'matrix--manual' : ''}`}
+        onMouseOver={(event) => marcarColuna(event.target.closest?.('[data-w]')?.dataset.w ?? null)}
+        onMouseLeave={() => marcarColuna(null)}
+      >
         <caption className="visually-hidden">
           Cronograma por squad e feature, da semana {formatPlanningWeek(1)} (início do planejamento) à {formatPlanningWeek(Object.keys(counts).length)}, modalidade {mode}. Valores semanais em{' '}
           {view === 'grid' || manual ? 'histórias (US)' : 'barras proporcionais à ocupação'}.
@@ -187,6 +205,7 @@ export default function RoadmapMatrix({
               <th
                 key={week.id}
                 scope="col"
+                data-w={week.id}
                 className={[
                   'th-week',
                   week.frozen ? 'is-freeze' : '',
@@ -300,7 +319,7 @@ export default function RoadmapMatrix({
                 {weeks.map((week) => {
                   if (week.frozen) {
                     return (
-                      <td key={week.id} className="cell cell--freeze" title="Freezing 17/12/2026: alocação bloqueada">
+                      <td key={week.id} data-w={week.id} className="cell cell--freeze" title="Freezing 17/12/2026: alocação bloqueada">
                         <Icon name="lock" size={12} />
                       </td>
                     );
@@ -311,6 +330,7 @@ export default function RoadmapMatrix({
                   return (
                     <td
                       key={week.id}
+                      data-w={week.id}
                       className={`cell cell--usage ${usage?.isOvercapacity ? 'is-over' : ''} ${week.index < startIndex ? 'is-history' : ''} ${week.id === currentWeekId ? 'is-now' : ''}`}
                       title={label}
                     >
@@ -389,7 +409,7 @@ export default function RoadmapMatrix({
                       </Badge>
                     </td>
                     {weeks.map((week) => {
-                      if (week.frozen) return <td key={week.id} className="cell cell--freeze" aria-label="Freezing: bloqueado" />;
+                      if (week.frozen) return <td key={week.id} data-w={week.id} className="cell cell--freeze" aria-label="Freezing: bloqueado" />;
                       const hours = schedule.allocatedByWeek[week.id] || 0;
                       const usage = diag.weeklyUsage[week.id];
                       const classes = [
@@ -402,11 +422,11 @@ export default function RoadmapMatrix({
 
                       if (manual) {
                         if (week.index < startIndex) {
-                          return <td key={week.id} className={`${classes} cell--locked`} title="Antes do início do planejamento" />;
+                          return <td key={week.id} data-w={week.id} className={`${classes} cell--locked`} title="Antes do início do planejamento" />;
                         }
                         const value = Number(manualRow[week.id]) || 0;
                         return (
-                          <td key={week.id} className={`${classes} cell--input`}>
+                          <td key={week.id} data-w={week.id} className={`${classes} cell--input`}>
                             <NumberInput
                               className="cell-input cell-input--week tabular"
                               value={value}
@@ -426,7 +446,7 @@ export default function RoadmapMatrix({
                       const fraction = capacity > 0 ? Math.min(1, hours / capacity) : 0;
                       const title = hours > 0 ? `${feature.name} · ${week.sprintWeek}: ${fmtNumber(hours)} h (${fmtNumber(hours / avg, 2, 0)} US)` : undefined;
                       return (
-                        <td key={week.id} className={classes} title={title}>
+                        <td key={week.id} data-w={week.id} className={classes} title={title}>
                           {hours > 0 ? (
                             view === 'grid' ? (
                               <span className="cell-value tabular">{fmtNumber(hours / avg, 1, 0)}</span>

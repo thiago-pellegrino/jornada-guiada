@@ -3,9 +3,11 @@
    ========================================================================== */
 
 .matrix-section {
-  --head-1: 24px;
-  --head-2: 20px;
-  --head-3: 36px;
+  --head-1: 28px;
+  --head-2: 26px;
+  --head-3: 50px; /* cabe código, data e o selo "Atual" sem cortar */
+  --matrix-row: 36px;
+  --matrix-row-squad: 42px;
 }
 
 .matrix-toolbar__row {
@@ -150,7 +152,7 @@
 
 .matrix th,
 .matrix td {
-  height: var(--grid-row-dense);
+  height: var(--matrix-row, var(--grid-row-dense));
   padding: 0 6px;
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
@@ -296,7 +298,7 @@
 /* ── Linha da squad ────────────────────────────────────────────────────────── */
 .matrix__squad th,
 .matrix__squad td {
-  height: 34px;
+  height: var(--matrix-row-squad, 34px);
   background: var(--color-surface-subtle);
   font-weight: var(--weight-semibold);
 }
@@ -774,4 +776,42 @@
 
 .matrix thead .th-week.is-sprint-start .th-week__code {
   color: var(--color-link);
+}
+
+/* ── Destaque de linha e coluna ao passar o mouse ───────────────────────────
+   A linha inteira (inclusive o bloco fixo à esquerda) e a coluna da semana (do cabeçalho até a
+   última linha) recebem uma camada azul-violeta da marca; a célula do cruzamento fica mais forte e
+   com contorno. É uma camada (background-image) por cima da cor de cada célula, então não apaga
+   estados como semana atual, histórico ou sobrecarga. */
+.matrix {
+  --hl-cor: #5e6fe1;
+  --hl-linha: color-mix(in srgb, var(--hl-cor) 14%, transparent);
+  --hl-cruz: color-mix(in srgb, var(--hl-cor) 30%, transparent);
+}
+:root[data-theme='dark'] .matrix {
+  --hl-cor: #8b97ff;
+  --hl-linha: color-mix(in srgb, var(--hl-cor) 16%, transparent);
+  --hl-cruz: color-mix(in srgb, var(--hl-cor) 34%, transparent);
+}
+@media (hover: hover) {
+  .matrix tbody tr:hover > :not(.cell--freeze),
+  .matrix tbody .is-hcol:not(.cell--freeze) {
+    background-image: linear-gradient(var(--hl-linha), var(--hl-linha)) !important;
+  }
+  .matrix tbody tr:hover > .is-hcol:not(.cell--freeze) {
+    background-image: linear-gradient(var(--hl-cruz), var(--hl-cruz)) !important;
+  }
+  .matrix tbody tr:hover > td.cell:hover:not(.cell--freeze) {
+    outline: 2px solid var(--hl-cor);
+    outline-offset: -2px;
+  }
+  .matrix thead .th-week.is-hcol:not(.is-freeze) {
+    background-image: linear-gradient(var(--hl-cor), var(--hl-cor)) !important;
+  }
+  .matrix thead .th-week.is-hcol .th-week__code,
+  .matrix thead .th-week.is-hcol .th-week__date,
+  .matrix thead .th-week.is-hcol .th-week__now { color: #fff; }
+  .matrix tbody tr:hover > .sticky-col--1 { box-shadow: inset 4px 0 0 var(--hl-cor); }
+  .matrix tbody tr:hover .feature-cell__name,
+  .matrix tbody tr:hover .squad-cell__name { color: var(--hl-cor); font-weight: var(--weight-semibold); }
 }
