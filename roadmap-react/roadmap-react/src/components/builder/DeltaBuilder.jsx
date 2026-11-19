@@ -129,7 +129,7 @@ export default function DeltaBuilder({ scenario, result }) {
   return (
     <div className="jg-page">
       <ProjectBar current="builder" />
-      <div className={`dbx ${cheia ? 'is-full' : ''}`}>
+      <div className={`dbx ${cheia ? 'is-full' : ''} ${!previa && !gerando && !versao ? 'is-vazio' : ''}`}>
         <aside className="dbx-side" aria-label="Pedido ao Delta Builder" onMouseEnter={() => setTick((t) => t + 1)}>
           <header className="dbx-side__head">
             <span className="dbx-side__mark" aria-hidden="true">

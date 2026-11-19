@@ -39,7 +39,7 @@ const TABS = [
   { id: 'planejamento', label: 'Planejamento', icon: 'sliders' },
   { id: 'resultados', label: 'Resultados e diagnóstico', icon: 'gauge' },
   { id: 'curva', label: 'Curva de entrega', icon: 'chart' },
-  { id: 'builder', label: 'Delta Builder', icon: 'wand' },
+  { id: 'builder', label: 'Delta Builder', icon: 'delta' },
 ];
 
 const THEME_LABELS = { light: 'Tema claro ativado', dark: 'Tema escuro ativado', system: 'Tema do sistema ativado' };

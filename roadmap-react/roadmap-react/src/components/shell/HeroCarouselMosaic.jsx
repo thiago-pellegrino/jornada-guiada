@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { SCHEDULING_MODES } from '../../data/initialRoadmapData.js';
 import { fmtPct } from '../../domain/format.js';
-import Icon from '../ui/Icon.jsx';
+import Icon, { CopilotMark } from '../ui/Icon.jsx';
 import { DarklabsMark } from '../auth/LoginScreen.jsx';
 import { useOptionalJourney } from '../../journey/JourneyContext.jsx';
 import { stageLabel } from '../../domain/journey/journeyEngine.js';
@@ -161,7 +161,7 @@ export default function HeroCarouselMosaic({
       slides: [
         { id: 'resultados', tab: 'resultados', icon: 'gauge', title: 'Resultados e diagnóstico das squads', tabLabel: 'Resultados', image: 'resultados-diagnostico' },
         { id: 'curva-res', tab: 'curva', icon: 'chart', title: 'Curva de entrega do backlog', tabLabel: 'Dashboards', image: 'resultados-curva' },
-        { id: 'builder', tab: 'builder', icon: 'wand', title: 'Delta Builder: telas geradas por IA', tabLabel: 'Delta Builder', image: 'resultados-builder' },
+        { id: 'builder', tab: 'builder', icon: 'delta', title: 'Delta Builder: Telas geradas por I.A.', tabLabel: 'Delta Builder', image: 'resultados-builder' },
       ],
     },
   ];
@@ -413,7 +413,7 @@ export default function HeroCarouselMosaic({
                     title={item.title}
                     onClick={() => activate(group, sIdx)}
                   >
-                    {item.icon ? <Icon name={item.icon} size={14} /> : null}
+                    {item.icon === 'delta' ? <CopilotMark size={15} /> : item.icon ? <Icon name={item.icon} size={14} /> : null}
                     <span>{item.tabLabel ?? item.title}</span>
                   </button>
                 );

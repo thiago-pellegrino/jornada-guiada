@@ -63,6 +63,9 @@
 .dbx-empty h3 { margin: 0; font-size: 1.2rem; color: var(--color-text-heading); }
 .dbx-empty p { max-width: 520px; margin: 0; font-size: var(--text-sm); line-height: 1.55; }
 .dbx-empty__mark { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; background: var(--color-surface-subtle); }
+/* Sem tela gerada: o quadro acompanha a altura do painel do pedido (não estica até a altura da janela). */
+.dbx.is-vazio { align-items: stretch; }
+.dbx.is-vazio .dbx-canvas { flex: 1; height: auto; min-height: 320px; }
 /* Tela cheia: só a prévia ocupa a janela. */
 .dbx.is-full .dbx-stage { position: fixed; inset: 12px; z-index: calc(var(--z-modal, 60) + 1); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.55); }
 .dbx.is-full .dbx-canvas { height: auto; flex: 1; }

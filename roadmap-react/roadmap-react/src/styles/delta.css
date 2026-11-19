@@ -420,3 +420,7 @@
   100.0% { transform: translate(-0.0px, -0.0px); }
 }
 @media (prefers-reduced-motion: reduce) { .delta-fab .copilot-glyph { animation: none; } }
+
+/* Ícone do Delta na barra de abas: branco, como os demais ícones das abas (inclusive no modo dourado). */
+.mosaic-tabs-bar__tab .copilot-glyph .dlt-stop,
+:root[data-delta-gold] .mosaic-tabs-bar__tab .copilot-glyph .dlt-stop { stop-color: #fff; }
