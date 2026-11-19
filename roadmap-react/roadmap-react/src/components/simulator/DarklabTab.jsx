@@ -61,6 +61,15 @@ export default function DarklabTab() {
   }, []);
   const contentRef = useRef(null);
 
+  // Outras partes do sistema (ex.: dicas da mascote do Delta) podem abrir um item do menu.
+  useEffect(() => {
+    const abrir = (e) => {
+      if (DARKLAB_INDEX.has(e.detail)) setView(e.detail);
+    };
+    window.addEventListener('jornada:darklab-view', abrir);
+    return () => window.removeEventListener('jornada:darklab-view', abrir);
+  }, []);
+
   useEffect(() => {
     try {
       window.sessionStorage.setItem(VIEW_KEY, view);

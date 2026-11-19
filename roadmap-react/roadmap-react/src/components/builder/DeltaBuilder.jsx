@@ -5,6 +5,7 @@ import AgentIcon from '../journey/AgentIcon.jsx';
 import Icon, { CopilotMark } from '../ui/Icon.jsx';
 import { abrirConfiguracoes } from '../user/UserAvatar.jsx';
 import { montarDossie, resumoDoDossie } from './builderData.js';
+import { avisarMascote } from '../shell/deltaMascotBus.js';
 import { formatarHtml, realcar } from './formatarHtml.js';
 import { SUGESTOES, blindar, extrairHtml, gerarComModelo, gerarLocal, montarPedido, motorAtivo } from './builderEngine.js';
 
@@ -57,6 +58,7 @@ export default function DeltaBuilder({ scenario, result }) {
     setPedido(p);
     setErro(null);
     setGerando(true);
+    avisarMascote({ estado: 'trabalhando', ativo: true, fonte: 'builder' });
     setTexto('');
     setAba('visual');
     const ctrl = new AbortController();
@@ -94,12 +96,20 @@ export default function DeltaBuilder({ scenario, result }) {
       setAtual(versoes.length);
       setPrevia(blindar(html));
       setPedido('');
+      avisarMascote({ estado: 'pulando', dica: { texto: `Tela ${nova.id} pronta. Quer ajustar algo? Descreva a mudança e gere de novo.`, acoes: [] } });
     } catch (e) {
       if (e?.name === 'AbortError') setErro('Geração interrompida.');
-      else setErro(e?.message ?? 'Não foi possível gerar a tela.');
+      else {
+        setErro(e?.message ?? 'Não foi possível gerar a tela.');
+        avisarMascote({
+          estado: 'falha',
+          dica: { texto: 'A geração da tela falhou. Confira a chave do modelo no B.Y.O.K. ou tente reformular o pedido.', acoes: [{ rotulo: 'Perguntar ao Delta', tipo: 'chat' }] },
+        });
+      }
       if (versao) setPrevia(blindar(versao.html));
     } finally {
       setGerando(false);
+      avisarMascote({ estado: 'trabalhando', ativo: false, fonte: 'builder' });
       controle.current = null;
     }
   }

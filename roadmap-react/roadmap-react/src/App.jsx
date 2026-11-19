@@ -25,8 +25,9 @@ import SquadDiagnosticsCard from './components/simulator/SquadDiagnosticsCard.js
 import ScenarioOverviewCards from './components/simulator/ScenarioOverviewCards.jsx';
 import MatrixToolbar, { EMPTY_FILTERS } from './components/matrix/MatrixToolbar.jsx';
 import RoadmapMatrix, { featureMatches } from './components/matrix/RoadmapMatrix.jsx';
-import Toast from './components/ui/Toast.jsx';
+import DeltaMascot from './components/shell/DeltaMascot.jsx';
 import { CopilotMark } from './components/ui/Icon.jsx';
+import Toast from './components/ui/Toast.jsx';
 
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
@@ -449,8 +450,11 @@ export default function App() {
         </div>
       </div>
 
-      {/* Atalho flutuante do Delta: fixo no canto inferior direito, por cima de todas as telas;
-          some enquanto a janela do chat está aberta. */}
+      {/* Mascote do Delta: flutua sobre todas as telas, pode ser arrastada e tem um mini chat próprio;
+          fica oculta (sem perder a conversa) enquanto a janela do Delta completo está aberta. */}
+      <DeltaMascot onOpen={() => setCopilotOpen(true)} tab={tab} scenario={scenario} result={result} oculto={copilotOpen} />
+
+      {/* Atalho fixo do Delta no canto inferior direito; some enquanto o chat está aberto. */}
       {!copilotOpen ? (
         <button
           type="button"

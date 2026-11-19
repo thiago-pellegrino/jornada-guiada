@@ -424,3 +424,305 @@
 /* Ícone do Delta na barra de abas: branco, como os demais ícones das abas (inclusive no modo dourado). */
 .mosaic-tabs-bar__tab .copilot-glyph .dlt-stop,
 :root[data-delta-gold] .mosaic-tabs-bar__tab .copilot-glyph .dlt-stop { stop-color: #fff; }
+
+/* ══ Mascote do Delta ══════════════════════════════════════════════════════════
+   Personagem original: cabeça com visor, corpo em ▽ e bracinhos, nas cores da marca
+   (azul → índigo → violeta; dourado no modo das estrelas douradas).
+   Estados (classe .dm--<estado>): parado, correndo, acenando, pulando, esperando, trabalhando,
+   revisando e falha. Tem balão de sugestões e um mini chat próprio (.dm-chat). */
+.dm {
+  --dm-c1: #4f8dff;
+  --dm-c2: #5e6fe1;
+  --dm-c3: #a650cf;
+  --dm-olho: #8ff0ff;
+  --dm-ex: 0px;
+  --dm-ey: 0px;
+  --dm-tilt: 0deg;
+  position: fixed;
+  z-index: calc(var(--z-panel, 50) + 5);
+  width: 92px;
+  touch-action: none;
+  user-select: none;
+  animation: dm-entra 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+:root[data-delta-gold] .dm { --dm-c1: #f0c64a; --dm-c2: #d4a017; --dm-c3: #a8740a; --dm-olho: #fff1b8; }
+.dm-char { position: relative; display: flex; flex-direction: column; align-items: center; }
+.dm-body { display: block; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.dm--correndo .dm-body { cursor: grabbing; }
+.dm-body:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: 22px; }
+.dm-svg { display: block; overflow: visible; filter: drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)); transition: filter 0.3s ease; }
+:root[data-theme='dark'] .dm-svg { filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)); }
+.dm-brilho-linha { stroke: #fff; stroke-opacity: 0.55; stroke-width: 1.4; stroke-linecap: round; }
+
+.dm-stop--1 { stop-color: var(--dm-c1); }
+.dm-stop--2 { stop-color: var(--dm-c2); }
+.dm-stop--3 { stop-color: var(--dm-c3); }
+.dm-aresta { fill: none; stroke: rgba(255, 255, 255, 0.35); stroke-width: 1.2; stroke-linecap: round; }
+.dm-pescoco { fill: #141a3f; }
+.dm-emblema { fill: #fff; opacity: 0.95; transform-box: fill-box; transform-origin: center; }
+.dm-haste { stroke: var(--dm-c2); stroke-width: 2.4; stroke-linecap: round; }
+.dm-bochecha { fill: #ff7ab6; opacity: 0; transition: opacity 0.25s ease; }
+.dm-olho--estrela { fill: var(--dm-olho); }
+.dm-olho--x { display: none; stroke: #ff8a9b; stroke-width: 2.6; stroke-linecap: round; }
+.dm-boca { fill: none; stroke: var(--dm-olho); stroke-width: 2; stroke-linecap: round; opacity: 0; transition: opacity 0.2s ease; }
+.dm-boca--triste { stroke: #ff8a9b; }
+.dm-pontos { display: none; fill: var(--dm-olho); }
+.dm-lupa { display: none; }
+.dm-lupa path { stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
+.dm-lupa circle { fill: rgba(143, 240, 255, 0.22); stroke: #fff; stroke-width: 2.2; }
+.dm-alerta { display: none; }
+.dm-alerta circle { fill: #e0314e; }
+.dm-alerta path { stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
+.dm-rastro { display: none; stroke: color-mix(in srgb, var(--dm-c2) 70%, transparent); stroke-width: 2.4; stroke-linecap: round; }
+.dm-antena { fill: #fff; transform-box: fill-box; transform-origin: center; animation: dm-cintila 2.8s ease-in-out infinite; }
+:root[data-delta-gold] .dm-antena { fill: #fff6d0; }
+.dm-sombra { transform-box: fill-box; transform-origin: center; animation: dm-sombra 3.6s ease-in-out infinite; }
+.dm-sombra-stop--1 { stop-color: color-mix(in srgb, var(--dm-c2) 55%, #0f172a); stop-opacity: 0.5; }
+.dm-sombra-stop--2 { stop-color: var(--dm-c2); stop-opacity: 0; }
+:root[data-theme='dark'] .dm-sombra-stop--1 { stop-color: #000; stop-opacity: 0.7; }
+
+/* Base (parado): flutua, pisca, e olhos e cabeça seguem o cursor. */
+.dm-flutua { animation: dm-flutua 3.6s ease-in-out infinite; }
+.dm-inclina { transform-box: fill-box; transform-origin: 50% 90%; transform: rotate(var(--dm-tilt)); transition: transform 0.25s ease; }
+.dm-cabeca { transform: translate(calc(var(--dm-ex) * 0.5), calc(var(--dm-ey) * 0.45)); transition: transform 0.18s ease-out; }
+.dm-olhos { transform: translate(var(--dm-ex), var(--dm-ey)); transition: transform 0.12s linear; }
+.dm-pisca { transform-box: fill-box; transform-origin: center; animation: dm-pisca 5.2s infinite; }
+.dm-braco { transform: rotate(16deg); transition: transform 0.3s ease; }
+.dm-braco--e { animation: dm-balanca 3.6s ease-in-out infinite; }
+.dm-braco--d { animation: dm-balanca 3.6s ease-in-out -1.8s infinite; }
+
+/* Hover / acenando: sorri, cora e acena com o braço direito. */
+.dm-body:hover .dm-boca--sorriso, .dm-body:focus-visible .dm-boca--sorriso,
+.dm--acenando .dm-boca--sorriso, .dm--pulando .dm-boca--sorriso, .dm--correndo .dm-boca--sorriso { opacity: 1; }
+.dm--acenando .dm-bochecha, .dm--pulando .dm-bochecha { opacity: 0.55; }
+.dm-body:hover .dm-svg { filter: drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)) drop-shadow(0 8px 18px color-mix(in srgb, var(--dm-c2) 45%, transparent)); }
+.dm--acenando .dm-braco--d { animation: dm-aceno 0.9s ease-in-out infinite; }
+
+/* Correndo: inclina para a direção, balança rápido e deixa rastro. */
+.dm--correndo .dm-flutua { animation: dm-corre 0.32s ease-in-out infinite; }
+.dm--correndo .dm-braco--e { animation: dm-braco-corre 0.32s ease-in-out infinite; }
+.dm--correndo .dm-braco--d { animation: dm-braco-corre 0.32s ease-in-out -0.16s infinite; }
+.dm--correndo.dm--para-d .dm-rastro--e, .dm--correndo.dm--para-e .dm-rastro--d { display: inline; animation: dm-rastro 0.32s linear infinite; }
+.dm--correndo .dm-sombra { animation: dm-sombra 0.32s ease-in-out infinite; }
+.dm--correndo:not(.dm--para-e) .dm-inclina { transform: rotate(calc(var(--dm-tilt) + 8deg)); }
+.dm--correndo.dm--para-e .dm-inclina { transform: rotate(calc(var(--dm-tilt) - 8deg)); }
+
+/* Pulando: salto com achatamento na aterrissagem, braços para cima. */
+.dm--pulando .dm-pulo { animation: dm-pula 0.65s cubic-bezier(0.3, 0, 0.4, 1) 2; transform-box: fill-box; transform-origin: 50% 100%; }
+.dm--pulando .dm-braco { transform: rotate(135deg); animation: none; }
+.dm--pulando .dm-sombra { animation: dm-sombra-pulo 0.65s ease-in-out 2; }
+
+/* Esperando: olha em volta, devagar, balançando a cabeça. */
+.dm--esperando .dm-olhos { animation: dm-olha 7s ease-in-out infinite; }
+.dm--esperando .dm-cabeca { transform-box: fill-box; transform-origin: 50% 100%; animation: dm-cabeca-olha 7s ease-in-out infinite; }
+.dm--esperando .dm-flutua { animation-duration: 5.5s; }
+
+/* Trabalhando: olhos semicerrados, pontinhos "digitando", antena girando, emblema pulsando. */
+.dm--trabalhando .dm-pisca { animation: none; transform: scaleY(0.55); }
+.dm--trabalhando .dm-pontos { display: inline; }
+.dm--trabalhando .dm-pontos circle { animation: dm-ponto 1s ease-in-out infinite; }
+.dm--trabalhando .dm-pontos circle:nth-child(2) { animation-delay: 0.15s; }
+.dm--trabalhando .dm-pontos circle:nth-child(3) { animation-delay: 0.3s; }
+.dm--trabalhando .dm-antena { animation: dm-gira 1.4s linear infinite; }
+.dm--trabalhando .dm-emblema { animation: dm-pulsa 1s ease-in-out infinite; }
+.dm--trabalhando .dm-braco--e { animation: dm-digita 0.5s ease-in-out infinite; }
+.dm--trabalhando .dm-braco--d { animation: dm-digita 0.5s ease-in-out -0.25s infinite; }
+
+/* Revisando: segura a lupa e varre com os olhos. */
+.dm--revisando .dm-lupa { display: inline; }
+.dm--revisando .dm-braco--d { transform: rotate(104deg); animation: none; }
+.dm--revisando .dm-olhos { animation: dm-varre 1.6s ease-in-out infinite; }
+
+/* Falha: olhos em X, boca triste, treme, cabeça caída, antena tomba e aparece o alerta. */
+.dm--falha .dm-olho--estrela { display: none; }
+.dm--falha .dm-olho--x { display: inline; }
+.dm--falha .dm-boca--triste { opacity: 1; }
+.dm--falha .dm-alerta { display: inline; }
+.dm--falha .dm-flutua { animation: dm-treme 0.45s ease-in-out 3; }
+.dm--falha .dm-cabeca { transform-box: fill-box; transform-origin: 50% 100%; transform: translateY(1.5px) rotate(-6deg); }
+.dm--falha .dm-antena { animation: none; transform: translate(-15px, 7px) rotate(-40deg) scale(0.8); fill: #9aa1ac; filter: none; }
+.dm--falha .dm-haste { opacity: 0; }
+.dm--falha .dm-braco { transform: rotate(2deg); animation: none; }
+.dm--falha .dm-emblema { opacity: 0.35; }
+.dm--falha .dm-svg { filter: saturate(0.55) drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)); }
+
+/* Selo de estado (trabalhando, revisão, falha, esperando). */
+.dm-chip {
+  margin-top: -8px;
+  padding: 2px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.dm-chip.is-on { opacity: 1; transform: none; }
+.dm--trabalhando .dm-chip { border-color: color-mix(in srgb, #5e6fe1 45%, var(--color-border)); color: #4c5bd4; }
+.dm--revisando .dm-chip { border-color: color-mix(in srgb, #c97f0e 45%, var(--color-border)); color: #a5680a; }
+.dm--falha .dm-chip { border-color: color-mix(in srgb, #e0314e 45%, var(--color-border)); color: #c42742; }
+:root[data-theme='dark'] .dm--trabalhando .dm-chip { color: #9aa4ff; }
+:root[data-theme='dark'] .dm--revisando .dm-chip { color: #f0c060; }
+:root[data-theme='dark'] .dm--falha .dm-chip { color: #ff8a9b; }
+
+/* Ações (aparecem ao passar o mouse na mascote ou com foco). */
+.dm-actions {
+  position: absolute;
+  top: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: 0 8px 20px -10px rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.dm-char:hover .dm-actions, .dm-char:focus-within .dm-actions { opacity: 1; transform: none; pointer-events: auto; }
+.dm--correndo .dm-actions { opacity: 0; pointer-events: none; }
+.dm-actions button { display: grid; place-items: center; width: 30px; height: 26px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--color-text); cursor: pointer; }
+.dm-actions button:hover { background: var(--color-surface-hover); color: var(--color-text-heading); }
+.dm-actions button.is-off { color: var(--color-text-muted); opacity: 0.6; }
+.dm-actions button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.dm-actions__sep { width: 1px; height: 14px; background: var(--color-border-strong); }
+
+/* Balão de sugestão. */
+.dm-balao {
+  position: absolute;
+  bottom: calc(100% - 2px);
+  width: 260px;
+  padding: 12px 30px 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--dm-c2) 35%, var(--color-border));
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 14px 34px -14px rgba(15, 23, 42, 0.45);
+  color: var(--color-text);
+  animation: dm-balao 0.25s ease-out both;
+}
+.dm-balao.is-end { right: 6px; }
+.dm-balao.is-start { left: 6px; }
+.dm-balao.is-below { top: calc(100% + 34px); bottom: auto; }
+.dm-balao::after { content: ''; position: absolute; bottom: -7px; width: 12px; height: 12px; border-right: 1px solid color-mix(in srgb, var(--dm-c2) 35%, var(--color-border)); border-bottom: 1px solid color-mix(in srgb, var(--dm-c2) 35%, var(--color-border)); background: var(--color-surface); transform: rotate(45deg); }
+.dm-balao.is-end::after { right: 34px; }
+.dm-balao.is-start::after { left: 34px; }
+.dm-balao.is-below::after { top: -7px; bottom: auto; transform: rotate(225deg); }
+.dm-balao p { margin: 0; font-size: var(--text-xs); line-height: 1.5; }
+.dm-balao__acoes, .dm-msg__acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dm-balao__acoes button, .dm-msg__acoes button { padding: 5px 12px; border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--dm-c1), var(--dm-c3)); color: #fff; font: inherit; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+.dm-balao__acoes button:focus-visible, .dm-msg__acoes button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.dm-balao__fechar { position: absolute; top: 4px; right: 6px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--color-text-muted); font-size: 1rem; line-height: 1; cursor: pointer; }
+.dm-balao__fechar:hover { background: var(--color-surface-hover); color: var(--color-text-heading); }
+
+/* ── Mini chat preso à mascote ─────────────────────────────────────────────── */
+.dm-chat {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  display: flex;
+  flex-direction: column;
+  width: min(340px, calc(100vw - 16px));
+  height: var(--dm-chat-h, 420px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--dm-c2) 35%, var(--color-border));
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 22px 48px -18px rgba(15, 23, 42, 0.55);
+  color: var(--color-text);
+  cursor: auto;
+  touch-action: auto;
+  user-select: text;
+  animation: dm-balao 0.22s ease-out both;
+}
+.dm-chat.is-end { right: 0; }
+.dm-chat.is-start { left: 0; }
+.dm-chat.is-below { top: calc(100% + 46px); bottom: auto; }
+.dm-chat__head { display: flex; align-items: center; gap: 8px; padding: 9px 8px 9px 12px; background: linear-gradient(120deg, var(--dm-c1), var(--dm-c2) 55%, var(--dm-c3)); color: #fff; user-select: none; }
+.dm-chat__title { display: flex; flex: 1; flex-direction: column; min-width: 0; line-height: 1.2; }
+.dm-chat__title strong { font-size: var(--text-sm); }
+.dm-chat__title span { overflow: hidden; font-size: 0.62rem; opacity: 0.85; text-overflow: ellipsis; white-space: nowrap; }
+.dm-chat__head button { display: grid; flex: none; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 8px; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; }
+.dm-chat__head button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.28); }
+.dm-chat__head button:disabled { opacity: 0.4; cursor: default; }
+.dm-chat__head button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.dm-chat__log { display: flex; flex: 1; flex-direction: column; gap: 8px; min-height: 0; margin: 0; padding: 12px; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
+.dm-msg { max-width: 88%; padding: 8px 11px; border-radius: 14px; font-size: var(--text-xs); line-height: 1.5; overflow-wrap: anywhere; }
+.dm-msg p { margin: 0; white-space: pre-wrap; }
+.dm-msg--assistant { align-self: flex-start; border-bottom-left-radius: 5px; background: var(--color-surface-subtle); }
+.dm-msg--assistant.is-tip { border: 1px dashed color-mix(in srgb, var(--dm-c2) 45%, var(--color-border)); background: color-mix(in srgb, var(--dm-c2) 6%, var(--color-surface)); }
+.dm-msg--user { align-self: flex-end; border-bottom-right-radius: 5px; background: linear-gradient(135deg, var(--dm-c1), var(--dm-c2)); color: #fff; }
+.dm-msg ul { display: flex; flex-direction: column; gap: 2px; margin: 6px 0 0; padding-left: 16px; font-size: 0.7rem; color: var(--color-text-muted); }
+.dm-msg__aviso { display: block; margin-bottom: 4px; font-style: normal; font-size: 0.64rem; font-weight: 700; color: #c42742; }
+.dm-msg__motor { display: block; margin-top: 4px; font-size: 0.6rem; color: var(--color-text-muted); }
+.dm-msg__dots { display: inline-flex; gap: 4px; padding: 4px 2px; }
+.dm-msg__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--dm-c2); animation: dm-ponto 1s ease-in-out infinite; }
+.dm-msg__dots i:nth-child(2) { animation-delay: 0.15s; }
+.dm-msg__dots i:nth-child(3) { animation-delay: 0.3s; }
+.dm-chat__chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 8px; }
+.dm-chat__chips button { padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--dm-c2) 45%, var(--color-border)); border-radius: 999px; background: var(--color-surface); color: var(--color-text-heading); font: inherit; font-size: 0.68rem; cursor: pointer; }
+.dm-chat__chips button:hover { background: color-mix(in srgb, var(--dm-c2) 10%, var(--color-surface)); }
+.dm-chat__chips button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.dm-chat__form { display: flex; align-items: center; gap: 6px; padding: 8px 10px 10px; border-top: 1px solid var(--color-border); }
+.dm-chat__form input { flex: 1; min-width: 0; height: 34px; padding: 0 12px; border: 1px solid var(--color-border-strong); border-radius: 999px; background: var(--color-surface); color: var(--color-text-heading); font: inherit; font-size: var(--text-xs); }
+.dm-chat__form input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.dm-chat__form button { display: grid; flex: none; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(135deg, var(--dm-c1), var(--dm-c3)); color: #fff; cursor: pointer; }
+.dm-chat__form button:disabled { opacity: 0.4; cursor: default; }
+.dm-chat__form button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* Versão recolhida. */
+.dm-mini {
+  position: fixed;
+  z-index: calc(var(--z-panel, 50) + 5);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f8dff, #5e6fe1 55%, #a650cf);
+  box-shadow: 0 10px 24px -10px rgba(94, 111, 225, 0.8);
+  cursor: pointer;
+  animation: dm-entra 0.3s ease-out both;
+}
+:root[data-delta-gold] .dm-mini { background: linear-gradient(135deg, #f0c64a, #d4a017 55%, #a8740a); }
+.dm-mini__star { fill: #fff; }
+.dm-mini:hover { transform: scale(1.06); }
+.dm-mini:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+@keyframes dm-entra { from { opacity: 0; transform: translateY(12px) scale(0.8); } to { opacity: 1; transform: none; } }
+@keyframes dm-flutua { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes dm-sombra { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.8); opacity: 0.65; } }
+@keyframes dm-balanca { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(24deg); } }
+@keyframes dm-aceno { 0%, 100% { transform: rotate(125deg); } 50% { transform: rotate(158deg); } }
+@keyframes dm-corre { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes dm-braco-corre { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(55deg); } }
+@keyframes dm-rastro { from { opacity: 0.9; } to { opacity: 0.2; } }
+@keyframes dm-pula { 0% { transform: translateY(0) scale(1.06, 0.9); } 35% { transform: translateY(-24px) scale(0.95, 1.06); } 70% { transform: translateY(0) scale(1.08, 0.88); } 100% { transform: translateY(0) scale(1); } }
+@keyframes dm-sombra-pulo { 0%, 100% { transform: scaleX(1); } 35% { transform: scaleX(0.55); opacity: 0.5; } }
+@keyframes dm-olha { 0%, 12% { transform: translate(0, 0); } 18%, 30% { transform: translate(-3.2px, -0.6px); } 36%, 48% { transform: translate(-2px, -2.4px); } 54%, 66% { transform: translate(3.2px, -0.6px); } 72%, 84% { transform: translate(2px, 2px); } 90%, 100% { transform: translate(0, 0); } }
+@keyframes dm-cabeca-olha { 0%, 12%, 90%, 100% { transform: rotate(0deg); } 18%, 48% { transform: rotate(-5deg); } 54%, 84% { transform: rotate(5deg); } }
+@keyframes dm-varre { 0%, 100% { transform: translate(-3px, 1px); } 50% { transform: translate(3px, 1px); } }
+@keyframes dm-ponto { 0%, 100% { transform: translateY(0); opacity: 0.45; } 40% { transform: translateY(-2.5px); opacity: 1; } }
+@keyframes dm-gira { to { transform: rotate(360deg); } }
+@keyframes dm-pulsa { 0%, 100% { transform: scale(1); opacity: 0.92; } 50% { transform: scale(0.7); opacity: 0.55; } }
+@keyframes dm-digita { 0%, 100% { transform: rotate(30deg); } 50% { transform: rotate(52deg); } }
+@keyframes dm-treme { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+@keyframes dm-pisca { 0%, 92%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.1); } 96% { transform: scaleY(1); } }
+@keyframes dm-cintila { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(0.72) rotate(45deg); opacity: 0.75; } }
+@keyframes dm-balao { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dm, .dm-mini, .dm-balao, .dm-chat, .dm *, .dm-svg * { animation: none !important; }
+  .dm-olhos, .dm-cabeca, .dm-inclina, .dm-braco { transition: none; }
+}
+@media print { .dm, .dm-mini { display: none; } }
