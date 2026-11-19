@@ -1097,13 +1097,16 @@ select.input:focus-visible {
   gap: var(--card-gap);
 }
 
-/* Transição suave ao trocar de página: o painel reaparece (sai de display:none) e a animação reinicia. */
+/* Transição suave ao trocar de página: o painel reaparece (sai de display:none) e a animação reinicia.
+   Preenchimento "backwards" (e não "both"): terminada a animação, o painel volta ao estilo normal.
+   Com "both", a opacidade/transform animados ficavam presos no elemento e criavam um contexto de
+   empilhamento, que prendia a matriz expandida (position: fixed) atrás da barra superior. */
 .content > .tabpanel:not([hidden]) {
-  animation: tabpanel-enter 380ms var(--ease) both;
+  animation: tabpanel-enter 380ms var(--ease) backwards;
 }
 
 .content > .tabpanel:not([hidden]) > * {
-  animation: tabpanel-rise 460ms var(--ease) both;
+  animation: tabpanel-rise 460ms var(--ease) backwards;
 }
 
 .content > .tabpanel:not([hidden]) > *:nth-child(2) {

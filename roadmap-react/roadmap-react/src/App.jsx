@@ -11,7 +11,6 @@ import Topbar from './components/shell/Topbar.jsx';
 import HeroCarouselMosaic from './components/shell/HeroCarouselMosaic.jsx';
 import CopilotDrawer from './components/shell/CopilotDrawer.jsx';
 import DeltaBuilder from './components/builder/DeltaBuilder.jsx';
-import ParametersCard from './components/simulator/ParametersCard.jsx';
 import ContextTab from './components/simulator/ContextTab.jsx';
 import UpstreamTab from './components/simulator/UpstreamTab.jsx';
 import DarklabTab from './components/simulator/DarklabTab.jsx';
@@ -333,75 +332,75 @@ export default function App() {
 
             <div role="tabpanel" id="panel-planejamento" aria-label="Planejamento" className="tabpanel" hidden={tab !== 'planejamento'}>
               <ProjectBar current="planejamento" view={matrixView} className="jg-projectbar--spaced" />
-              <ParametersCard
-                scenario={scenario}
-                result={result}
-                onAvgChange={sim.setAvgHoursPerStory}
-                onPeopleChange={sim.setSquadPeople}
-                onSquadNameChange={sim.setSquadName}
-                onAddSquad={sim.addSquad}
-                onRemoveSquad={sim.removeSquad}
-              />
-
-              <section
-                ref={matrixRef}
-                className={`surface matrix-section ${focusMode ? 'is-focus' : ''}`}
-                aria-labelledby="matrix-title"
+              {/* Cronograma (com os parâmetros da simulação dentro da grade); no modo expandido vira janela sobreposta. */}
+              <div
+                className={`plan-focus ${focusMode ? 'is-focus' : ''}`}
                 role={focusMode ? 'dialog' : undefined}
                 aria-modal={focusMode ? 'true' : undefined}
+                aria-labelledby={focusMode ? 'matrix-title' : undefined}
               >
-                <MatrixToolbar
-                  squads={scenario.squads}
-                  premises={scenario.premises}
-                  context={result.context}
-                  onStartYearWeekChange={sim.setStartYearWeek}
-                  onHoursPerPersonChange={sim.setHoursPerPerson}
-                  currentYearWeek={currentYearWeek}
-                  onCurrentYearWeekChange={setCurrentYearWeek}
-                  actions={
-                    <ScenarioActions
-                      canUndo={sim.canUndo}
-                      onUndo={sim.undo}
-                      resetArmed={sim.resetArmed}
-                      onReset={handleReset}
-                      onExportJson={handleExportJson}
-                      onExportCsv={handleExportCsv}
-                    />
-                  }
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  view={matrixView}
-                  onViewChange={setMatrixView}
-                  focus={focusMode}
-                  onToggleFocus={() => setFocusMode((value) => !value)}
-                  mode={scenario.premises.schedulingMode}
-                  onModeChange={sim.setSchedulingMode}
-                  planningNote={planningNote}
-                  sprintOneOptions={sprintOneOptions}
-                  sprintOneValue={sprintOneAvailable ? sprintOneId : ''}
-                  onSprintOneChange={handleSprintOneChange}
-                  onReseedManual={() => {
-                    sim.reseedManualFromAuto('continuous');
-                    notify('Grade manual redistribuída com o Fluxo Contínuo.');
-                  }}
-                  visibleCount={visibleFeatures}
-                  totalCount={totalFeatures}
-                />
-                <RoadmapMatrix
-                  currentYearWeek={currentYearWeek}
-                  onSprintOneChange={handleSprintOneChange}
-                  onSquadNameChange={sim.setSquadName}
-                  scenario={scenario}
-                  result={result}
-                  filters={filters}
-                  view={matrixView}
-                  onStoriesChange={sim.setFeatureStories}
-                  onManualCell={sim.setManualCell}
-                  onAutoDistribute={sim.autoDistributeFeature}
-                  onClearFeature={sim.clearFeature}
-                  onClearFilters={() => setFilters({ ...EMPTY_FILTERS })}
-                />
-              </section>
+                <section
+                  ref={matrixRef}
+                  className={`surface matrix-section ${focusMode ? 'is-focus' : ''}`}
+                  aria-labelledby="matrix-title"
+                >
+                  <MatrixToolbar
+                    squads={scenario.squads}
+                    premises={scenario.premises}
+                    context={result.context}
+                    onStartYearWeekChange={sim.setStartYearWeek}
+                    onHoursPerPersonChange={sim.setHoursPerPerson}
+                    currentYearWeek={currentYearWeek}
+                    onCurrentYearWeekChange={setCurrentYearWeek}
+                    actions={
+                      <ScenarioActions
+                        canUndo={sim.canUndo}
+                        onUndo={sim.undo}
+                        resetArmed={sim.resetArmed}
+                        onReset={handleReset}
+                        onExportJson={handleExportJson}
+                        onExportCsv={handleExportCsv}
+                      />
+                    }
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    view={matrixView}
+                    onViewChange={setMatrixView}
+                    focus={focusMode}
+                    onToggleFocus={() => setFocusMode((value) => !value)}
+                    mode={scenario.premises.schedulingMode}
+                    onModeChange={sim.setSchedulingMode}
+                    planningNote={planningNote}
+                    sprintOneOptions={sprintOneOptions}
+                    sprintOneValue={sprintOneAvailable ? sprintOneId : ''}
+                    onSprintOneChange={handleSprintOneChange}
+                    onReseedManual={() => {
+                      sim.reseedManualFromAuto('continuous');
+                      notify('Grade manual redistribuída com o Fluxo Contínuo.');
+                    }}
+                    visibleCount={visibleFeatures}
+                    totalCount={totalFeatures}
+                  />
+                  <RoadmapMatrix
+                    currentYearWeek={currentYearWeek}
+                    onSprintOneChange={handleSprintOneChange}
+                    onSquadNameChange={sim.setSquadName}
+                    scenario={scenario}
+                    result={result}
+                    filters={filters}
+                    view={matrixView}
+                    onStoriesChange={sim.setFeatureStories}
+                    onManualCell={sim.setManualCell}
+                    onAutoDistribute={sim.autoDistributeFeature}
+                    onClearFeature={sim.clearFeature}
+                    onClearFilters={() => setFilters({ ...EMPTY_FILTERS })}
+                    onAvgChange={sim.setAvgHoursPerStory}
+                    onPeopleChange={sim.setSquadPeople}
+                    onAddSquad={sim.addSquad}
+                    onRemoveSquad={sim.removeSquad}
+                  />
+                </section>
+              </div>
               {focusMode ? <div className="focus-shade" onClick={() => setFocusMode(false)} aria-hidden="true" /> : null}
             </div>
 

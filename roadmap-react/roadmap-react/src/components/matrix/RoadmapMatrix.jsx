@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
-import { WEEKS, LIMITS, resolveYearWeek } from '../../data/initialRoadmapData.js';
+import { WEEKS, LIMITS, BASE_SQUAD_KEYS, MAX_SQUADS, resolveYearWeek } from '../../data/initialRoadmapData.js';
 import { STATUS_META } from '../../domain/simulationEngine.js';
 import { fmtNumber, fmtPct, fmtWeeks, plural } from '../../domain/format.js';
 import { getVisibleWeeks, buildSpans, planningWeekNumbers, formatPlanningWeek, assignSprints } from '../../domain/timeline.js';
 import Badge from '../ui/Badge.jsx';
 import Icon from '../ui/Icon.jsx';
 import NumberInput from '../ui/NumberInput.jsx';
+import SliderField from '../ui/SliderField.jsx';
 
 
 export function normalizeText(text) {
@@ -47,6 +48,10 @@ export default function RoadmapMatrix({
   onAutoDistribute,
   onClearFeature,
   onClearFilters,
+  onAvgChange,
+  onPeopleChange,
+  onAddSquad,
+  onRemoveSquad,
 }) {
   // Todas as squads iniciam recolhidas (collapsed close); clicar no nome expande/recolhe.
   const [expandedSquads, setExpandedSquads] = useState([]);
@@ -78,6 +83,7 @@ export default function RoadmapMatrix({
   const mode = scenario.premises.schedulingMode;
   const manual = mode === 'manual';
   const avg = scenario.premises.avgHoursPerStory;
+  const hpp = scenario.premises.hoursPerPersonPerWeek;
   const { startIndex, calendarStartIndex = startIndex, freezeIndex } = result.context;
 
   // A matriz começa na semana inicial do planejamento; quando SP 01 é selecionada, as alocações começam nela (startIndex).
@@ -242,6 +248,42 @@ export default function RoadmapMatrix({
           </tr>
         </thead>
 
+        {/* Parâmetros da simulação dentro da grade: média de horas por história acima da primeira squad. */}
+        {onAvgChange ? (
+          <tbody className="matrix__params">
+            <tr>
+              <th scope="row" colSpan={5} className="sticky-col sticky-col--1 matrix-param">
+                <SliderField
+                  label="Média de horas por história"
+                  value={avg}
+                  onChange={onAvgChange}
+                  min={LIMITS.avgHoursPerStory.min}
+                  max={LIMITS.avgHoursPerStory.max}
+                  sliderMin={LIMITS.avgHoursPerStory.sliderMin}
+                  sliderMax={LIMITS.avgHoursPerStory.sliderMax}
+                  unit="h"
+                  ticks={[
+                    { value: 16, label: '16 h (Mínimo)' },
+                    { value: 56, label: '56 h (Referência)' },
+                    { value: 120, label: '120 h (Teto)' },
+                  ]}
+                />
+              </th>
+              <td colSpan={weeks.length + 1} className="matrix-param__rest">
+                <span className="matrix-param__meta tabular">
+                  {plural(result.kpis.totalPeople, 'profissional', 'profissionais')} · {fmtNumber(result.kpis.totalWeeklyCapacity)} h/sem
+                </span>
+                {onAddSquad ? (
+                  <button type="button" className="btn btn--sm" onClick={onAddSquad} disabled={scenario.squads.length >= MAX_SQUADS}>
+                    <Icon name="users" size={15} />
+                    {scenario.squads.length >= MAX_SQUADS ? 'Limite de squads atingido' : 'Adicionar squad'}
+                  </button>
+                ) : null}
+              </td>
+            </tr>
+          </tbody>
+        ) : null}
+
         {groups.map(({ squad, diag, features }) => {
           const meta = STATUS_META[diag.status] || STATUS_META.EMPTY;
           const capacity = diag.weeklyCapacityHours;
@@ -346,6 +388,45 @@ export default function RoadmapMatrix({
                 })}
                 <td className={`num tabular ${diag.spilloverWeeks > 0 ? 'is-danger' : ''}`}>{spillText(diag.spilloverWeeks)}</td>
               </tr>
+
+              {onPeopleChange ? (
+                <tr className="matrix__squad-params">
+                  <th scope="row" colSpan={5} className="sticky-col sticky-col--1 matrix-param matrix-param--squad">
+                    <div className="squad-slider">
+                      <SliderField
+                        label={`Horas semanais de ${displayName}`}
+                        labelNode={<span className="squad-inline-hint">Em múltiplos da jornada de {hpp} h por profissional.</span>}
+                        value={squad.people * hpp}
+                        onChange={(value) => onPeopleChange(squad.key, Math.round(value / hpp))}
+                        min={0}
+                        max={LIMITS.people.max * hpp}
+                        sliderMin={0}
+                        sliderMax={LIMITS.people.sliderMax * hpp}
+                        step={hpp}
+                        unit="h"
+                        valueText={`${fmtNumber(squad.people * hpp)} h/sem · ${plural(squad.people, 'pessoa', 'pessoas')}`}
+                        ticks={[
+                          { value: 0, label: '0 h' },
+                          { value: 6 * hpp, label: `${fmtNumber(6 * hpp)} h` },
+                          { value: 12 * hpp, label: `${fmtNumber(12 * hpp)} h (Teto)` },
+                        ]}
+                      />
+                      {onRemoveSquad && !BASE_SQUAD_KEYS.includes(squad.key) ? (
+                        <button
+                          type="button"
+                          className="icon-btn squad-slider__remove"
+                          onClick={() => onRemoveSquad(squad.key)}
+                          aria-label={`Remover ${displayName} da simulação`}
+                          title="Remover a squad da simulação"
+                        >
+                          <Icon name="close" size={14} />
+                        </button>
+                      ) : null}
+                    </div>
+                  </th>
+                  <td colSpan={weeks.length + 1} className="matrix-param__rest" />
+                </tr>
+              ) : null}
 
               {!isCollapsed
                 ? features.map((feature) => {

@@ -2,6 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import ProjectBar from '../journey/ProjectBar.jsx';
 import DarklabSidebar from '../darklab/DarklabSidebar.jsx';
 import DarklabMotorsView from '../darklab/DarklabMotorsView.jsx';
+import DarklabRoadmapView from '../darklab/DarklabRoadmapView.jsx';
+import DarklabFuturoView from '../darklab/DarklabFuturoView.jsx';
+import DarklabVamosAlemView from '../darklab/DarklabVamosAlemView.jsx';
+import DarklabProtocoloView from '../darklab/DarklabProtocoloView.jsx';
+import DarklabDiarioView from '../darklab/DarklabDiarioView.jsx';
+import DarklabPersonasView from '../darklab/DarklabPersonasView.jsx';
 import { DarklabOverview, DarklabPlaceholder } from '../darklab/DarklabScreens.jsx';
 import { DARKLAB_INDEX, DEFAULT_DARKLAB_VIEW } from '../darklab/darklabMenu.js';
 
@@ -15,6 +21,12 @@ const COLLAPSED_KEY = 'jornada.darklab.menu-recolhido';
 const DARKLAB_SCREENS = {
   'visao-geral': DarklabOverview,
   'jornada-7-motores': DarklabMotorsView,
+  'aprendizados-roadmap': DarklabRoadmapView,
+  'jornada-futuro': DarklabFuturoView,
+  'vamos-alem': DarklabVamosAlemView,
+  'protocolo-5-etapas': DarklabProtocoloView,
+  publicacoes: DarklabDiarioView,
+  'personas-sinteticas': DarklabPersonasView,
 };
 
 function lerVista() {

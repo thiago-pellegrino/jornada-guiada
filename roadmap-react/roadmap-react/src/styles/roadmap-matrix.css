@@ -562,19 +562,49 @@
 }
 
 /* ── Modo foco ─────────────────────────────────────────────────────────────── */
-.matrix-section.is-focus {
-  position: fixed;
-  inset: 16px;
-  z-index: var(--z-modal);
+/* Parâmetros + cronograma. Na página ficam empilhados como os demais cartões. */
+.plan-focus {
   display: flex;
   flex-direction: column;
-  margin: 0;
-  overflow: hidden;
-  box-shadow: var(--shadow-overlay);
+  gap: var(--card-gap);
 }
 
-.matrix-section.is-focus .matrix-scroll {
-  flex: 1;
+/* Modo expandido: parâmetros e matriz juntos numa janela logo abaixo da barra superior (que fica
+   sempre visível). A janela só ocupa a altura do conteúdo; com muitas linhas, para no fim da tela e a
+   matriz rola por dentro. Se os parâmetros abertos ocuparem muito espaço, a janela inteira rola. */
+.plan-focus.is-focus {
+  --focus-top: calc(var(--topbar-h) + 10px + 14px);
+  position: fixed;
+  top: var(--focus-top);
+  right: 16px;
+  bottom: auto;
+  left: 16px;
+  z-index: var(--z-modal);
+  gap: 10px;
+  max-height: calc(100dvh - var(--focus-top) - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: none;
+}
+
+.plan-focus.is-focus > * {
+  flex: none;
+  margin: 0;
+  box-shadow: var(--shadow-overlay);
+  animation: none;
+}
+
+.plan-focus.is-focus > .matrix-section {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.plan-focus.is-focus .matrix-scroll {
+  flex: 0 1 auto;
+  min-height: 0;
   max-height: none;
 }
 
@@ -610,9 +640,10 @@
     box-shadow: 2px 0 0 var(--color-border);
   }
 
-  .matrix-section.is-focus {
-    inset: 0;
-    border-radius: 0;
+  .plan-focus.is-focus {
+    right: 0;
+    left: 0;
+    max-height: calc(100dvh - var(--focus-top));
   }
 }
 
@@ -814,4 +845,43 @@
   .matrix tbody tr:hover > .sticky-col--1 { box-shadow: inset 4px 0 0 var(--hl-cor); }
   .matrix tbody tr:hover .feature-cell__name,
   .matrix tbody tr:hover .squad-cell__name { color: var(--hl-cor); font-weight: var(--weight-semibold); }
+}
+
+/* ── Parâmetros da simulação dentro da grade ───────────────────────────────────
+   A célula ocupa as colunas fixas (Feature até Situação) e fica presa à esquerda ao rolar. */
+.matrix .matrix-param {
+  height: auto;
+  padding: 10px 14px 12px !important;
+  background: var(--color-surface);
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  vertical-align: top;
+  box-shadow: 2px 0 6px rgba(16, 43, 58, 0.08), 1px 0 0 var(--color-border-strong);
+}
+.matrix .matrix-param .slider-field__label { font-size: var(--text-xs); }
+.matrix .matrix-param .slider-ticks { font-size: 0.66rem; }
+.matrix__params .matrix-param { background: var(--color-surface-subtle); }
+.matrix .matrix-param--squad {
+  padding-top: 6px !important;
+  background: color-mix(in srgb, var(--squad) 4%, var(--color-surface));
+}
+.matrix .matrix-param--squad .squad-inline-hint { font-weight: 400; }
+.matrix .matrix-param__rest {
+  height: auto;
+  padding: 10px 14px !important;
+  background: var(--color-surface);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.matrix__params .matrix-param__rest { background: var(--color-surface-subtle); }
+.matrix__squad-params .matrix-param__rest { background: color-mix(in srgb, var(--squad) 3%, var(--color-surface)); }
+.matrix-param__meta { margin-right: 12px; font-size: var(--text-xs); color: var(--color-text-muted); }
+.matrix .matrix-param__rest .btn { vertical-align: middle; }
+/* Sem destaque de linha/coluna nas linhas de parâmetros. */
+@media (hover: hover) {
+  .matrix tbody.matrix__params tr:hover > *,
+  .matrix tbody tr.matrix__squad-params:hover > * { background-image: none !important; }
+  .matrix tbody.matrix__params tr:hover > .sticky-col--1,
+  .matrix tbody tr.matrix__squad-params:hover > .sticky-col--1 { box-shadow: 2px 0 6px rgba(16, 43, 58, 0.08), 1px 0 0 var(--color-border-strong); }
 }
