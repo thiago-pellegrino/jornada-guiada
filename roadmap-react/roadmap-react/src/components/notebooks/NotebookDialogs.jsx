@@ -286,14 +286,19 @@ export function AddReferencesDialog({ notebookName, existingCount = 0, mode = 'c
 /**
  * Novo projeto em dois passos: primeiro a empresa dona do projeto (lista ou outra digitada),
  * depois nome e descrição. `onCreate(nome, descricao, empresa)`.
+ * Com `inicial` (um projeto), vira "Editar projeto": abre nos dados já preenchidos (ou na empresa,
+ * se o projeto ainda não tem uma) e salva pelo mesmo `onCreate`.
  */
-export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
-  const [passo, setPasso] = useState('empresa');
-  const [empresaId, setEmpresaId] = useState(null);
-  const [outra, setOutra] = useState('');
+export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose, inicial = null }) {
+  const editando = Boolean(inicial);
+  const empresaInicial = inicial?.company ?? null;
+  const daLista = empresaInicial ? EMPRESAS.find((e) => e.id === empresaInicial.id) : null;
+  const [passo, setPasso] = useState(editando && empresaInicial ? 'dados' : 'empresa');
+  const [empresaId, setEmpresaId] = useState(daLista ? daLista.id : empresaInicial ? 'outra' : null);
+  const [outra, setOutra] = useState(empresaInicial && !daLista ? empresaInicial.name : '');
   const [busca, setBusca] = useState('');
-  const [nome, setNome] = useState('');
-  const [descricao, setDescricao] = useState('');
+  const [nome, setNome] = useState(inicial?.name ?? '');
+  const [descricao, setDescricao] = useState(inicial?.description ?? '');
   const id = useId();
   const lista = filtrarEmpresas(busca);
   const empresa = empresaId === 'outra' ? (outra.trim() ? { id: 'outra', name: outra.trim(), sector: 'Outra empresa' } : null) : EMPRESAS.find((e) => e.id === empresaId) ?? null;
@@ -303,14 +308,15 @@ export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
       <Dialog key="empresa" labelledBy={`${id}-t`} onClose={onClose} className="nb-dialog--empresa">
         <header className="nb-dialog__head">
           <h2 id={`${id}-t`} className="nb-dialog__title">
-            Novo projeto · empresa
+            {editando ? `Editar projeto ${nextCode} · empresa` : 'Novo projeto · empresa'}
           </h2>
           <button type="button" className="nb-iconbtn" onClick={onClose} aria-label="Fechar">
             <NotebookIcon name="close" size={20} />
           </button>
         </header>
         <p className="nb-dialog__text">
-          Selecione de qual empresa é o projeto <strong>{nextCode}</strong>. A empresa acompanha o projeto em todas as etapas da jornada.
+          {editando ? 'Selecione a empresa do projeto' : 'Selecione de qual empresa é o projeto'} <strong>{nextCode}</strong>. A empresa acompanha o
+          projeto em todas as etapas da jornada.
         </p>
         <label className="nb-field">
           <NotebookIcon name="search" size={20} />
@@ -387,7 +393,7 @@ export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
           <NotebookIcon name="back" size={20} />
         </button>
         <h2 id={`${id}-t`} className="nb-dialog__title">
-          Novo projeto
+          {editando ? `Editar projeto ${nextCode}` : 'Novo projeto'}
         </h2>
       </header>
       <p className="nb-dialog__project">
@@ -397,8 +403,17 @@ export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
         </button>
       </p>
       <p className="nb-dialog__text">
-        Toda a jornada acontece dentro de um projeto. O código <strong>{nextCode}</strong> acompanha o Contexto, o DarkLabs, a ficha
-        do projeto e o Backlog do Futuro. Cada projeto pode ter vários notebooks.
+        {editando ? (
+          <>
+            Altere o nome, a descrição ou a empresa. O código <strong>{nextCode}</strong>, os notebooks e tudo o que a jornada já gerou
+            continuam ligados ao projeto.
+          </>
+        ) : (
+          <>
+            Toda a jornada acontece dentro de um projeto. O código <strong>{nextCode}</strong> acompanha o Contexto, o DarkLabs, a ficha
+            do projeto e o Backlog do Futuro. Cada projeto pode ter vários notebooks.
+          </>
+        )}
       </p>
       <form
         className="nb-form"
@@ -420,7 +435,7 @@ export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
             Cancelar
           </button>
           <button type="submit" className="nb-btn nb-btn--primary" disabled={!nome.trim()}>
-            Criar projeto
+            {editando ? 'Salvar alterações' : 'Criar projeto'}
           </button>
         </div>
       </form>

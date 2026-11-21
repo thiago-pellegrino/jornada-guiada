@@ -11,6 +11,7 @@ import {
   createProject as createProjectFn,
   parseState,
   renameProject as renameProjectFn,
+  editProject as editProjectFn,
   selectedProject,
   serializeState,
   setReviewState,
@@ -111,6 +112,18 @@ export function JourneyProvider({ children }) {
       notify('Nome do projeto atualizado. O identificador e o código não mudam.');
     },
     [patchProject, notify],
+  );
+
+  /** Edita nome, descrição e empresa de qualquer projeto (não só o selecionado). */
+  const editProject = useCallback(
+    (projectId, dados) => {
+      const alvo = state.projects.find((p) => p.projectId === projectId);
+      if (!alvo || !String(dados?.name ?? '').trim()) return false;
+      setState((s) => updateProject(s, projectId, (p) => editProjectFn(p, dados)));
+      notify(`Projeto ${alvo.code} atualizado. O código e o histórico da jornada não mudam.`);
+      return true;
+    },
+    [state.projects, notify],
   );
 
   const addMember = useCallback((name, memberRole) => patchProject((p) => addMemberFn(p, { name, role: memberRole })), [patchProject]);
@@ -278,6 +291,7 @@ export function JourneyProvider({ children }) {
       createProject,
       selectProject,
       renameProject,
+      editProject,
       addMember,
       uploadFiles,
       createNotebook,
@@ -298,7 +312,7 @@ export function JourneyProvider({ children }) {
       closeArtifact,
       notify,
     }),
-    [state, project, role, pending, viewer, createProject, selectProject, renameProject, addMember, uploadFiles, createNotebook, addToNotebook, toggleNotebookShared, deleteNotebook, renameNotebook, startChat, continueChat, deleteChat, createNotebookArtifact, runCapability, runTurbo, cancelTurbo, setReview, resetJourney, openArtifact, closeArtifact, notify],
+    [state, project, role, pending, viewer, createProject, selectProject, renameProject, editProject, addMember, uploadFiles, createNotebook, addToNotebook, toggleNotebookShared, deleteNotebook, renameNotebook, startChat, continueChat, deleteChat, createNotebookArtifact, runCapability, runTurbo, cancelTurbo, setReview, resetJourney, openArtifact, closeArtifact, notify],
   );
 
   const clearToast = useCallback(() => setToast(null), []);

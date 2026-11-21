@@ -16,10 +16,10 @@ export const EMPRESAS = Object.freeze([
 /** Normaliza a empresa escolhida no diálogo: uma da lista ou outra digitada pelo usuário. */
 export function normalizarEmpresa(empresa) {
   if (!empresa) return null;
-  const nome = String(empresa.name ?? '').trim();
-  if (!nome) return null;
   const daLista = EMPRESAS.find((e) => e.id === empresa.id);
   if (daLista) return { ...daLista };
+  const nome = String(empresa.name ?? '').trim();
+  if (!nome) return null;
   return { id: `emp-outra-${nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`, name: nome, sector: String(empresa.sector ?? '').trim() || 'Outra empresa' };
 }
 

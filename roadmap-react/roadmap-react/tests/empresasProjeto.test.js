@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createProject } from '../src/domain/journey/journeyEngine.js';
+import { createProject, editProject } from '../src/domain/journey/journeyEngine.js';
 import { EMPRESAS, filtrarEmpresas, normalizarEmpresa } from '../src/domain/journey/empresas.js';
 
 const vazio = { projects: [], selectedProjectId: null };
@@ -25,4 +25,16 @@ test('sem empresa, o projeto continua válido (projetos antigos)', () => {
 test('busca de empresa ignora acentos e procura também o setor', () => {
   assert.deepEqual(filtrarEmpresas('saude').map((e) => e.id), ['emp-vitalis']);
   assert.ok(filtrarEmpresas('SEGUROS').some((e) => e.id === 'emp-horizonte'));
+});
+
+test('editar projeto muda nome, descrição e empresa sem mexer no código nem no histórico', () => {
+  const p = createProject(vazio, { name: 'Credito', now: agora }).projects[0];
+  const e = editProject(p, { name: ' Credito on Wealth ', description: 'Alta renda', company: { id: 'emp-aurora' } });
+  assert.equal(e.name, 'Credito on Wealth');
+  assert.equal(e.description, 'Alta renda');
+  assert.equal(e.company.name, 'Banco Aurora');
+  assert.equal(e.code, p.code);
+  assert.equal(e.projectId, p.projectId);
+  assert.equal(e.artifacts, p.artifacts);
+  assert.equal(editProject(p, { name: '   ' }).name, 'Credito');
 });

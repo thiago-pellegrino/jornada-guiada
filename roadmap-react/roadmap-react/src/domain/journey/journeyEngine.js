@@ -168,6 +168,20 @@ export function renameProject(project, name) {
   return { ...project, name: nome };
 }
 
+/**
+ * Edita os dados do projeto: nome, descrição e empresa. Código, identificador e histórico da
+ * jornada não mudam. Nome vazio mantém o nome atual.
+ */
+export function editProject(project, { name, description, company } = {}) {
+  const nome = String(name ?? '').trim();
+  return {
+    ...project,
+    name: nome || project.name,
+    description: description === undefined ? project.description : String(description).trim(),
+    company: company === undefined ? (project.company ?? null) : normalizarEmpresa(company),
+  };
+}
+
 export function addMember(project, { name, role }) {
   const nome = String(name ?? '').trim();
   if (!nome || !ROLES.includes(role)) return project;

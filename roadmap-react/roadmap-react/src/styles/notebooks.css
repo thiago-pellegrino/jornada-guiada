@@ -669,3 +669,9 @@
 .nb-empresa--outra { border-style: dashed; }
 .nb-linkbtn { margin-left: 4px; padding: 0; border: 0; background: none; color: var(--color-link); font: inherit; font-size: var(--text-xs); text-decoration: underline; cursor: pointer; }
 @media (max-width: 560px) { .nb-empresas { grid-template-columns: minmax(0, 1fr); } }
+
+/* Menu "⋯" do cartão de projeto (Editar projeto), no canto superior direito. */
+.prj-item { position: relative; }
+.prj-card__top { padding-right: 28px; }
+.prj-card__menu { top: 9px; right: 8px; }
+.prj-card__menupanel { left: auto; right: -8px; min-width: 190px; }
