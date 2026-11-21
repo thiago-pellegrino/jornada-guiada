@@ -333,9 +333,10 @@
    (sem disparar no início). O desfoque e o escurecimento da página acompanham o mesmo tempo,
    para o movimento principal ser o da janela. */
 :root { --copilot-w: 70vw; --delta-abrir: 0.7s; }
+/* Só "backwards": ao terminar, a janela fica sem transform e sem camada própria de GPU — com o
+   transform/will-change mantidos, o texto ficava embaçado no Windows com escala de tela (125%, 150%). */
 .copilot.is-open {
-  animation: delta-abrir var(--delta-abrir) cubic-bezier(0.33, 0.1, 0.25, 1) both;
-  will-change: transform;
+  animation: delta-abrir var(--delta-abrir) cubic-bezier(0.33, 0.1, 0.25, 1) backwards;
 }
 .copilot-backdrop { animation: delta-fundo var(--delta-abrir) ease both; }
 .app .main { transition: filter var(--delta-abrir) ease; }
@@ -726,3 +727,37 @@
   .dm-olhos, .dm-cabeca, .dm-inclina, .dm-braco { transition: none; }
 }
 @media print { .dm, .dm-mini { display: none; } }
+
+/* ── Mascote v3: estilo cartoon com traço (contorno de tinta e sombra chapada) ── */
+.dm-svg--traco { filter: drop-shadow(0 3px 4px rgba(20, 28, 90, 0.16)); }
+.dm-body:hover .dm-svg--traco { filter: drop-shadow(0 4px 6px rgba(20, 28, 90, 0.2)) drop-shadow(0 6px 14px color-mix(in srgb, var(--dm-c2) 40%, transparent)); }
+:root[data-theme='dark'] .dm-svg--traco { filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)); }
+.dm-svg--traco .dm-antena { stroke: #1c2131; stroke-width: 1.4; stroke-linejoin: round; }
+.dm-svg--traco .dm-haste { stroke: #1c2131; stroke-width: 2.4; }
+.dm-svg--traco .dm-aresta { stroke: #1c2131; stroke-opacity: 0.35; stroke-width: 1; }
+.dm-sombra--traco { fill: color-mix(in srgb, var(--dm-c2) 22%, #9aa3b8); opacity: 0.55; }
+:root[data-theme='dark'] .dm-sombra--traco { fill: #000; opacity: 0.45; }
+.dm-svg--traco .dm-lupa path { stroke: #1c2131; stroke-width: 3; }
+.dm-svg--traco .dm-lupa circle { fill: rgba(143, 240, 255, 0.3); stroke: #1c2131; stroke-width: 2.2; }
+.dm--falha .dm-svg--traco .dm-antena { stroke: #555c6b; }
+.dm--falha .dm-svg--traco { filter: saturate(0.55) drop-shadow(0 3px 4px rgba(20, 28, 90, 0.16)); }
+
+/* ── Mascote v5: o Delta original em 3D (render do Blender em camadas) ── */
+.dm-svg--3d { filter: drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)); }
+.dm-body:hover .dm-svg--3d { filter: drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)) drop-shadow(0 8px 18px color-mix(in srgb, var(--dm-c2) 45%, transparent)); }
+:root[data-theme='dark'] .dm-svg--3d { filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)); }
+.dm-svg--3d .dm-lupa path { stroke: #fff; stroke-width: 2.6; }
+/* camadas da marca ou douradas, conforme o modo das estrelas douradas */
+.dm-render--ouro { display: none; }
+:root[data-delta-gold] .dm-render--marca { display: none; }
+:root[data-delta-gold] .dm-render--ouro { display: inline; }
+.dm--falha .dm-svg--3d { filter: saturate(0.55) drop-shadow(0 6px 8px rgba(20, 28, 90, 0.22)); }
+
+/* Barra lateral do chat do Delta sem negrito: ações, pastas e chat ativo em peso regular. */
+.copilot__sidebar .dnav__item,
+.copilot__sidebar .dnav__item--new,
+.copilot__sidebar .copilot-folder__toggle,
+.copilot__sidebar .copilot-folder__name,
+.copilot__sidebar .copilot-chat-item,
+.copilot__sidebar .copilot-chat-item.is-active,
+.copilot__sidebar .copilot-nav__section-label { font-weight: var(--weight-regular); }

@@ -3,6 +3,14 @@ import { useJourney } from '../../journey/JourneyContext.jsx';
 import { gerarComModelo, motorAtivo } from '../builder/builderEngine.js';
 import MascotChat from './MascotChat.jsx';
 import { EVENTO_MASCOTE } from './deltaMascotBus.js';
+import imgCabeca from '../../assets/delta/cabeca.webp';
+import imgCorpo from '../../assets/delta/corpo.webp';
+import imgBracoE from '../../assets/delta/braco-e.webp';
+import imgBracoD from '../../assets/delta/braco-d.webp';
+import imgCabecaOuro from '../../assets/delta/cabeca-ouro.webp';
+import imgCorpoOuro from '../../assets/delta/corpo-ouro.webp';
+import imgBracoEOuro from '../../assets/delta/braco-e-ouro.webp';
+import imgBracoDOuro from '../../assets/delta/braco-d-ouro.webp';
 import { DICAS_DA_ABA, aguardandoRevisao, montarPedidoAoModelo, responderLocal, sugestoesDaAba } from './mascotChatEngine.js';
 
 /**
@@ -71,93 +79,50 @@ const CORPO = 'M40 74 L80 74 C88.5 74 92.5 81.5 88.6 88.4 L66.4 118.6 C63.4 122.
 const BRACO = 'M-5.5 0 L5.5 0 C8.2 0 9.6 2.6 8.3 5 L2.7 22.2 C1.7 24.6 -1.7 24.6 -2.7 22.2 L-8.3 5 C-9.6 2.6 -8.2 0 -5.5 0 Z';
 
 /**
- * Desenho da mascote (SVG), versão 2: casco branco perolado com painéis nas cores da marca (crista,
- * fones, ombreiras, faixa do peito e pontas dos braços), fones com tampa metálica, visor de vidro com
- * aro luminoso, botão de núcleo no peito com o emblema ★ e parte de baixo do ▽ em azul-marinho.
- * Mantém os mesmos grupos e pontos de articulação (ombros, cabeça, olhos, boca, emblema) usados pelas
- * animações de estado em delta.css.
+ * Desenho da mascote (SVG), versão 3 — estilo cartoon com traço: contorno escuro (tinta), sombreamento
+ * chapado em dois tons (cel shading), brilhos nítidos, frisos de painel e rebites. A forma é a mesma da
+ * versão 2 (cabeça com visor e fones, corpo em ▽ branco e marinho, braços com ombreiras e núcleo ★ no
+ * peito) e os grupos/pontos de articulação usados pelas animações de delta.css não mudam.
  */
-function Corpo() {
+const TINTA = '#1c2131';
+const BRANCO = '#f7f8fc';
+const BRANCO_SOMBRA = '#c9cfdf';
+const ESCURO = '#262c3e';
+const ESCURO_SOMBRA = '#161a28';
+const MARINHO = '#1f2a63';
+const MARINHO_SOMBRA = '#121a45';
+const VISOR = '#0f121c';
+const TRACO = { stroke: TINTA, strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round' };
+const TRACO_FINO = { stroke: TINTA, strokeWidth: 1.1, strokeLinejoin: 'round', strokeLinecap: 'round', fill: 'none' };
+const CABECA = { x: 20, y: 15, width: 80, height: 56, rx: 26 };
+const PARTE_BRANCA = 'M20 70 H100 V97 Q60 106 20 97 Z';
+
+function CorpoTraco() {
   const uid = useId().replace(/:/g, '');
   const g = (n) => `dm-${n}-${uid}`;
   const url = (n) => `url(#${g(n)})`;
+  // Braço com cel shading: base na sombra, parte iluminada deslocada, ponta da marca e ombreira escura com LED.
+  const braco = (espelho) => (
+    <>
+      <path d={BRACO} fill={BRANCO_SOMBRA} />
+      <g clipPath={url('clipBraco')}>
+        <path d={BRACO} fill={BRANCO} transform={espelho ? 'translate(1.6 -1)' : 'translate(-1.6 -1)'} />
+        <rect x="-10" y="14.5" width="20" height="12" fill="var(--dm-c2)" />
+        <path d={BRACO} fill="var(--dm-c1)" transform={espelho ? 'translate(1.4 -0.6)' : 'translate(-1.4 -0.6)'} clipPath={url('clipPonta')} />
+        <path d="M-10 14.5 H10" {...TRACO_FINO} />
+      </g>
+      <path d={BRACO} fill="none" {...TRACO} />
+      <path d={espelho ? 'M4.8 4.5 L2.2 11' : 'M-4.8 4.5 L-2.2 11'} stroke="#fff" strokeWidth="1.3" strokeLinecap="round" />
+      {/* ombreira (articulação escura) com LED da marca */}
+      <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill={ESCURO_SOMBRA} />
+      <ellipse cx={espelho ? 0.8 : -0.8} cy="1.4" rx="6.4" ry="4.4" fill={ESCURO} />
+      <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill="none" {...TRACO} />
+      <circle cx="0" cy="2" r="1.6" fill="var(--dm-olho)" filter={url('luz')} />
+    </>
+  );
   return (
-    <svg className="dm-svg" viewBox="0 0 120 150" width={W} height={H} aria-hidden="true" focusable="false">
+    <svg className="dm-svg dm-svg--traco" viewBox="0 0 120 150" width={W} height={H} aria-hidden="true" focusable="false">
       <defs>
-        {/* cores da marca (mudam no modo dourado) */}
-        <linearGradient id={g('cabeca')} x1="0.1" y1="0" x2="0.9" y2="1">
-          <stop className="dm-stop dm-stop--1" offset="0%" />
-          <stop className="dm-stop dm-stop--2" offset="100%" />
-        </linearGradient>
-        <linearGradient id={g('corpo')} x1="0.15" y1="0" x2="0.85" y2="1">
-          <stop className="dm-stop dm-stop--2" offset="0%" />
-          <stop className="dm-stop dm-stop--3" offset="100%" />
-        </linearGradient>
-        {/* casco branco perolado */}
-        <linearGradient id={g('casco')} x1="0.2" y1="0" x2="0.75" y2="1">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="55%" stopColor="#eef1f9" />
-          <stop offset="100%" stopColor="#c9cfe4" />
-        </linearGradient>
-        {/* volume: luz de cima à esquerda, sombra fria embaixo à direita */}
-        <radialGradient id={g('esfera')} cx="0.32" cy="0.22" r="0.95">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.9" />
-          <stop offset="30%" stopColor="#fff" stopOpacity="0.15" />
-          <stop offset="65%" stopColor="#1b2463" stopOpacity="0" />
-          <stop offset="100%" stopColor="#1b2463" stopOpacity="0.3" />
-        </radialGradient>
-        <radialGradient id={g('troncoLuz')} cx="0.3" cy="0.1" r="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.75" />
-          <stop offset="30%" stopColor="#fff" stopOpacity="0.1" />
-          <stop offset="62%" stopColor="#0a0f3a" stopOpacity="0" />
-          <stop offset="100%" stopColor="#0a0f3a" stopOpacity="0.45" />
-        </radialGradient>
-        {/* luz refletida (rebate) na borda de baixo */}
-        <linearGradient id={g('rebate')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="75%" stopColor="#bfe9ff" stopOpacity="0" />
-          <stop offset="100%" stopColor="#bfe9ff" stopOpacity="0.45" />
-        </linearGradient>
-        {/* parte de baixo do corpo: azul-marinho */}
-        <linearGradient id={g('marinho')} x1="0.2" y1="0" x2="0.8" y2="1">
-          <stop offset="0%" stopColor="#24317a" />
-          <stop offset="60%" stopColor="#141c52" />
-          <stop offset="100%" stopColor="#0a0f33" />
-        </linearGradient>
-        {/* metal (tampas dos fones, aro do núcleo) */}
-        <linearGradient id={g('metal')} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#f4f7ff" />
-          <stop offset="45%" stopColor="#a9b3d1" />
-          <stop offset="100%" stopColor="#4b5682" />
-        </linearGradient>
-        <radialGradient id={g('nucleo')} cx="0.4" cy="0.35" r="0.75">
-          <stop offset="0%" stopColor="#2b3a8f" />
-          <stop offset="100%" stopColor="#0a0f33" />
-        </radialGradient>
-        {/* cilindro (braços, pescoço) */}
-        <linearGradient id={g('cilindro')} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.55" />
-          <stop offset="35%" stopColor="#fff" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="#0a0f3a" stopOpacity="0.38" />
-        </linearGradient>
-        <linearGradient id={g('pescoco')} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#3a4489" />
-          <stop offset="50%" stopColor="#1a2156" />
-          <stop offset="100%" stopColor="#080b26" />
-        </linearGradient>
-        {/* visor de vidro */}
-        <linearGradient id={g('tela')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#070b26" />
-          <stop offset="55%" stopColor="#0f1745" />
-          <stop offset="100%" stopColor="#1b2666" />
-        </linearGradient>
-        <linearGradient id={g('reflexo')} x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.34" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <radialGradient id={g('chao')} cx="0.5" cy="0.5" r="0.5">
-          <stop className="dm-sombra-stop dm-sombra-stop--1" offset="0%" />
-          <stop className="dm-sombra-stop dm-sombra-stop--2" offset="100%" />
-        </radialGradient>
         <filter id={g('luz')} x="-60%" y="-60%" width="220%" height="220%">
           <feGaussianBlur stdDeviation="1.6" result="b" />
           <feMerge>
@@ -165,8 +130,226 @@ function Corpo() {
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        <filter id={g('aro')} x="-20%" y="-30%" width="140%" height="160%">
-          <feGaussianBlur stdDeviation="1.1" result="b" />
+        <clipPath id={g('clipCorpo')}>
+          <path d={CORPO} />
+        </clipPath>
+        <clipPath id={g('clipBranco')}>
+          <path d={PARTE_BRANCA} />
+        </clipPath>
+        <clipPath id={g('clipCabeca')}>
+          <rect {...CABECA} />
+        </clipPath>
+        <clipPath id={g('clipVisor')}>
+          <rect x="29" y="25" width="62" height="37" rx="14.5" />
+        </clipPath>
+        {/* em coordenadas do braço (ombro na origem) */}
+        <clipPath id={g('clipBraco')}>
+          <path d={BRACO} />
+        </clipPath>
+        <clipPath id={g('clipPonta')}>
+          <rect x="-10" y="14.5" width="20" height="12" />
+        </clipPath>
+      </defs>
+
+      {/* sombra no chão, chapada como no desenho animado */}
+      <ellipse className="dm-sombra dm-sombra--traco" cx="60" cy="143" rx="24" ry="4.5" />
+
+      <g className="dm-pulo">
+        <g className="dm-flutua">
+          {/* linhas de velocidade (correndo) */}
+          <g className="dm-rastro dm-rastro--e">
+            <path d="M4 40 H-14" />
+            <path d="M8 58 H-18" />
+            <path d="M16 92 H-2" />
+          </g>
+          <g className="dm-rastro dm-rastro--d">
+            <path d="M116 40 H134" />
+            <path d="M112 58 H138" />
+            <path d="M104 92 H122" />
+          </g>
+
+          <g className="dm-inclina">
+            {/* braços (atrás do corpo) */}
+            <g transform="translate(34 81)">
+              <g className="dm-braco dm-braco--e">{braco(false)}</g>
+            </g>
+            <g transform="translate(86 81) scale(-1 1)">
+              <g className="dm-braco dm-braco--d">
+                {braco(true)}
+                {/* lupa (revisão) */}
+                <g className="dm-lupa">
+                  <path d="M0 21 L0 27" />
+                  <circle cx="0" cy="33.5" r="6.5" />
+                </g>
+              </g>
+            </g>
+
+            {/* pescoço sanfonado */}
+            <rect x="51" y="64" width="18" height="13" rx="4" fill={ESCURO} {...TRACO} />
+            <path d="M52.5 68 H67.5 M52.5 71 H67.5 M52.5 74 H67.5" stroke={ESCURO_SOMBRA} strokeWidth="1.4" strokeLinecap="round" />
+            <path d="M54 66.5 V75" stroke="#fff" strokeOpacity="0.3" strokeWidth="1.2" strokeLinecap="round" />
+
+            {/* corpo ▽: branco em cima, marinho embaixo, faixa da marca e núcleo ★ */}
+            <g className="dm-tronco">
+              <path d={CORPO} fill={MARINHO_SOMBRA} />
+              <g clipPath={url('clipCorpo')}>
+                <path d={CORPO} fill={MARINHO} transform="translate(-3 -2)" />
+                <path d={PARTE_BRANCA} fill={BRANCO_SOMBRA} />
+                <g clipPath={url('clipBranco')}>
+                  <path d={CORPO} fill={BRANCO} transform="translate(-4.5 -3.5)" />
+                </g>
+                {/* faixa da marca até o núcleo */}
+                <path d="M53.5 72 H66.5 V84 Q60 88 53.5 84 Z" fill="var(--dm-c2)" />
+                <path d="M53.5 72 H64.5 V85.2 Q58.5 88 53.5 84 Z" fill="var(--dm-c1)" />
+                <path d="M53.5 72 V84 Q60 88 66.5 84 V72" {...TRACO_FINO} />
+                {/* friso entre o branco e o marinho */}
+                <path d="M20 97 Q60 106 100 97" fill="none" stroke={TINTA} strokeWidth="1.6" />
+                <path d="M24 99.4 Q60 108 96 99.4" fill="none" stroke="var(--dm-c1)" strokeWidth="1.5" />
+                {/* frisos de painel e brilho nítido */}
+                <path d="M40 78 Q37 86 41.5 95" {...TRACO_FINO} strokeOpacity="0.45" />
+                <path d="M80 78 Q83 86 78.5 95" {...TRACO_FINO} strokeOpacity="0.45" />
+                <path d="M36 80.5 Q38.5 77.5 44 77" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+                <path d="M45 106 Q49 110.5 52.5 116" stroke="#6f86d9" strokeOpacity="0.55" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+              <path d={CORPO} fill="none" {...TRACO} />
+              <path className="dm-aresta" d="M43 76.5 Q60 75 77 76.5" />
+              {/* núcleo: aro escuro, anel da marca e ★ acesa */}
+              <circle cx="60" cy="92" r="8.6" fill={ESCURO} {...TRACO} />
+              <circle cx="60" cy="92" r="6" fill={VISOR} />
+              <circle cx="60" cy="92" r="6" fill="none" stroke="var(--dm-c1)" strokeWidth="1.4" filter={url('luz')} />
+              <path className="dm-emblema" d={ESTRELA(60, 92, 4.4)} filter={url('luz')} />
+              <path d="M54.5 89 Q56 86.3 58.8 85.6" stroke="#fff" strokeOpacity="0.55" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+            </g>
+
+            {/* cabeça */}
+            <g className="dm-cabeca">
+              <path className="dm-haste" d="M60 17 V11" />
+              <path className="dm-antena" d={ESTRELA(60, 7, 7)} filter={url('luz')} />
+
+              {/* casco: base na sombra + parte iluminada deslocada para cima/esquerda */}
+              <rect {...CABECA} fill={BRANCO_SOMBRA} />
+              <g clipPath={url('clipCabeca')}>
+                <rect x="16.5" y="12" width="80" height="55" rx="26" fill={BRANCO} />
+                {/* crista da marca */}
+                <path d="M48 12 H72 V19.5 Q72 23 68.5 23 H51.5 Q48 23 48 19.5 Z" fill="var(--dm-c2)" />
+                <path d="M48 12 H70 V18.8 Q70 21.6 67 21.6 H51.5 Q48 21.6 48 19 Z" fill="var(--dm-c1)" />
+                <path d="M48 12 V19.5 Q48 23 51.5 23 H68.5 Q72 23 72 19.5 V12" {...TRACO_FINO} />
+                {/* frisos de painel descendo da crista */}
+                <path d="M46 16 Q38 21 34.5 30" {...TRACO_FINO} strokeOpacity="0.55" />
+                <path d="M74 16 Q82 21 85.5 30" {...TRACO_FINO} strokeOpacity="0.55" />
+                <path d="M33 66 Q60 72 87 66" {...TRACO_FINO} strokeOpacity="0.4" />
+              </g>
+              <rect {...CABECA} fill="none" {...TRACO} />
+              {/* brilho nítido */}
+              <path d="M27.5 33 Q29.5 24 39 19.5" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+              <circle cx="43.5" cy="17.9" r="1.3" fill="#fff" />
+
+              {/* rebites nos cantos do visor */}
+              {[
+                [28, 22.5],
+                [92, 22.5],
+                [28, 65.5],
+                [92, 65.5],
+              ].map(([cx, cy]) => (
+                <g key={`${cx}-${cy}`}>
+                  <circle cx={cx} cy={cy} r="1.45" fill={BRANCO_SOMBRA} {...TRACO_FINO} />
+                  <circle cx={cx - 0.4} cy={cy - 0.4} r="0.45" fill="#fff" />
+                </g>
+              ))}
+
+              {/* fones: aro escuro, anéis da marca acesos e LED */}
+              {[
+                [19.5, 16.2, 1],
+                [100.5, 103.8, -1],
+              ].map(([cx, tx, lado]) => (
+                <g key={cx}>
+                  <ellipse cx={cx} cy="44" rx="7.6" ry="12.5" fill={ESCURO_SOMBRA} />
+                  <ellipse cx={cx - lado * 0.8} cy="43" rx="6.6" ry="11.4" fill={ESCURO} />
+                  <ellipse cx={cx} cy="44" rx="7.6" ry="12.5" fill="none" {...TRACO} />
+                  <ellipse cx={tx} cy="44" rx="4.4" ry="9" fill={VISOR} {...TRACO_FINO} />
+                  <ellipse cx={tx} cy="44" rx="3" ry="6.6" fill="none" stroke="var(--dm-c1)" strokeWidth="1.3" filter={url('luz')} />
+                  <ellipse cx={tx} cy="44" rx="1.3" ry="3.4" fill="none" stroke="var(--dm-olho)" strokeWidth="1" />
+                  <path d={`M${cx - lado * 3.5} 34.5 Q${cx - lado * 1} 32.4 ${cx + lado * 1.6} 34`} stroke="#fff" strokeOpacity="0.4" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+                </g>
+              ))}
+
+              {/* visor: vidro preto com faixa de reflexo curva */}
+              <rect x="29" y="25" width="62" height="37" rx="14.5" fill={VISOR} />
+              <g clipPath={url('clipVisor')}>
+                <path d="M29 47 C42 37 60 33 91 31 V25 H29 Z" fill="#1d2233" />
+                <path d="M29 53 C46 42 66 38.5 91 38 V31 C60 33 42 37 29 47 Z" fill="#262c42" opacity="0.7" />
+                <path d="M33.5 34 Q35.5 28.5 42 27.5" stroke="#fff" strokeOpacity="0.35" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+              </g>
+              <rect x="29" y="25" width="62" height="37" rx="14.5" fill="none" {...TRACO} />
+              <rect x="31.2" y="27.2" width="57.6" height="32.6" rx="12.5" fill="none" stroke="var(--dm-c1)" strokeOpacity="0.55" strokeWidth="0.9" />
+              <ellipse className="dm-bochecha" cx="37.5" cy="54" rx="4.5" ry="2.5" />
+              <ellipse className="dm-bochecha" cx="82.5" cy="54" rx="4.5" ry="2.5" />
+
+              <g className="dm-olhos" filter={url('luz')}>
+                <g className="dm-pisca">
+                  <path className="dm-olho dm-olho--estrela" d={ESTRELA(47, 42, 7)} />
+                  <path className="dm-olho dm-olho--estrela" d={ESTRELA(73, 42, 7)} />
+                </g>
+                <g className="dm-olho--x">
+                  <path d="M42.5 37.5 L51.5 46.5 M51.5 37.5 L42.5 46.5" />
+                  <path d="M68.5 37.5 L77.5 46.5 M77.5 37.5 L68.5 46.5" />
+                </g>
+              </g>
+              <path className="dm-boca dm-boca--sorriso" d="M55 52.5 Q60 57 65 52.5" />
+              <path className="dm-boca dm-boca--triste" d="M55 56 Q60 52 65 56" />
+              <g className="dm-pontos">
+                <circle cx="53" cy="54" r="1.8" />
+                <circle cx="60" cy="54" r="1.8" />
+                <circle cx="67" cy="54" r="1.8" />
+              </g>
+            </g>
+          </g>
+
+          <g className="dm-alerta">
+            <circle cx="101" cy="14" r="8" />
+            <path d="M101 9.5 V14.8 M101 17.6 V18.2" />
+          </g>
+        </g>
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Desenho da mascote, versão 5: o Delta original em 3D, feito no Blender (cena "Delta" em
+ * delta-mascote-v5.blend): cabeça em degradê azul → índigo, visor de vidro azul-marinho, fones
+ * escuros, corpo ▽ índigo → violeta e bracinhos. Há um conjunto de camadas nas cores da marca e outro
+ * dourado (modo das estrelas douradas). Modelo
+ * renderizado em camadas com câmera ortográfica alinhada a este viewBox (1 unidade = 1 cm; 4 px por
+ * unidade nos arquivos). Cabeça, corpo e cada braço são imagens dentro dos mesmos grupos animados;
+ * o rosto (olhos ★, boca, bochechas, pontos), a antena e a ★ do peito continuam em SVG, para manter
+ * todos os estados. Posições: caixas das camadas no render (x, y, largura, altura em unidades).
+ */
+const CAMADAS = {
+  cabeca: { href: imgCabeca, ouro: imgCabecaOuro, x: 12, y: 14, w: 96, h: 58 },
+  corpo: { href: imgCorpo, ouro: imgCorpoOuro, x: 33, y: 63, w: 54, h: 60 },
+  bracoE: { href: imgBracoE, ouro: imgBracoEOuro, x: 28, y: 80, w: 12, h: 25 },
+  bracoD: { href: imgBracoD, ouro: imgBracoDOuro, x: 80, y: 80, w: 12, h: 25 },
+};
+const OMBRO_E = [34, 81];
+const OMBRO_D = [86, 81];
+// Duas imagens por camada: a da marca e a dourada; o CSS mostra uma ou outra conforme o modo.
+const Camada = ({ c, dx = 0, dy = 0 }) => (
+  <>
+    <image className="dm-render dm-render--marca" href={c.href} x={c.x - dx} y={c.y - dy} width={c.w} height={c.h} preserveAspectRatio="none" />
+    <image className="dm-render dm-render--ouro" href={c.ouro} x={c.x - dx} y={c.y - dy} width={c.w} height={c.h} preserveAspectRatio="none" />
+  </>
+);
+
+function Corpo() {
+  const uid = useId().replace(/:/g, '');
+  const g = (n) => `dm-${n}-${uid}`;
+  const url = (n) => `url(#${g(n)})`;
+  return (
+    <svg className="dm-svg dm-svg--3d" viewBox="0 0 120 150" width={W} height={H} aria-hidden="true" focusable="false">
+      <defs>
+        <filter id={g('luz')} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="1.6" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
@@ -175,19 +358,10 @@ function Corpo() {
         <filter id={g('suave')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="1.4" />
         </filter>
-        <filter id={g('ao')} x="-50%" y="-100%" width="200%" height="300%">
-          <feGaussianBlur stdDeviation="2.6" />
-        </filter>
-        <clipPath id={g('clipCorpo')}>
-          <path d={CORPO} />
-        </clipPath>
-        <clipPath id={g('clipCabeca')}>
-          <rect x="20" y="15" width="80" height="56" rx="26" />
-        </clipPath>
-        {/* em coordenadas do braço (ombro na origem) */}
-        <clipPath id={g('clipBraco')}>
-          <path d={BRACO} />
-        </clipPath>
+        <radialGradient id={g('chao')} cx="0.5" cy="0.5" r="0.5">
+          <stop className="dm-sombra-stop dm-sombra-stop--1" offset="0%" />
+          <stop className="dm-sombra-stop dm-sombra-stop--2" offset="100%" />
+        </radialGradient>
       </defs>
 
       <ellipse className="dm-sombra" cx="60" cy="143" rx="24" ry="5" fill={url('chao')} />
@@ -207,31 +381,18 @@ function Corpo() {
           </g>
 
           <g className="dm-inclina">
-            {/* braços (atrás do corpo): casco branco, ponta colorida e ombreira */}
-            <g transform="translate(34 81)">
+            {/* braços (atrás do corpo), girando pelo ombro */}
+            <g transform={`translate(${OMBRO_E[0]} ${OMBRO_E[1]})`}>
               <g className="dm-braco dm-braco--e">
-                <path d={BRACO} fill={url('casco')} />
-                <g clipPath={url('clipBraco')}>
-                  <rect x="-10" y="14.5" width="20" height="12" fill={url('cabeca')} />
-                  <path d="M-10 14.5 H10" stroke="#0a0f3a" strokeOpacity="0.25" strokeWidth="0.8" />
-                </g>
-                <path d={BRACO} fill={url('cilindro')} />
-                <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill={url('cabeca')} />
-                <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill={url('esfera')} />
-                <path d="M-5 0.4 L-1 0.4" className="dm-brilho-linha" />
+                <Camada c={CAMADAS.bracoE} dx={OMBRO_E[0]} dy={OMBRO_E[1]} />
               </g>
             </g>
-            <g transform="translate(86 81) scale(-1 1)">
+            <g transform={`translate(${OMBRO_D[0]} ${OMBRO_D[1]}) scale(-1 1)`}>
               <g className="dm-braco dm-braco--d">
-                <path d={BRACO} fill={url('casco')} />
-                <g clipPath={url('clipBraco')}>
-                  <rect x="-10" y="14.5" width="20" height="12" fill={url('cabeca')} />
-                  <path d="M-10 14.5 H10" stroke="#0a0f3a" strokeOpacity="0.25" strokeWidth="0.8" />
+                {/* desfaz o espelho do grupo: o braço direito tem render próprio, com a luz do lado certo */}
+                <g transform="scale(-1 1)">
+                  <Camada c={CAMADAS.bracoD} dx={OMBRO_D[0]} dy={OMBRO_D[1]} />
                 </g>
-                <path d={BRACO} fill={url('cilindro')} transform="scale(-1 1)" />
-                <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill={url('cabeca')} />
-                <ellipse cx="0" cy="2" rx="7.6" ry="5.4" fill={url('esfera')} transform="scale(-1 1)" />
-                <path d="M1 0.4 L5 0.4" className="dm-brilho-linha" />
                 {/* lupa (revisão) */}
                 <g className="dm-lupa">
                   <path d="M0 21 L0 27" />
@@ -240,85 +401,21 @@ function Corpo() {
               </g>
             </g>
 
-            {/* pescoço: anel escuro com friso da marca */}
-            <rect x="51" y="64" width="18" height="13" rx="4" fill={url('pescoco')} />
-            <rect x="51" y="70.5" width="18" height="1.6" fill={url('cabeca')} opacity="0.9" />
-            <rect x="53" y="66" width="3" height="9" rx="1.5" fill="#fff" opacity="0.16" />
-
-            {/* corpo ▽: casco branco em cima, marinho embaixo, faixa da marca e núcleo no peito */}
+            {/* corpo ▽ (com pescoço) e o emblema ★ branco em relevo, como no original */}
             <g className="dm-tronco">
-              <path d={CORPO} fill={url('marinho')} />
-              <g clipPath={url('clipCorpo')}>
-                <path d="M20 70 H100 V97 Q60 106 20 97 Z" fill={url('casco')} />
-                {/* friso entre o branco e o marinho */}
-                <path d="M22 97.4 Q60 105.8 98 97.4" fill="none" stroke={url('cabeca')} strokeWidth="1.6" />
-                {/* faixa da marca descendo do pescoço até o núcleo */}
-                <path d="M53.5 72 H66.5 V84 Q60 88 53.5 84 Z" fill={url('cabeca')} />
-                <path d="M55 74 H57 V83.5" stroke="#fff" strokeOpacity="0.35" strokeWidth="1.1" fill="none" strokeLinecap="round" />
-              </g>
-              <path d={CORPO} fill={url('troncoLuz')} />
-              <path d={CORPO} fill={url('rebate')} />
-              <g clipPath={url('clipCorpo')}>
-                {/* sombra da cabeça sobre o corpo */}
-                <ellipse cx="60" cy="74" rx="26" ry="5.5" fill="#0a0f3a" opacity="0.35" filter={url('ao')} />
-                {/* brilho especular */}
-                <ellipse cx="44" cy="83" rx="8.5" ry="3" fill="#fff" opacity="0.8" filter={url('suave')} transform="rotate(-22 44 83)" />
-                {/* reflexo no marinho */}
-                <path d="M44 104 Q50 108 54 113" stroke="#9fb6ff" strokeOpacity="0.35" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-              </g>
-              <path className="dm-aresta" d="M43 76.5 Q60 75 77 76.5" />
-              {/* núcleo: aro metálico, vidro escuro e o emblema ★ aceso */}
-              <circle cx="60" cy="92.5" r="9.2" fill="#0a0f3a" opacity="0.25" filter={url('suave')} />
-              <circle cx="60" cy="92" r="8.6" fill={url('metal')} />
-              <circle cx="60" cy="92" r="6.4" fill={url('nucleo')} />
-              <circle cx="60" cy="92" r="6.4" fill="none" stroke={url('cabeca')} strokeWidth="1.2" filter={url('aro')} />
-              <path className="dm-emblema" d={ESTRELA(60, 92, 4.6)} filter={url('luz')} />
-              <ellipse cx="57.5" cy="88.6" rx="2.6" ry="1.1" fill="#fff" opacity="0.55" transform="rotate(-25 57.5 88.6)" />
+              <Camada c={CAMADAS.corpo} />
+              <path d={ESTRELA(60, 92, 7)} fill="#0a0f3a" opacity="0.28" filter={url('suave')} />
+              <path className="dm-emblema" d={ESTRELA(60, 91, 7)} />
             </g>
 
             {/* cabeça */}
             <g className="dm-cabeca">
-              <path className="dm-haste" d="M60 17 V11" />
-              <path className="dm-antena" d={ESTRELA(60, 7, 7)} filter={url('luz')} />
+              <path className="dm-haste" d="M60 17 V10" />
+              <path className="dm-antena" d={ESTRELA(60, 6, 6.5)} filter={url('luz')} />
+              <Camada c={CAMADAS.cabeca} />
 
-              {/* casco perolado com volume */}
-              <rect x="20" y="15" width="80" height="56" rx="26" fill={url('casco')} />
-              <rect x="20" y="15" width="80" height="56" rx="26" fill={url('esfera')} />
-              <rect x="20" y="15" width="80" height="56" rx="26" fill={url('rebate')} />
-              <g clipPath={url('clipCabeca')}>
-                {/* crista da marca no alto da cabeça, sob a antena */}
-                <path d="M48 12 H72 V19.5 Q72 23 68.5 23 H51.5 Q48 23 48 19.5 Z" fill={url('cabeca')} />
-                <path d="M50 16.5 H58" stroke="#fff" strokeOpacity="0.45" strokeWidth="1.1" strokeLinecap="round" />
-                {/* sombra de contato do visor */}
-                <rect x="26" y="25" width="68" height="42" rx="17" fill="#1b2463" opacity="0.18" filter={url('suave')} />
-              </g>
-              {/* brilho especular grande */}
-              <ellipse cx="36" cy="23" rx="10" ry="3.2" fill="#fff" opacity="0.95" filter={url('suave')} transform="rotate(-18 36 23)" />
-              <circle cx="46.5" cy="19.2" r="1.3" fill="#fff" opacity="0.9" />
-
-              {/* fones: concha da marca, tampa metálica e LED */}
-              <g>
-                <ellipse cx="19.5" cy="44" rx="7.6" ry="12.5" fill={url('cabeca')} />
-                <ellipse cx="19.5" cy="44" rx="7.6" ry="12.5" fill={url('esfera')} />
-                <ellipse cx="16.2" cy="44" rx="4.4" ry="9" fill={url('metal')} />
-                <ellipse cx="15.4" cy="40" rx="1.3" ry="3" fill="#fff" opacity="0.7" />
-                <circle cx="16.2" cy="50.5" r="1.1" fill="var(--dm-olho)" filter={url('luz')} />
-                <ellipse cx="100.5" cy="44" rx="7.6" ry="12.5" fill={url('corpo')} />
-                <ellipse cx="100.5" cy="44" rx="7.6" ry="12.5" fill={url('esfera')} />
-                <ellipse cx="103.8" cy="44" rx="4.4" ry="9" fill={url('metal')} />
-                <ellipse cx="103" cy="40" rx="1.3" ry="3" fill="#fff" opacity="0.55" />
-                <circle cx="103.8" cy="50.5" r="1.1" fill="var(--dm-olho)" filter={url('luz')} />
-              </g>
-
-              {/* visor: moldura afundada, vidro, aro luminoso e reflexo */}
-              <rect x="27.5" y="23.5" width="65" height="40" rx="16" fill="#060920" opacity="0.55" />
-              <rect x="29" y="25" width="62" height="37" rx="14.5" fill={url('tela')} />
-              <rect x="29" y="25" width="62" height="37" rx="14.5" fill="none" stroke={url('cabeca')} strokeWidth="1.8" filter={url('aro')} />
-              <path d="M33 31 C33 27.5 35.5 26.5 40 26.5 L79 26.5 C72 29 54 33 33 39 Z" fill={url('reflexo')} />
-              <path d="M84 56 Q87.5 52.5 87.5 47" stroke="#fff" strokeOpacity="0.18" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-              <ellipse className="dm-bochecha" cx="37.5" cy="54" rx="4.5" ry="2.5" />
-              <ellipse className="dm-bochecha" cx="82.5" cy="54" rx="4.5" ry="2.5" />
-
+              <ellipse className="dm-bochecha" cx="38.5" cy="53" rx="4.5" ry="2.5" />
+              <ellipse className="dm-bochecha" cx="81.5" cy="53" rx="4.5" ry="2.5" />
               <g className="dm-olhos" filter={url('luz')}>
                 <g className="dm-pisca">
                   <path className="dm-olho dm-olho--estrela" d={ESTRELA(47, 42, 7)} />
