@@ -36,7 +36,8 @@
 /* Barra do projeto */
 .jg-projectbar {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto auto;
+  /* Identidade, etapas e controles na mesma linha. */
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3) var(--space-5);
   padding: var(--space-3) var(--space-4);
@@ -45,8 +46,10 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
-@media (max-width: 1560px) {
+.jg-projectbar > .jg-steps { justify-content: flex-end; }
+@media (max-width: 1100px) {
   .jg-projectbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .jg-projectbar > .jg-steps { justify-content: flex-start; }
   .jg-projectbar .jg-steps { grid-column: 1 / -1; grid-row: 2; }
 }
 @media (max-width: 860px) { .jg-projectbar { grid-template-columns: minmax(0, 1fr); } }

@@ -3,6 +3,7 @@ import { CAP, latestRevision, stageIndex } from '../../domain/journey/journeyEng
 import { getNotebook } from '../../domain/journey/notebooks.js';
 import { useJourney } from '../../journey/JourneyContext.jsx';
 import Icon from '../ui/Icon.jsx';
+import Tabs from '../ui/Tabs.jsx';
 import ProjectBar from '../journey/ProjectBar.jsx';
 import CapabilityCard from '../journey/CapabilityCard.jsx';
 import TurboPanel from '../journey/TurboPanel.jsx';
@@ -12,6 +13,23 @@ import NotebookDetail from '../notebooks/NotebookDetail.jsx';
 import { NewProjectDialog } from '../notebooks/NotebookDialogs.jsx';
 
 const OPEN_KEY = 'jornada.contexto.notebook';
+const ABA_KEY = 'jornada.contexto.aba';
+
+/** Abas da área de execução, à direita dos notebooks. */
+const ABAS_DO_CONTEXTO = [
+  { id: 'ctx-consolidar', label: 'Consolidar Contexto', icon: 'layers' },
+  { id: 'ctx-agentes', label: 'Grid de Agentes', icon: 'grid' },
+  { id: 'ctx-modelos', label: 'Modelos de Gestão', icon: 'report' },
+];
+
+function lerAba() {
+  try {
+    const v = window.sessionStorage.getItem(ABA_KEY);
+    return ABAS_DO_CONTEXTO.some((a) => a.id === v) ? v : ABAS_DO_CONTEXTO[0].id;
+  } catch {
+    return ABAS_DO_CONTEXTO[0].id;
+  }
+}
 
 function lerAberto() {
   try {
@@ -30,6 +48,15 @@ export default function UpstreamTab() {
   const [novoProjeto, setNovoProjeto] = useState(false);
   // Notebook aberto, lembrado por projeto: { projectId, notebookId }.
   const [aberto, setAberto] = useState(lerAberto);
+  const [aba, setAba] = useState(lerAba);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(ABA_KEY, aba);
+    } catch {
+      /* ignora */
+    }
+  }, [aba]);
 
   useEffect(() => {
     try {
@@ -98,47 +125,59 @@ export default function UpstreamTab() {
         </div>
 
         <div className="ctx-split__right">
-          <TurboPanel
-            collapsible
-            defaultOpen={false}
-            phase="contexto"
-            description="Executa de ponta a ponta: 001 para cada fonte, 002 e os oito resultados na ordem das dependências. Uma falha marca como pulados só os dependentes."
-            disabledReason={project.sources.length ? null : 'Envie ao menos uma fonte.'}
-          />
-          <div className="jg-grid jg-grid--2">
-            <CapabilityCard capabilityId={CAP.consolidar} />
-            <section className="surface jg-gate" aria-labelledby="ctx-next">
-              <header className="surface-head">
-                <h2 id="ctx-next" className="surface-title">
-                  Próxima etapa
-                </h2>
-              </header>
-              {consolidado ? (
-                <>
-                  <p>Contexto consolidado. O DarkLabs já pode enquadrar o problema deste projeto.</p>
-                  <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
-                    Ir para o DarkLabs <Icon name="chevronRight" size={14} />
-                  </button>
-                </>
-              ) : (
-                <p className="jg-muted">
-                  Quando todas as fontes estiverem analisadas, consolide o contexto (002). A consolidação libera os oito resultados
-                  abaixo e o DarkLabs{stageIndex(project.stage) >= 1 ? '' : ''}.
-                </p>
-              )}
+          <Tabs tabs={ABAS_DO_CONTEXTO} active={aba} onChange={setAba} label="Áreas do Contexto" />
+
+          <div role="tabpanel" id="panel-ctx-consolidar" aria-labelledby="tab-ctx-consolidar" className="ctx-tabpanel" hidden={aba !== 'ctx-consolidar'}>
+            <TurboPanel
+              collapsible
+              defaultOpen={false}
+              phase="contexto"
+              description="Executa de ponta a ponta: 001 para cada fonte, 002 e os oito resultados na ordem das dependências. Uma falha marca como pulados só os dependentes."
+              disabledReason={project.sources.length ? null : 'Envie ao menos uma fonte.'}
+            />
+            <div className="jg-grid jg-grid--2">
+              <CapabilityCard capabilityId={CAP.consolidar} />
+              <section className="surface jg-gate" aria-labelledby="ctx-next">
+                <header className="surface-head">
+                  <h2 id="ctx-next" className="surface-title">
+                    Próxima etapa
+                  </h2>
+                </header>
+                {consolidado ? (
+                  <>
+                    <p>Contexto consolidado. O DarkLabs já pode enquadrar o problema deste projeto.</p>
+                    <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('darklab')}>
+                      Ir para o DarkLabs <Icon name="chevronRight" size={14} />
+                    </button>
+                  </>
+                ) : (
+                  <p className="jg-muted">
+                    Quando todas as fontes estiverem analisadas, consolide o contexto (002). A consolidação libera os oito resultados
+                    abaixo e o DarkLabs{stageIndex(project.stage) >= 1 ? '' : ''}.
+                  </p>
+                )}
+              </section>
+            </div>
+
+            <section aria-labelledby="ctx-complementares">
+              <h2 id="ctx-complementares" className="jg-section-title">
+                Resultados complementares · 003 a 010
+              </h2>
+              <div className="jg-grid jg-grid--4">
+                {complementares.map((c) => (
+                  <CapabilityCard key={c.id} capabilityId={c.id} compact />
+                ))}
+              </div>
             </section>
           </div>
 
-          <section aria-labelledby="ctx-complementares">
-            <h2 id="ctx-complementares" className="jg-section-title">
-              Resultados complementares · 003 a 010
-            </h2>
-            <div className="jg-grid jg-grid--4">
-              {complementares.map((c) => (
-                <CapabilityCard key={c.id} capabilityId={c.id} compact />
-              ))}
-            </div>
-          </section>
+          <div role="tabpanel" id="panel-ctx-agentes" aria-labelledby="tab-ctx-agentes" className="ctx-tabpanel" hidden={aba !== 'ctx-agentes'}>
+            <EmptyState title="Grid de Agentes">Esta aba ainda não tem conteúdo definido.</EmptyState>
+          </div>
+
+          <div role="tabpanel" id="panel-ctx-modelos" aria-labelledby="tab-ctx-modelos" className="ctx-tabpanel" hidden={aba !== 'ctx-modelos'}>
+            <EmptyState title="Modelos de Gestão">Esta aba ainda não tem conteúdo definido.</EmptyState>
+          </div>
 
         </div>
       </div>

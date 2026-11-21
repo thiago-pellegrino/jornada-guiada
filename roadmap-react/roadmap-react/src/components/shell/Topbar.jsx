@@ -4,6 +4,7 @@ import logo from '../../assets/logo-capgemini-transparent.png';
 import logoBranco from '../../assets/logo-capgemini-white.png';
 import { DarklabsMark } from '../auth/LoginScreen.jsx';
 import UserMenu from '../auth/UserMenu.jsx';
+import { SISTEMAS } from './sistemas.js';
 
 const FAVORITES_KEY = 'roadmap.favorites.v1';
 const PAGE_ID = 'simulador-roadmap';
@@ -116,6 +117,8 @@ export default function Topbar({
   copilotButtonRef,
   onExportPdf,
   onNotify,
+  sistema,
+  onSistemaChange,
 }) {
   const [favorite, setFavorite] = useState(readFavorite);
 
@@ -160,6 +163,25 @@ export default function Topbar({
           <DarklabsMark tone="dark" compact />
         </span>
       </span>
+
+      {onSistemaChange ? (
+        <nav className="topbar__systems" aria-label="Sistemas">
+          {SISTEMAS.map((item) => {
+            const ativo = item.id === sistema;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`topbar-system ${ativo ? 'is-active' : ''}`}
+                aria-current={ativo ? 'page' : undefined}
+                onClick={() => onSistemaChange(item.id)}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+      ) : null}
 
       <div className="topbar__right">
         {fontScale ? (

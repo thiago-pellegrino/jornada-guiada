@@ -28,6 +28,9 @@ import RoadmapMatrix, { featureMatches } from './components/matrix/RoadmapMatrix
 import DeltaMascot from './components/shell/DeltaMascot.jsx';
 import { CopilotMark } from './components/ui/Icon.jsx';
 import Toast from './components/ui/Toast.jsx';
+import SistemaEmBreve from './components/shell/SistemaEmBreve.jsx';
+import PortalDarkLabs from './sistemas/portal-darklabs/PortalDarkLabs.jsx';
+import { SISTEMA_PADRAO, lerSistema, salvarSistema, sistemaPorId } from './components/shell/sistemas.js';
 
 const TABS = [
   { id: 'contexto', label: 'Contexto', icon: 'info' },
@@ -71,6 +74,9 @@ export default function App() {
   // A semana atual é sempre carregada com a semana vigente de hoje (não é salva com o cenário).
   const [currentYearWeek, setCurrentYearWeek] = useState(() => currentYearWeekNumber());
   const [toast, setToast] = useState(null);
+  // Sistema escolhido no menu do topbar: carrega toda a estrutura abaixo do topbar.
+  const [sistema, setSistema] = useState(lerSistema);
+  const naJornada = sistema === SISTEMA_PADRAO;
   const [tab, setTab] = useState(() => {
     const fromHash = window.location.hash.replace('#', '');
     return TABS.some((item) => item.id === fromHash) ? fromHash : 'contexto';
@@ -137,6 +143,22 @@ export default function App() {
   resetRef.current = sim.requestReset;
 
   const notify = useCallback((message) => setToast({ id: Date.now(), message }), []);
+
+  const trocarSistema = useCallback((id) => {
+    setSistema(id);
+    salvarSistema(id);
+    document.title = id === SISTEMA_PADRAO ? 'Jornada Guiada' : sistemaPorId(id).label;
+  }, []);
+
+  // Links internos da Jornada Guiada (hash de uma aba) sempre voltam para ela.
+  useEffect(() => {
+    function onHash() {
+      const fromHash = window.location.hash.replace('#', '');
+      if (TABS.some((item) => item.id === fromHash)) trocarSistema(SISTEMA_PADRAO);
+    }
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [trocarSistema]);
   const clearToast = useCallback(() => setToast(null), []);
 
   const closeCopilot = useCallback(() => {
@@ -257,8 +279,11 @@ export default function App() {
           copilotButtonRef={copilotButtonRef}
           onExportPdf={() => window.print()}
           onNotify={notify}
+          sistema={sistema}
+          onSistemaChange={trocarSistema}
         />
 
+        {naJornada ? (
         <HeroCarouselMosaic
           activeTab={tab}
           matrixView={matrixView}
@@ -271,8 +296,10 @@ export default function App() {
           scenario={scenario}
           result={result}
         />
+        ) : null}
 
         <div className="workspace-body">
+          {naJornada ? (
           <main ref={mainRef} id="main-content" className="main" tabIndex={-1} onScrollCapture={handleMainScroll}>
           <div className="content">
             <div className="print-only print-header">
@@ -433,6 +460,17 @@ export default function App() {
             <span>Simulação local · Sem execução de operações</span>
           </footer>
         </main>
+          ) : (
+            <main id="main-content" className="main" tabIndex={-1}>
+              {sistema === 'portal-darklabs' ? (
+                <div className="content">
+                  <PortalDarkLabs />
+                </div>
+              ) : (
+                <SistemaEmBreve sistemaId={sistema} onVoltar={() => trocarSistema(SISTEMA_PADRAO)} />
+              )}
+            </main>
+          )}
 
         {copilotOpen ? <div className="copilot-backdrop" onClick={closeCopilot} aria-hidden="true" /> : null}
 
@@ -452,7 +490,9 @@ export default function App() {
 
       {/* Mascote do Delta: flutua sobre todas as telas, pode ser arrastada e tem um mini chat próprio;
           fica oculta (sem perder a conversa) enquanto a janela do Delta completo está aberta. */}
-      <DeltaMascot onOpen={() => setCopilotOpen(true)} tab={tab} scenario={scenario} result={result} oculto={copilotOpen} />
+      {naJornada ? (
+        <DeltaMascot onOpen={() => setCopilotOpen(true)} tab={tab} scenario={scenario} result={result} oculto={copilotOpen} />
+      ) : null}
 
       {/* Atalho fixo do Delta no canto inferior direito; some enquanto o chat está aberto. */}
       {!copilotOpen ? (

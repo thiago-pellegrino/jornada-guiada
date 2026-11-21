@@ -350,3 +350,80 @@ html {
   z-index: 6;
   background: var(--color-bg);
 }
+
+/* ── Menu de sistemas no topbar (Jornada Guiada, Portal DarkLabs, EM Financial, EM Audit, EM Certification) ── */
+/* Topbar em 3 colunas: marca à esquerda, menu centralizado na barra, ações à direita. Se faltar espaço,
+   o menu encolhe e rola na horizontal sem cobrir a marca nem as ações. */
+.topbar:has(.topbar__systems) {
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+}
+.topbar:has(.topbar__systems) .topbar__brand { justify-self: start; }
+.topbar:has(.topbar__systems) .topbar__right { justify-self: end; margin-left: 0; }
+@media (max-width: 1200px) {
+  /* Sem espaço para centralizar: marca, menu (encolhe e rola) e ações em sequência. */
+  .topbar:has(.topbar__systems) { display: flex; }
+  .topbar:has(.topbar__systems) .topbar__systems { flex: 1 1 auto; }
+  .topbar:has(.topbar__systems) .topbar__right { flex: none; }
+}
+.topbar__systems {
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  gap: 2px;
+  min-width: 0;
+  justify-self: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.topbar__systems::-webkit-scrollbar { display: none; }
+.topbar-system {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-top: 2px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--motion-fast, 120ms) ease, background-color var(--motion-fast, 120ms) ease;
+}
+.topbar-system:hover { color: var(--color-text-heading); background: var(--color-surface-hover); }
+.topbar-system.is-active { color: var(--color-text-heading); border-bottom-color: var(--color-control-accent); }
+.topbar-system:focus-visible { outline: 2px solid var(--color-focus, var(--color-control-accent)); outline-offset: -4px; }
+
+/* Sistemas ainda sem páginas */
+.sistema-vazio { display: flex; align-items: center; justify-content: center; }
+.sistema-vazio__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 520px;
+  margin: 8vh auto;
+  padding: var(--space-8, 40px) var(--space-6, 32px);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+.sistema-vazio__card h1 { margin: 0; font-size: var(--text-xl, 1.25rem); color: var(--color-text-heading); }
+.sistema-vazio__card p { margin: 0; color: var(--color-text-muted); }
+.sistema-vazio__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
