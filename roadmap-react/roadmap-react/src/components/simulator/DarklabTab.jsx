@@ -1,99 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import ProjectBar from '../journey/ProjectBar.jsx';
-import DarklabSidebar from '../darklab/DarklabSidebar.jsx';
-import DarklabMotorsView from '../darklab/DarklabMotorsView.jsx';
-import DarklabRoadmapView from '../darklab/DarklabRoadmapView.jsx';
-import DarklabFuturoView from '../darklab/DarklabFuturoView.jsx';
-import DarklabVamosAlemView from '../darklab/DarklabVamosAlemView.jsx';
-import DarklabProtocoloView from '../darklab/DarklabProtocoloView.jsx';
-import DarklabDiarioView from '../darklab/DarklabDiarioView.jsx';
-import DarklabPersonasView from '../darklab/DarklabPersonasView.jsx';
-import { DarklabOverview, DarklabPlaceholder } from '../darklab/DarklabScreens.jsx';
-import { DARKLAB_INDEX, DEFAULT_DARKLAB_VIEW } from '../darklab/darklabMenu.js';
-
-const VIEW_KEY = 'jornada.darklab.view';
-const COLLAPSED_KEY = 'jornada.darklab.menu-recolhido';
+import { useJourney } from '../../journey/JourneyContext.jsx';
+import { EmptyState, goToTab } from '../journey/JourneyBits.jsx';
+import DarklabsJornada from '../darklabs/DarklabsJornada.jsx';
 
 /**
- * Telas do menu já implementadas. Os demais itens mostram a tela provisória até o layout chegar;
- * para ligar uma tela nova, basta registrá-la aqui pelo id do item em darklabMenu.js.
+ * Aba "DarkLabs" da Jornada Guiada: barra do projeto e a jornada do DarkLabs (triagem, prateleira,
+ * squad, 7 motores com gates, memória, dossiê e ganhos). A simulação é guardada por projeto.
+ * As telas anteriores do DarkLabs continuam em components/darklab e no Portal DarkLabs.
  */
-const DARKLAB_SCREENS = {
-  'visao-geral': DarklabOverview,
-  'jornada-7-motores': DarklabMotorsView,
-  'aprendizados-roadmap': DarklabRoadmapView,
-  'jornada-futuro': DarklabFuturoView,
-  'vamos-alem': DarklabVamosAlemView,
-  'protocolo-5-etapas': DarklabProtocoloView,
-  publicacoes: DarklabDiarioView,
-  'personas-sinteticas': DarklabPersonasView,
-};
-
-function lerVista() {
-  try {
-    const v = window.sessionStorage.getItem(VIEW_KEY);
-    if (v && (DARKLAB_INDEX.has(v) || v === 'editar-perfil')) return v;
-  } catch {
-    /* sem sessionStorage: começa na visão geral */
-  }
-  return DEFAULT_DARKLAB_VIEW;
-}
-
-/** Aba "DarkLabs": menu lateral de funcionalidades e a tela do item selecionado. */
 export default function DarklabTab() {
-  const [view, setView] = useState(lerVista);
-  const [recolhido, setRecolhido] = useState(() => {
-    try {
-      return window.localStorage.getItem(COLLAPSED_KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
-  const alternarMenu = useCallback(() => {
-    setRecolhido((v) => {
-      try {
-        window.localStorage.setItem(COLLAPSED_KEY, v ? '0' : '1');
-      } catch {
-        /* ignora */
-      }
-      return !v;
-    });
-  }, []);
-  const contentRef = useRef(null);
-
-  // Outras partes do sistema (ex.: dicas da mascote do Delta) podem abrir um item do menu.
-  useEffect(() => {
-    const abrir = (e) => {
-      if (DARKLAB_INDEX.has(e.detail)) setView(e.detail);
-    };
-    window.addEventListener('jornada:darklab-view', abrir);
-    return () => window.removeEventListener('jornada:darklab-view', abrir);
-  }, []);
-
-  useEffect(() => {
-    try {
-      window.sessionStorage.setItem(VIEW_KEY, view);
-    } catch {
-      /* ignora */
-    }
-  }, [view]);
-
-  const select = useCallback((id) => {
-    setView(id);
-    contentRef.current?.scrollIntoView({ block: 'nearest' });
-  }, []);
-
-  const Tela = DARKLAB_SCREENS[view];
-
+  const { project } = useJourney();
   return (
     <div className="jg-page">
       <ProjectBar current="darklab" />
-      <div className={`dlm-layout ${recolhido ? 'is-collapsed' : ''}`}>
-        <DarklabSidebar active={view} onSelect={select} collapsed={recolhido} onToggleCollapsed={alternarMenu} />
-        <div className="dlm-content" ref={contentRef}>
-          {Tela ? <Tela onSelect={select} /> : <DarklabPlaceholder viewId={view} />}
-        </div>
-      </div>
+      {project ? (
+        <DarklabsJornada key={project.projectId} />
+      ) : (
+        <EmptyState
+          title="Nenhum projeto selecionado"
+          action={
+            <button type="button" className="btn btn--sm btn--primary" onClick={() => goToTab('contexto')}>
+              Criar projeto no Contexto
+            </button>
+          }
+        >
+          A jornada do DarkLabs é guardada por projeto. Crie ou selecione um projeto no Contexto para começar.
+        </EmptyState>
+      )}
     </div>
   );
 }

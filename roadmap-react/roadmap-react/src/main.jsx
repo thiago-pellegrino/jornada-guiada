@@ -18,6 +18,7 @@ import './styles/login.css';
 import './styles/delta.css';
 import './styles/builder.css';
 import './styles/refinements.css';
+import './styles/darklabs-jornada.css';
 import './styles/print.css';
 
 createRoot(document.getElementById('root')).render(
