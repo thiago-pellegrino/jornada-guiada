@@ -474,8 +474,8 @@
 .dm-alerta circle { fill: #e0314e; }
 .dm-alerta path { stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
 .dm-rastro { display: none; stroke: color-mix(in srgb, var(--dm-c2) 70%, transparent); stroke-width: 2.4; stroke-linecap: round; }
-.dm-antena { fill: #fff; transform-box: fill-box; transform-origin: center; animation: dm-cintila 2.8s ease-in-out infinite; }
-:root[data-delta-gold] .dm-antena { fill: #fff6d0; }
+/* Antena na cor da marca: o casco agora é branco, então a ★ branca sumiria. */
+.dm-antena { fill: var(--dm-c1); transform-box: fill-box; transform-origin: center; animation: dm-cintila 2.8s ease-in-out infinite; }
 .dm-sombra { transform-box: fill-box; transform-origin: center; animation: dm-sombra 3.6s ease-in-out infinite; }
 .dm-sombra-stop--1 { stop-color: color-mix(in srgb, var(--dm-c2) 55%, #0f172a); stop-opacity: 0.5; }
 .dm-sombra-stop--2 { stop-color: var(--dm-c2); stop-opacity: 0; }
