@@ -135,8 +135,8 @@ export default function HeroCarouselMosaic({
       author: `${scenario.squads.length} squads · ${kpis.totalPeople} profissionais`,
       info: `${kpis.totalFeatures} features`,
       slides: [
-        { id: 'escopo-squads', tab: 'escopo-squads', icon: 'users', title: 'Escopo das Squads', image: 'escopo-squads', position: 'center 30%' },
         { id: 'epicos', tab: 'epicos', icon: 'layers', title: 'Épicos, Features e Histórias', image: 'escopo-epicos' },
+        { id: 'escopo-squads', tab: 'escopo-squads', icon: 'users', title: 'Escopo das Squads', image: 'escopo-squads', position: 'center 30%' },
       ],
     },
     {
@@ -147,8 +147,8 @@ export default function HeroCarouselMosaic({
       author: 'Cronograma',
       info: `Início ${context.startWeekCode} · ${modeLabel}`,
       slides: [
-        { id: 'plan-gantt', tab: 'planejamento', icon: 'gantt', view: 'gantt', title: 'Cronograma', tabLabel: 'Cronograma Gantt', image: 'planejamento-gantt' },
-        { id: 'plan-grid', tab: 'planejamento', icon: 'calendar', view: 'grid', title: 'Grade de Histórias', tabLabel: 'Cronograma', image: 'planejamento-grid' },
+        // Só o Cronograma, que abre na visão Gantt; a grade continua no seletor de visão da página.
+        { id: 'plan-grid', tab: 'planejamento', icon: 'calendar', view: 'gantt', title: 'Cronograma', tabLabel: 'Cronograma', image: 'planejamento-grid' },
       ],
     },
     {
@@ -177,9 +177,9 @@ export default function HeroCarouselMosaic({
       if (activeTab === 'darklab') next.jornada = 1;
       if (activeTab === 'projetos') next.jornada = 2;
       if (activeTab === 'backlog-futuro') next.jornada = 3;
-      if (activeTab === 'escopo-squads') next.escopo = 0;
-      if (activeTab === 'epicos') next.escopo = 1;
-      if (activeTab === 'planejamento') next.planejamento = matrixView === 'grid' ? 1 : 0;
+      if (activeTab === 'epicos') next.escopo = 0;
+      if (activeTab === 'escopo-squads') next.escopo = 1;
+      if (activeTab === 'planejamento') next.planejamento = 0;
       if (activeTab === 'resultados') next.resultados = 0;
       if (activeTab === 'curva') next.resultados = 1;
       if (activeTab === 'builder') next.resultados = 2;
@@ -283,22 +283,27 @@ export default function HeroCarouselMosaic({
 
               <span className="hero-tile__pill">{group.badge}</span>
 
-              <button
-                type="button"
-                className="hero-tile__arrow hero-tile__arrow--prev"
-                onClick={(event) => step(event, group, -1)}
-                aria-label={`Aba anterior em ${group.badge}`}
-              >
-                <Icon name="chevronRight" size={18} className="is-flipped-x" />
-              </button>
-              <button
-                type="button"
-                className="hero-tile__arrow hero-tile__arrow--next"
-                onClick={(event) => step(event, group, 1)}
-                aria-label={`Próxima aba em ${group.badge}`}
-              >
-                <Icon name="chevronRight" size={18} />
-              </button>
+              {/* Com um item só (Planejamento), sem setas nem indicadores. */}
+              {group.slides.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    className="hero-tile__arrow hero-tile__arrow--prev"
+                    onClick={(event) => step(event, group, -1)}
+                    aria-label={`Aba anterior em ${group.badge}`}
+                  >
+                    <Icon name="chevronRight" size={18} className="is-flipped-x" />
+                  </button>
+                  <button
+                    type="button"
+                    className="hero-tile__arrow hero-tile__arrow--next"
+                    onClick={(event) => step(event, group, 1)}
+                    aria-label={`Próxima aba em ${group.badge}`}
+                  >
+                    <Icon name="chevronRight" size={18} />
+                  </button>
+                </>
+              ) : null}
 
               <div className="hero-tile__body">
                 <h2 className="hero-tile__title">
@@ -327,23 +332,25 @@ export default function HeroCarouselMosaic({
                 </div>
               </div>
 
-              <div className="hero-tile__dots" role="tablist" aria-label={`Abas de ${group.badge}`}>
-                {group.slides.map((item, sIdx) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={sIdx === index}
-                    aria-label={item.title}
-                    title={item.title}
-                    className={`hero-tile__dot ${sIdx === index ? 'is-selected' : ''}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      activate(group, sIdx);
-                    }}
-                  />
-                ))}
-              </div>
+              {group.slides.length > 1 ? (
+                <div className="hero-tile__dots" role="tablist" aria-label={`Abas de ${group.badge}`}>
+                  {group.slides.map((item, sIdx) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={sIdx === index}
+                      aria-label={item.title}
+                      title={item.title}
+                      className={`hero-tile__dot ${sIdx === index ? 'is-selected' : ''}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        activate(group, sIdx);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : null}
             </article>
           );
         })}

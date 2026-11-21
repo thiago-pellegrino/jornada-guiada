@@ -1306,3 +1306,93 @@ button.jf-cond__check:focus-visible { outline: 2px solid #fff; outline-offset: 2
 .ar-wave__title { font-size: var(--text-xs); }
 .ar-wave li { padding: 6px 8px; font-size: 0.68rem; }
 .ar-notice { padding: 9px 14px; }
+
+/* ── Jornada do futuro e Vamos além?: tamanhos no padrão das demais telas ─────
+   Mesma escala de Aprendizados e roadmap e da Jornada dos 7 motores: título de
+   abertura até 1,75rem, título de seção 1,25rem, título de cartão 1rem, cartões
+   com 16–18px de respiro e textos de apoio em --text-xs. */
+.jf-head { gap: 16px; padding: 2px 2px 0; }
+.jf-title { margin: 0 0 6px; max-width: none; font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; }
+.jf-lead { max-width: 90ch; font-size: var(--text-xs); line-height: 1.55; }
+.jf-horizon { gap: 6px; padding: 6px 12px; font-size: var(--text-xs); }
+.jf-h3 { margin: 0 0 6px; font-size: var(--text-md, 1rem); font-weight: 700; letter-spacing: -0.01em; }
+.jf-start { padding: 16px 18px; }
+.jf-text-light { margin-bottom: 12px; }
+.jf-conds { gap: 6px; }
+.jf-cond { gap: 8px; padding: 8px 10px; border-radius: 10px; }
+.jf-cond__check { width: 18px; height: 18px; border-radius: 5px; }
+.jf-cond__body strong { font-size: var(--text-xs); }
+.jf-cond__body span { font-size: 0.68rem; }
+.jf-cond__status { padding: 2px 8px; font-size: 0.56rem; }
+.jf-gate { margin-top: 12px; }
+.jf-motors { gap: 6px; margin-top: 10px; }
+.jf-motor { padding: 4px 10px; font-size: 0.66rem; }
+.jf-loop { margin-top: 12px; }
+.jf-loop__step strong { font-size: var(--text-xs); }
+.jf-loop__step span { font-size: 0.66rem; }
+.jf-position { padding-top: 12px; }
+.jf-col__title { font-size: var(--text-xs); }
+.jf-list li { padding: 8px 10px; }
+.jf-empty { padding: 10px 14px; }
+.jf-band, .jf-cta { gap: 14px; padding: 14px 18px; }
+.jf-band strong { margin-bottom: 2px; font-size: var(--text-xs); }
+.jf-band p { font-size: 0.7rem; }
+.jf-band__icon { width: 38px; height: 38px; border-radius: 10px; }
+.jf-cta { padding: 16px 18px; }
+.jf-cta__body .jf-h3 { margin: 2px 0 2px; font-size: 1.15rem; }
+.jf-cta__eyebrow { font-size: 0.6rem; }
+.jf-cta__btn { padding: 8px 16px; font-size: var(--text-xs); }
+
+.va-top { grid-template-columns: minmax(0, 1.9fr) minmax(250px, 1fr); }
+.va-hero { padding: 20px 24px 18px; }
+.va-hero .mj-eyebrow { margin-bottom: 6px; }
+.va-hero__chevrons { right: 24px; font-size: 6.5rem; }
+.va-hero__title { margin: 0 0 8px; font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; }
+.va-hero__lead { max-width: 90ch; margin: 0 0 12px; font-size: var(--text-xs); line-height: 1.55; }
+.va-disclaimer { gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 0.68rem; line-height: 1.5; }
+.va-applied { gap: 6px; padding: 14px 18px; }
+.va-applied .ar-eyebrow { margin-bottom: 2px; font-size: 0.6rem; }
+.va-applied__title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+.va-applied .ar-sub { margin-top: 0; }
+.va-applied__link { margin-top: 2px; }
+.va-pill { gap: 6px; padding: 3px 10px 3px 4px; font-size: 0.56rem; }
+.va-pill__dot { width: 13px; height: 13px; box-shadow: inset 0 0 0 3.5px var(--color-surface-subtle); }
+.va-h2 { font-size: 1.25rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+.va-h4 { margin-bottom: 10px; font-size: var(--text-sm); line-height: 1.35; }
+.va-sec-head { gap: 12px; }
+.va-impulso { padding: 16px 18px; }
+.va-steps { gap: 10px; margin-top: 14px; }
+.va-step { gap: 8px; padding: 14px; border-radius: 12px; }
+.va-step__n { width: 28px; height: 28px; border-radius: 8px; font-size: var(--text-xs); }
+.va-step__icon { top: 14px; right: 14px; width: 18px; height: 18px; }
+.va-step strong { font-size: var(--text-xs); }
+.va-step ul, .va-role ul { gap: 4px; padding-left: 16px; font-size: 0.68rem; }
+.va-loop { gap: 8px; margin: 12px 0; padding: 10px 14px; border-radius: 10px; font-size: 0.7rem; }
+.va-two { gap: 10px; }
+.va-box { padding: 14px 16px; border-radius: 12px; }
+.va-chips { gap: 6px; }
+.va-chips li { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; }
+.va-assets { gap: 6px; }
+.va-assets li { padding: 8px 10px; font-size: 0.68rem; }
+.va-shelf-head { gap: 16px; margin-bottom: 10px; }
+.va-shelf-head .ar-eyebrow { margin-bottom: 4px; }
+.va-offer { gap: 4px; padding: 14px 16px 12px 18px; border-radius: 12px; }
+.va-offer__top { margin-bottom: 4px; }
+.va-offer__icon { width: 18px; height: 18px; }
+.va-offer__name { font-size: var(--text-md, 1rem); font-weight: 700; letter-spacing: -0.01em; }
+.va-offer__phrase { font-size: 0.7rem; }
+.va-offer__term { margin-top: 4px; font-size: 0.68rem; }
+.va-offer__text { font-size: 0.68rem; line-height: 1.5; }
+.va-offer__motors { font-size: 0.62rem; }
+.va-offer__team { padding-top: 10px; font-size: 0.66rem; }
+.va-offer__pick { margin-top: 8px; padding: 6px 12px; font-size: 0.7rem; }
+.va-summary { padding: 10px 14px; }
+.va-team { padding: 18px 20px 20px; }
+.va-team .mj-eyebrow { margin-bottom: 6px; }
+.va-team__lead { margin-top: 6px; font-size: var(--text-xs); line-height: 1.55; }
+.va-roles { gap: 10px; margin-top: 16px; }
+.va-role { gap: 8px; padding: 14px; border-radius: 12px; }
+.va-role__icon { width: 36px; height: 36px; border-radius: 10px; }
+.va-role strong { font-size: var(--text-xs); }
+.va-role p { font-size: 0.68rem; line-height: 1.5; }
+.va-role ul { font-size: 0.64rem; }

@@ -353,3 +353,11 @@
 .jg-turbo.is-open .jg-turbo__toggle .icon { transform: rotate(180deg); }
 .jg-turbo--collapsible.is-collapsed .surface-head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
 .jg-turbo__body { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* Barra do projeto em uma linha só: código, nome e etapa lado a lado; 5 etapas sem quebra. */
+.jg-code + .jg-projectbar__name { flex-direction: row; align-items: baseline; gap: var(--space-2); }
+.jg-code + .jg-projectbar__name strong { flex: 0 1 auto; min-width: 0; }
+.jg-code + .jg-projectbar__name span { flex: none; white-space: nowrap; }
+.jg-code + .jg-projectbar__name span::before { content: '·'; margin-right: var(--space-2); color: var(--color-border-strong); }
+.jg-projectbar .jg-steps { flex-wrap: nowrap; }
+.jg-projectbar .jg-step__btn { white-space: nowrap; }

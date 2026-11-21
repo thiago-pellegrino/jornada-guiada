@@ -90,10 +90,10 @@ export function JourneyProvider({ children }) {
   }, []);
 
   const createProject = useCallback(
-    (name, description) => {
+    (name, description, company = null) => {
       try {
-        setState((s) => createProjectFn(s, { name, description }));
-        notify(`Projeto criado no Contexto: ${name}.`);
+        setState((s) => createProjectFn(s, { name, description, company }));
+        notify(company?.name ? `Projeto criado no Contexto: ${name} · ${company.name}.` : `Projeto criado no Contexto: ${name}.`);
         return true;
       } catch (e) {
         notify(e.message);

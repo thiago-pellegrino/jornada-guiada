@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { normalizeLink } from '../../domain/journey/notebooks.js';
+import { EMPRESAS, filtrarEmpresas } from '../../domain/journey/empresas.js';
 import { fmtBytes } from '../journey/JourneyBits.jsx';
 import NotebookIcon from './NotebookIcons.jsx';
 
@@ -282,20 +283,119 @@ export function AddReferencesDialog({ notebookName, existingCount = 0, mode = 'c
 }
 
 /** Novo projeto, no mesmo formato do diálogo de novo caderno. */
+/**
+ * Novo projeto em dois passos: primeiro a empresa dona do projeto (lista ou outra digitada),
+ * depois nome e descrição. `onCreate(nome, descricao, empresa)`.
+ */
 export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
+  const [passo, setPasso] = useState('empresa');
+  const [empresaId, setEmpresaId] = useState(null);
+  const [outra, setOutra] = useState('');
+  const [busca, setBusca] = useState('');
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const id = useId();
+  const lista = filtrarEmpresas(busca);
+  const empresa = empresaId === 'outra' ? (outra.trim() ? { id: 'outra', name: outra.trim(), sector: 'Outra empresa' } : null) : EMPRESAS.find((e) => e.id === empresaId) ?? null;
+
+  if (passo === 'empresa') {
+    return (
+      <Dialog key="empresa" labelledBy={`${id}-t`} onClose={onClose} className="nb-dialog--empresa">
+        <header className="nb-dialog__head">
+          <h2 id={`${id}-t`} className="nb-dialog__title">
+            Novo projeto · empresa
+          </h2>
+          <button type="button" className="nb-iconbtn" onClick={onClose} aria-label="Fechar">
+            <NotebookIcon name="close" size={20} />
+          </button>
+        </header>
+        <p className="nb-dialog__text">
+          Selecione de qual empresa é o projeto <strong>{nextCode}</strong>. A empresa acompanha o projeto em todas as etapas da jornada.
+        </p>
+        <label className="nb-field">
+          <NotebookIcon name="search" size={20} />
+          <input data-autofocus value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar empresa por nome ou setor" aria-label="Buscar empresa" />
+        </label>
+        <div className="nb-empresas" role="radiogroup" aria-label="Empresa do projeto">
+          {lista.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              role="radio"
+              aria-checked={empresaId === e.id}
+              className={`nb-empresa ${empresaId === e.id ? 'is-selected' : ''}`}
+              onClick={() => setEmpresaId(e.id)}
+              onDoubleClick={() => {
+                setEmpresaId(e.id);
+                setPasso('dados');
+              }}
+            >
+              <span className="nb-empresa__avatar" aria-hidden="true">
+                {e.name
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((w) => w[0])
+                  .join('')}
+              </span>
+              <span className="nb-empresa__text">
+                <strong>{e.name}</strong>
+                <span>{e.sector}</span>
+              </span>
+              <span className="nb-empresa__radio" aria-hidden="true" />
+            </button>
+          ))}
+          <button
+            type="button"
+            role="radio"
+            aria-checked={empresaId === 'outra'}
+            className={`nb-empresa nb-empresa--outra ${empresaId === 'outra' ? 'is-selected' : ''}`}
+            onClick={() => setEmpresaId('outra')}
+          >
+            <span className="nb-empresa__avatar" aria-hidden="true">
+              <NotebookIcon name="plus" size={16} />
+            </span>
+            <span className="nb-empresa__text">
+              <strong>Outra empresa</strong>
+              <span>Informe o nome da empresa</span>
+            </span>
+            <span className="nb-empresa__radio" aria-hidden="true" />
+          </button>
+        </div>
+        {lista.length === 0 ? <p className="nb-dialog__count">Nenhuma empresa encontrada para “{busca}”. Use “Outra empresa”.</p> : null}
+        {empresaId === 'outra' ? (
+          <label className="nb-field">
+            <NotebookIcon name="edit" size={20} />
+            <input autoFocus value={outra} onChange={(e) => setOutra(e.target.value)} placeholder="Nome da empresa" aria-label="Nome da outra empresa" maxLength={80} />
+          </label>
+        ) : null}
+        <div className="nb-dialog__actions">
+          <button type="button" className="nb-btn" onClick={onClose}>
+            Cancelar
+          </button>
+          <button type="button" className="nb-btn nb-btn--primary" disabled={!empresa} onClick={() => setPasso('dados')}>
+            Continuar
+          </button>
+        </div>
+      </Dialog>
+    );
+  }
+
   return (
-    <Dialog labelledBy={`${id}-t`} onClose={onClose}>
-      <header className="nb-dialog__head">
+    <Dialog key="dados" labelledBy={`${id}-t`} onClose={onClose}>
+      <header className="nb-dialog__head nb-dialog__head--back">
+        <button type="button" className="nb-iconbtn" onClick={() => setPasso('empresa')} aria-label="Voltar para a escolha da empresa">
+          <NotebookIcon name="back" size={20} />
+        </button>
         <h2 id={`${id}-t`} className="nb-dialog__title">
           Novo projeto
         </h2>
-        <button type="button" className="nb-iconbtn" onClick={onClose} aria-label="Fechar">
-          <NotebookIcon name="close" size={20} />
-        </button>
       </header>
+      <p className="nb-dialog__project">
+        <NotebookIcon name="folder" size={14} /> Empresa: <strong>{empresa?.name}</strong> · {empresa?.sector}
+        <button type="button" className="nb-linkbtn" onClick={() => setPasso('empresa')}>
+          Trocar
+        </button>
+      </p>
       <p className="nb-dialog__text">
         Toda a jornada acontece dentro de um projeto. O código <strong>{nextCode}</strong> acompanha o Contexto, o DarkLabs, a ficha
         do projeto e o Backlog do Futuro. Cada projeto pode ter vários notebooks.
@@ -304,7 +404,7 @@ export function NewProjectDialog({ nextCode = 'PRJ-NNN', onCreate, onClose }) {
         className="nb-form"
         onSubmit={(e) => {
           e.preventDefault();
-          if (nome.trim()) onCreate(nome.trim(), descricao.trim());
+          if (nome.trim() && empresa) onCreate(nome.trim(), descricao.trim(), empresa);
         }}
       >
         <label className="nb-field">

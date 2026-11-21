@@ -67,6 +67,7 @@ export default function App() {
 
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
+  // O Cronograma abre na visão Gantt; a grade segue disponível pelo seletor de visão da página.
   const [matrixView, setMatrixView] = useState('gantt');
   const [focusMode, setFocusMode] = useState(false);
   const [mosaicCollapsed, setMosaicCollapsed] = useState(false);
@@ -97,7 +98,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // Etapas "Cronograma Gantt" e "Cronograma" da barra do projeto escolhem a visão da matriz.
+  // A etapa "Cronograma" da barra do projeto abre a matriz na visão Gantt.
   useEffect(() => {
     const onView = (event) => {
       if (event.detail === 'gantt' || event.detail === 'grid') setMatrixView(event.detail);
@@ -359,7 +360,7 @@ export default function App() {
             </div>
 
             <div role="tabpanel" id="panel-planejamento" aria-label="Planejamento" className="tabpanel" hidden={tab !== 'planejamento'}>
-              <ProjectBar current="planejamento" view={matrixView} className="jg-projectbar--spaced" />
+              <ProjectBar current="planejamento" className="jg-projectbar--spaced" />
               {/* Cronograma (com os parâmetros da simulação dentro da grade); no modo expandido vira janela sobreposta. */}
               <div
                 className={`plan-focus ${focusMode ? 'is-focus' : ''}`}

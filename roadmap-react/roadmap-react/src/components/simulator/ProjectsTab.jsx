@@ -205,7 +205,7 @@ export default function ProjectsTab() {
           <NewProjectDialog
             nextCode={`PRJ-${String(state.projects.length + 1).padStart(3, '0')}`}
             onClose={() => setCriando(false)}
-            onCreate={(nome, descricao) => createProject(nome, descricao) && setCriando(false)}
+            onCreate={(nome, descricao, empresa) => createProject(nome, descricao, empresa) && setCriando(false)}
           />
         ) : null}
         {state.projects.length ? (

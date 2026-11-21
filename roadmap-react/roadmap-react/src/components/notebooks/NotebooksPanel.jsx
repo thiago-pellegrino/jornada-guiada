@@ -24,11 +24,76 @@ function FolderShape() {
   );
 }
 
-function NotebookCard({ nb, onOpen, onToggleShared, onDelete, podeEditar }) {
+/** Menu "⋯" do cartão: Renomear e Excluir (a exclusão pede confirmação). */
+function MenuDoCaderno({ nb, onRename, onDelete }) {
+  const [aberto, setAberto] = useState(false);
   const [confirmar, setConfirmar] = useState(false);
-  const refs = nb.references.length;
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!aberto) {
+      setConfirmar(false);
+      return undefined;
+    }
+    const fora = (e) => !ref.current?.contains(e.target) && setAberto(false);
+    const esc = (e) => e.key === 'Escape' && setAberto(false);
+    document.addEventListener('mousedown', fora);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('mousedown', fora);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [aberto]);
   return (
-    <li className="nb-card">
+    <div className={`nb-card__menu ${aberto ? 'is-open' : ''}`} ref={ref}>
+      <button
+        type="button"
+        className="nb-iconbtn nb-iconbtn--sm"
+        aria-haspopup="menu"
+        aria-expanded={aberto}
+        aria-label={`Opções do caderno ${nb.name}`}
+        title="Opções"
+        onClick={() => setAberto((v) => !v)}
+      >
+        <NotebookIcon name="more" size={18} />
+      </button>
+      {aberto ? (
+        <div className="nb-card__menupanel" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setAberto(false);
+              onRename();
+            }}
+          >
+            <NotebookIcon name="rename" size={18} /> Renomear
+          </button>
+          {confirmar ? (
+            <button type="button" role="menuitem" className="is-danger" onClick={() => onDelete(nb.id)}>
+              <NotebookIcon name="trash" size={18} /> Confirmar exclusão
+            </button>
+          ) : (
+            <button type="button" role="menuitem" onClick={() => setConfirmar(true)}>
+              <NotebookIcon name="trash" size={18} /> Excluir
+            </button>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function NotebookCard({ nb, onOpen, onToggleShared, onDelete, onRename, podeEditar }) {
+  const [editando, setEditando] = useState(false);
+  const [nome, setNome] = useState(nb.name);
+  const refs = nb.references.length;
+  const salvar = () => {
+    const novo = nome.trim();
+    if (novo && novo !== nb.name) onRename(nb.id, novo);
+    setEditando(false);
+  };
+  return (
+    <li className={`nb-card ${editando ? 'is-editing' : ''}`}>
       <FolderShape />
       <button type="button" className="nb-card__hit" onClick={() => onOpen(nb)} aria-label={`Abrir o notebook ${nb.name}`} />
       <NotebookIcon name="folder" size={18} className="nb-card__folder" />
@@ -37,37 +102,56 @@ function NotebookCard({ nb, onOpen, onToggleShared, onDelete, podeEditar }) {
         <span className="nb-sr">{nb.shared ? 'Compartilhado · ' : 'Apenas você · '}</span>
         {relativeTime(nb.updatedAt)}
       </span>
-      <p className="nb-card__name">{nb.name}</p>
+      {editando ? (
+        <form
+          className="nb-card__rename"
+          onSubmit={(e) => {
+            e.preventDefault();
+            salvar();
+          }}
+        >
+          <input
+            className="nb-card__input"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            onBlur={salvar}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setNome(nb.name);
+                setEditando(false);
+              }
+            }}
+            aria-label="Novo nome do caderno"
+            autoFocus
+          />
+        </form>
+      ) : (
+        <p className="nb-card__name">{nb.name}</p>
+      )}
+      {podeEditar && !editando ? (
+        <MenuDoCaderno
+          nb={nb}
+          onDelete={onDelete}
+          onRename={() => {
+            setNome(nb.name);
+            setEditando(true);
+          }}
+        />
+      ) : null}
       <p className="nb-card__meta">
         {refs} referência{refs === 1 ? '' : 's'}
       </p>
       {podeEditar ? (
         <span className="nb-card__tools">
-          {confirmar ? (
-            <>
-              <button type="button" className="nb-mini nb-mini--danger" onClick={() => onDelete(nb.id)}>
-                Excluir
-              </button>
-              <button type="button" className="nb-mini" onClick={() => setConfirmar(false)}>
-                Manter
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="nb-iconbtn nb-iconbtn--sm"
-                onClick={() => onToggleShared(nb.id)}
-                aria-label={nb.shared ? `Tornar ${nb.name} privado` : `Compartilhar ${nb.name} com o projeto`}
-                title={nb.shared ? 'Tornar privado' : 'Compartilhar com o projeto'}
-              >
-                <NotebookIcon name={nb.shared ? 'lock' : 'share'} size={15} />
-              </button>
-              <button type="button" className="nb-iconbtn nb-iconbtn--sm" onClick={() => setConfirmar(true)} aria-label={`Excluir ${nb.name}`} title="Excluir caderno">
-                <NotebookIcon name="trash" size={15} />
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            className="nb-iconbtn nb-iconbtn--sm"
+            onClick={() => onToggleShared(nb.id)}
+            aria-label={nb.shared ? `Tornar ${nb.name} privado` : `Compartilhar ${nb.name} com o projeto`}
+            title={nb.shared ? 'Tornar privado' : 'Compartilhar com o projeto'}
+          >
+            <NotebookIcon name={nb.shared ? 'lock' : 'share'} size={15} />
+          </button>
         </span>
       ) : null}
     </li>
@@ -78,8 +162,8 @@ function NotebookCard({ nb, onOpen, onToggleShared, onDelete, podeEditar }) {
  * Cadernos de anotações do Contexto: organizam referências (arquivos, links e conversas) por tema.
  * Arquivos adicionados aqui também entram nas fontes do lote do projeto.
  */
-export default function NotebooksPanel({ onOpenNotebook, onNewProject }) {
-  const { project, can, createNotebook, toggleNotebookShared, deleteNotebook } = useJourney();
+export default function NotebooksPanel({ onOpenNotebook }) {
+  const { project, can, createNotebook, toggleNotebookShared, deleteNotebook, renameNotebook } = useJourney();
   const [filtro, setFiltro] = useState('tudo');
   const [busca, setBusca] = useState('');
   const [buscaAberta, setBuscaAberta] = useState(false);
@@ -134,9 +218,6 @@ export default function NotebooksPanel({ onOpenNotebook, onNewProject }) {
           </p>
         </div>
         <span className="nb-head__actions">
-          <button type="button" className="nb-btn nb-btn--outline" onClick={onNewProject} disabled={!can('createProject')}>
-            <NotebookIcon name="folderPlus" size={18} /> Novo projeto
-          </button>
           <button type="button" className="nb-btn nb-btn--outline" onClick={abrirNovo} disabled={!podeEditar}>
             <NotebookIcon name="plus" size={18} /> Novo caderno de anotações
           </button>
@@ -223,6 +304,7 @@ export default function NotebooksPanel({ onOpenNotebook, onNewProject }) {
               onOpen={(n) => onOpenNotebook(n.id)}
               onToggleShared={toggleNotebookShared}
               onDelete={deleteNotebook}
+              onRename={renameNotebook}
             />
           ))}
         </ul>

@@ -17,6 +17,7 @@ import ProjectBar from '../journey/ProjectBar.jsx';
 import CapabilityCard from '../journey/CapabilityCard.jsx';
 import TurboPanel from '../journey/TurboPanel.jsx';
 import { EmptyState, ReadinessBadge, SimulatedNote, goToTab } from '../journey/JourneyBits.jsx';
+import BacklogFuturoPainel from '../backlog/BacklogFuturoPainel.jsx';
 
 /** Texto exibível: só strings e números; qualquer outro valor vira vazio (evita renderizar objetos). */
 const txt = (v) => (typeof v === 'string' || typeof v === 'number' ? v : '');
@@ -111,7 +112,11 @@ function Features({ project, epic }) {
   );
 }
 
-/** Aba "Backlog do Futuro": Épicos → Features → Histórias → O que fazer, a partir da ficha do projeto. */
+/**
+ * Aba "Backlog do Futuro": telas no formato da planilha Roadmap do Futuro (Resumo, Roadmap, Épicos,
+ * Features, Histórias e Dicionário) sobre o que a jornada gerou, e a Geração (Épicos → Features →
+ * Histórias → O que fazer, a partir da ficha do projeto).
+ */
 export default function FutureBacklogTab() {
   const { project } = useJourney();
 
@@ -153,66 +158,73 @@ export default function FutureBacklogTab() {
         </section>
       ) : null}
 
-      <div className="jg-grid jg-grid--2">
-        <CapabilityCard capabilityId={CAP.epicos} />
-        <section className="surface" aria-labelledby="bk-kpis">
-          <header className="surface-head">
-            <h2 id="bk-kpis" className="surface-title">
-              Tamanho do backlog
-            </h2>
-          </header>
-          <dl className="kpi-split kpi-split--4">
-            <div>
-              <dt>Épicos</dt>
-              <dd className="tabular">{c.epics}</dd>
+      <BacklogFuturoPainel
+        project={project}
+        geracao={
+          <>
+            <div className="jg-grid jg-grid--2">
+              <CapabilityCard capabilityId={CAP.epicos} />
+              <section className="surface" aria-labelledby="bk-kpis">
+                <header className="surface-head">
+                  <h2 id="bk-kpis" className="surface-title">
+                    Tamanho do backlog
+                  </h2>
+                </header>
+                <dl className="kpi-split kpi-split--4">
+                  <div>
+                    <dt>Épicos</dt>
+                    <dd className="tabular">{c.epics}</dd>
+                  </div>
+                  <div>
+                    <dt>Features</dt>
+                    <dd className="tabular">{c.features}</dd>
+                  </div>
+                  <div>
+                    <dt>Histórias</dt>
+                    <dd className="tabular">{c.stories}</dd>
+                  </div>
+                  <div>
+                    <dt>O que fazer</dt>
+                    <dd className="tabular">{c.tasks}</dd>
+                  </div>
+                </dl>
+                <p className="jg-muted">Cada épico nasce de uma semente dentro do escopo da ficha. Regenerar um nível cria nova revisão sem apagar as anteriores.</p>
+              </section>
             </div>
-            <div>
-              <dt>Features</dt>
-              <dd className="tabular">{c.features}</dd>
-            </div>
-            <div>
-              <dt>Histórias</dt>
-              <dd className="tabular">{c.stories}</dd>
-            </div>
-            <div>
-              <dt>O que fazer</dt>
-              <dd className="tabular">{c.tasks}</dd>
-            </div>
-          </dl>
-          <p className="jg-muted">Cada épico nasce de uma semente dentro do escopo da ficha. Regenerar um nível cria nova revisão sem apagar as anteriores.</p>
-        </section>
-      </div>
 
-      <section className="surface" aria-labelledby="bk-tree">
-        <header className="surface-head">
-          <h2 id="bk-tree" className="surface-title">
-            <Icon name="layers" size={15} /> Árvore do backlog
-          </h2>
-        </header>
-        {epics.length ? (
-          <ul className="jg-tree">
-            {epics.map((e) => (
-              <li key={e.id}>
-                <details open>
-                  <summary>
-                    <span className="jg-tree__kind jg-tree__kind--epic">Épico</span> <span className="jg-mono">{e.id}</span> {txt(e.title)}
-                    <NodeActions capabilityId={CAP.features} scopeKey={e.id} label="features" />
-                  </summary>
-                  {txt(e.summary) ? <p className="jg-tree__text">{e.summary}</p> : null}
-                  <Features project={project} epic={e} />
-                </details>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="jg-muted">Nenhum épico ainda. Gere os épicos ou use o Modo Turbo para expandir a árvore inteira.</p>
-        )}
-      </section>
+            <section className="surface" aria-labelledby="bk-tree">
+              <header className="surface-head">
+                <h2 id="bk-tree" className="surface-title">
+                  <Icon name="layers" size={15} /> Árvore do backlog
+                </h2>
+              </header>
+              {epics.length ? (
+                <ul className="jg-tree">
+                  {epics.map((e) => (
+                    <li key={e.id}>
+                      <details open>
+                        <summary>
+                          <span className="jg-tree__kind jg-tree__kind--epic">Épico</span> <span className="jg-mono">{e.id}</span> {txt(e.title)}
+                          <NodeActions capabilityId={CAP.features} scopeKey={e.id} label="features" />
+                        </summary>
+                        {txt(e.summary) ? <p className="jg-tree__text">{e.summary}</p> : null}
+                        <Features project={project} epic={e} />
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="jg-muted">Nenhum épico ainda. Gere os épicos ou use o Modo Turbo para expandir a árvore inteira.</p>
+              )}
+            </section>
 
-      <TurboPanel
-        phase="backlog-do-futuro"
-        description="Gera os épicos e expande a árvore conforme os resultados: features de cada épico, histórias de cada feature e o que fazer de cada história."
-        disabledReason={liberado ? null : 'O projeto precisa estar definido.'}
+            <TurboPanel
+              phase="backlog-do-futuro"
+              description="Gera os épicos e expande a árvore conforme os resultados: features de cada épico, histórias de cada feature e o que fazer de cada história."
+              disabledReason={liberado ? null : 'O projeto precisa estar definido.'}
+            />
+          </>
+        }
       />
       <SimulatedNote />
     </div>

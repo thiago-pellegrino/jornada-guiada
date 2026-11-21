@@ -7,6 +7,8 @@
  * identificador de tudo o que vem depois (contrato §5.3, repositório §8).
  */
 
+import { normalizarEmpresa } from './empresas.js';
+
 export const STORAGE_VERSION = 1;
 
 export const STAGES = Object.freeze([
@@ -23,8 +25,8 @@ export const JOURNEY_STEPS = Object.freeze([
   { id: 'projeto', label: 'Projeto', tab: 'projetos', reachedAt: 'projeto_definido' },
   { id: 'backlog', label: 'Backlog', tab: 'backlog-futuro', reachedAt: 'projeto_definido' },
   // Etapas de planejamento do simulador: liberadas quando o Backlog do Futuro existe; sem marca de concluída.
-  { id: 'escopo-squads', label: 'Escopo das Squads', tab: 'escopo-squads', reachedAt: null, availableAt: 'backlog' },
   { id: 'epicos', label: 'Épicos, Features e Histórias', tab: 'epicos', reachedAt: null, availableAt: 'backlog' },
+  { id: 'escopo-squads', label: 'Escopo das Squads', tab: 'escopo-squads', reachedAt: null, availableAt: 'backlog' },
 ]);
 
 export const ROLES = Object.freeze(['Leitor', 'Editor', 'Aprovador', 'Administrador']);
@@ -122,7 +124,7 @@ export function createEmptyState() {
 }
 
 /** Cria o projeto no Contexto: projectId imutável, código PRJ-NNN e etapa `contexto`. */
-export function createProject(state, { name, description = '', now = new Date().toISOString(), projectId = null } = {}) {
+export function createProject(state, { name, description = '', company = null, now = new Date().toISOString(), projectId = null } = {}) {
   const nome = String(name ?? '').trim();
   if (!nome) throw new Error('Informe o nome do projeto.');
   const code = nextCode(state.projects);
@@ -132,6 +134,7 @@ export function createProject(state, { name, description = '', now = new Date().
     code,
     name: nome,
     description: String(description).trim(),
+    company: normalizarEmpresa(company),
     createdAt: now,
     createdBy: 'Você',
     stage: 'contexto',

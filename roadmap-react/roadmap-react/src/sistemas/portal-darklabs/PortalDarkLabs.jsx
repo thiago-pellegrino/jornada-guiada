@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import DarklabSidebar from './components/DarklabSidebar.jsx';
 import DarklabMotorsView from './components/DarklabMotorsView.jsx';
 import DarklabRoadmapView from './components/DarklabRoadmapView.jsx';
@@ -7,7 +7,8 @@ import DarklabVamosAlemView from './components/DarklabVamosAlemView.jsx';
 import DarklabProtocoloView from './components/DarklabProtocoloView.jsx';
 import DarklabDiarioView from './components/DarklabDiarioView.jsx';
 import DarklabPersonasView from './components/DarklabPersonasView.jsx';
-import { DarklabOverview, DarklabPlaceholder } from './components/DarklabScreens.jsx';
+import DarklabVisaoGeralView from './components/DarklabVisaoGeralView.jsx';
+import { DarklabPlaceholder } from './components/DarklabScreens.jsx';
 import { DARKLAB_INDEX, DEFAULT_DARKLAB_VIEW } from './components/darklabMenu.js';
 
 const VIEW_KEY = 'portal-darklabs.view';
@@ -18,7 +19,7 @@ const COLLAPSED_KEY = 'portal-darklabs.menu-recolhido';
  * para ligar uma tela nova, basta registrá-la aqui pelo id do item em darklabMenu.js.
  */
 const DARKLAB_SCREENS = {
-  'visao-geral': DarklabOverview,
+  'visao-geral': DarklabVisaoGeralView,
   'jornada-7-motores': DarklabMotorsView,
   'aprendizados-roadmap': DarklabRoadmapView,
   'jornada-futuro': DarklabFuturoView,
@@ -61,7 +62,6 @@ export default function PortalDarkLabs() {
       return !v;
     });
   }, []);
-  const contentRef = useRef(null);
 
   // Outras partes do sistema (ex.: dicas da mascote do Delta) podem abrir um item do menu.
   useEffect(() => {
@@ -80,9 +80,9 @@ export default function PortalDarkLabs() {
     }
   }, [view]);
 
+  // Trocar de item do menu não rola a página: ela fica onde o usuário estava.
   const select = useCallback((id) => {
     setView(id);
-    contentRef.current?.scrollIntoView({ block: 'nearest' });
   }, []);
 
   const Tela = DARKLAB_SCREENS[view];
@@ -91,7 +91,7 @@ export default function PortalDarkLabs() {
     <div className="jg-page">
       <div className={`dlm-layout ${recolhido ? 'is-collapsed' : ''}`}>
         <DarklabSidebar active={view} onSelect={select} collapsed={recolhido} onToggleCollapsed={alternarMenu} />
-        <div className="dlm-content" ref={contentRef}>
+        <div className="dlm-content">
           {Tela ? <Tela onSelect={select} /> : <DarklabPlaceholder viewId={view} />}
         </div>
       </div>

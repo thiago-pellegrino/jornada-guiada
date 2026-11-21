@@ -9,6 +9,7 @@ import CapabilityCard from '../journey/CapabilityCard.jsx';
 import TurboPanel from '../journey/TurboPanel.jsx';
 import { EmptyState, SimulatedNote, goToTab } from '../journey/JourneyBits.jsx';
 import NotebooksPanel from '../notebooks/NotebooksPanel.jsx';
+import ProjectsPanel from '../notebooks/ProjectsPanel.jsx';
 import NotebookDetail from '../notebooks/NotebookDetail.jsx';
 import { NewProjectDialog } from '../notebooks/NotebookDialogs.jsx';
 
@@ -70,8 +71,8 @@ export default function UpstreamTab() {
     <NewProjectDialog
       nextCode={`PRJ-${String(state.projects.length + 1).padStart(3, '0')}`}
       onClose={() => setNovoProjeto(false)}
-      onCreate={(nome, descricao) => {
-        if (createProject(nome, descricao)) {
+      onCreate={(nome, descricao, empresa) => {
+        if (createProject(nome, descricao, empresa)) {
           setNovoProjeto(false);
           setAberto(null);
         }
@@ -118,10 +119,11 @@ export default function UpstreamTab() {
     <div className="jg-page">
       <ProjectBar current="contexto" />
 
-      {/* Notebooks à esquerda (50%); à direita, os boxes de execução dos agentes do Contexto. */}
+      {/* Projetos e Notebooks à esquerda (50%); à direita, os boxes de execução dos agentes do Contexto. */}
       <div className="ctx-split">
         <div className="ctx-split__left">
-          <NotebooksPanel onOpenNotebook={(notebookId) => setAberto({ projectId: project.projectId, notebookId })} onNewProject={() => setNovoProjeto(true)} />
+          <ProjectsPanel onNewProject={() => setNovoProjeto(true)} />
+          <NotebooksPanel onOpenNotebook={(notebookId) => setAberto({ projectId: project.projectId, notebookId })} />
         </div>
 
         <div className="ctx-split__right">
