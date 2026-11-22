@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Icon from '../ui/Icon.jsx';
+import AgentIcon from '../journey/AgentIcon.jsx';
 import { Aviso } from '../darklabs/bits.jsx';
 import { FILTROS_VAZIOS, indicadores, modeloDoExemplo, modeloDoProjeto } from '../../domain/backlog/backlogFuturo.js';
 import { VisaoDicionario, VisaoEpicos, VisaoFeatures, VisaoHistorias, VisaoResumo, VisaoRoadmap } from './BacklogFuturoVisoes.jsx';
@@ -155,7 +156,7 @@ export default function BacklogFuturoPainel({ project, geracao }) {
                   Ver exemplo ilustrativo
                 </button>
                 <button type="button" className="btn btn--sm btn--primary" onClick={() => setVisao('geracao')}>
-                  Gerar o backlog
+                  <AgentIcon size={15} /> Gerar o backlog
                 </button>
               </>
             }

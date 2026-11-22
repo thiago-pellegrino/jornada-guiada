@@ -1,6 +1,7 @@
 /**
- * Ícone de agente de IA (cabeça de robô com antena), no mesmo padrão da biblioteca de ícones:
- * viewBox 24×24, traço currentColor 1.65, decorativo (aria-hidden). Usado nos botões que acionam um agente.
+ * Ícone de agente de IA: o robô do Delta (cabeça arredondada, antena, orelhas e olhos em pílula),
+ * no padrão da biblioteca de ícones: viewBox 24×24, traço currentColor 1.65, decorativo (aria-hidden).
+ * Usado nos botões que acionam um agente (Gerar, Analisar, Executar).
  */
 export default function AgentIcon({ size = 16, className = '' }) {
   return (
@@ -17,12 +18,12 @@ export default function AgentIcon({ size = 16, className = '' }) {
       aria-hidden="true"
       focusable="false"
     >
-      <circle cx="12" cy="3.4" r="1.2" />
-      <path d="M12 4.6V7" />
-      <rect x="4.5" y="7" width="15" height="11.5" rx="3.5" />
-      <path d="M2.5 11.5v3M21.5 11.5v3M9.5 15.4h5" />
-      <circle cx="9" cy="11.8" r="1.25" fill="currentColor" stroke="none" />
-      <circle cx="15" cy="11.8" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="3.7" r="1.4" />
+      <path d="M12 5.6v3" />
+      <rect x="3.8" y="8.6" width="16.4" height="13.1" rx="3.7" />
+      <path d="M1.6 13.5v3.3M22.4 13.5v3.3" />
+      <rect x="8.05" y="12.95" width="2.4" height="4.4" rx="1.2" fill="currentColor" stroke="none" />
+      <rect x="13.55" y="12.95" width="2.4" height="4.4" rx="1.2" fill="currentColor" stroke="none" />
     </svg>
   );
 }
